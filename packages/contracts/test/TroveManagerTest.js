@@ -86,17 +86,9 @@ contract('TroveManager', async accounts => {
     await deploymentHelper.connectLQTYContractsToCore(LQTYContracts, contracts)
   })
 
-  it.only('liquidate(): closes a Trove that has ICR < MCR', async () => {
-    console.log("minting", whale, whale.address)
-    await collateralToken.mint(whale, dec(2000000, 18))
-    await collateralToken.approveInternal(whale, borrowerOperations.address, dec(200000, 18))
-    await collateralToken.mint(alice, dec(2000000, 18))
-    await collateralToken.approveInternal(alice, borrowerOperations.address, dec(200000, 18))
-    let whaleBalance = await collateralToken.balanceOf(whale);
-    console.log("opening troves", whaleBalance.toString())
+  it('liquidate(): closes a Trove that has ICR < MCR', async () => {
     await openTrove({ ICR: toBN(dec(20, 18)), extraParams: { from: whale } })
     await openTrove({ ICR: toBN(dec(4, 18)), extraParams: { from: alice } })
-    console.log("opened troves")
 
     const price = await priceFeed.getPrice()
     const ICR_Before = await troveManager.getCurrentICR(alice, price)
@@ -138,12 +130,12 @@ contract('TroveManager', async accounts => {
     // --- TEST ---
 
     // check ActivePool ETH and LUSD debt before
-    const activePool_ETH_Before = (await activePool.getCollateral()).toString()
-    const activePool_RawEther_Before = (await web3.eth.getBalance(activePool.address)).toString()
+    const activePool_Collateral_Before = (await activePool.getCollateral()).toString()
+    const activePool_RawCollateral_Before = (await collateralToken.balanceOf(activePool.address)).toString()
     const activePool_LUSDDebt_Before = (await activePool.getDebt()).toString()
 
-    assert.equal(activePool_ETH_Before, A_collateral.add(B_collateral))
-    assert.equal(activePool_RawEther_Before, A_collateral.add(B_collateral))
+    assert.equal(activePool_Collateral_Before, A_collateral.add(B_collateral))
+    assert.equal(activePool_RawCollateral_Before, A_collateral.add(B_collateral))
     th.assertIsApproximatelyEqual(activePool_LUSDDebt_Before, A_totalDebt.add(B_totalDebt))
 
     // price drops to 1ETH:100LUSD, reducing Bob's ICR below MCR
@@ -157,12 +149,12 @@ contract('TroveManager', async accounts => {
     await troveManager.liquidate(bob, { from: owner });
 
     // check ActivePool ETH and LUSD debt 
-    const activePool_ETH_After = (await activePool.getCollateral()).toString()
-    const activePool_RawEther_After = (await web3.eth.getBalance(activePool.address)).toString()
+    const activePool_Collateral_After = (await activePool.getCollateral()).toString()
+    const activePool_RawCollateral_After = (await collateralToken.balanceOf(activePool.address)).toString()
     const activePool_LUSDDebt_After = (await activePool.getDebt()).toString()
 
-    assert.equal(activePool_ETH_After, A_collateral)
-    assert.equal(activePool_RawEther_After, A_collateral)
+    assert.equal(activePool_Collateral_After, A_collateral)
+    assert.equal(activePool_RawCollateral_After, A_collateral)
     th.assertIsApproximatelyEqual(activePool_LUSDDebt_After, A_totalDebt)
   })
 
@@ -174,13 +166,13 @@ contract('TroveManager', async accounts => {
     // --- TEST ---
 
     // check DefaultPool ETH and LUSD debt before
-    const defaultPool_ETH_Before = (await defaultPool.getCollateral())
-    const defaultPool_RawEther_Before = (await web3.eth.getBalance(defaultPool.address)).toString()
-    const defaultPool_LUSDDebt_Before = (await defaultPool.getDebt()).toString()
+    const defaultPool_Collateral_Before = (await defaultPool.getCollateral())
+    const defaultPool_RawCollateral_Before = (await collateralToken.balanceOf(defaultPool.address)).toString()
+    const defaultPool_Debt_Before = (await defaultPool.getDebt()).toString()
 
-    assert.equal(defaultPool_ETH_Before, '0')
-    assert.equal(defaultPool_RawEther_Before, '0')
-    assert.equal(defaultPool_LUSDDebt_Before, '0')
+    assert.equal(defaultPool_Collateral_Before, '0')
+    assert.equal(defaultPool_RawCollateral_Before, '0')
+    assert.equal(defaultPool_Debt_Before, '0')
 
     // price drops to 1ETH:100LUSD, reducing Bob's ICR below MCR
     await priceFeed.setPrice('100000000000000000000');
@@ -192,14 +184,14 @@ contract('TroveManager', async accounts => {
     await troveManager.liquidate(bob, { from: owner });
 
     // check after
-    const defaultPool_ETH_After = (await defaultPool.getCollateral()).toString()
-    const defaultPool_RawEther_After = (await web3.eth.getBalance(defaultPool.address)).toString()
-    const defaultPool_LUSDDebt_After = (await defaultPool.getDebt()).toString()
+    const defaultPool_Collateral_After = (await defaultPool.getCollateral()).toString()
+    const defaultPool_RawCollateral_After = (await collateralToken.balanceOf(defaultPool.address)).toString()
+    const defaultPool_Debt_After = (await defaultPool.getDebt()).toString()
 
-    const defaultPool_ETH = th.applyLiquidationFee(B_collateral)
-    assert.equal(defaultPool_ETH_After, defaultPool_ETH)
-    assert.equal(defaultPool_RawEther_After, defaultPool_ETH)
-    th.assertIsApproximatelyEqual(defaultPool_LUSDDebt_After, B_totalDebt)
+    const defaultPool_Collateral = th.applyLiquidationFee(B_collateral)
+    assert.equal(defaultPool_Collateral_After, defaultPool_Collateral)
+    assert.equal(defaultPool_RawCollateral_After, defaultPool_Collateral)
+    th.assertIsApproximatelyEqual(defaultPool_Debt_After, B_totalDebt)
   })
 
   it("liquidate(): removes the Trove's stake from the total stakes", async () => {
