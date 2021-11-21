@@ -677,11 +677,11 @@ class TestHelper {
     if (!upperHint) upperHint = this.ZERO_ADDRESS
     if (!lowerHint) lowerHint = this.ZERO_ADDRESS
 
+
     const MIN_DEBT = (
       await this.getNetBorrowingAmount(contracts, await contracts.borrowerOperations.MIN_NET_DEBT())
     ).add(this.toBN(1)) // add 1 to avoid rounding issues
     const lusdAmount = MIN_DEBT.add(extraLUSDAmount)
-
     
     if (!ICR && !extraParams.value) ICR = this.toBN(this.dec(15, 17)) // 150%
     else if (typeof ICR == 'string') ICR = this.toBN(ICR)
@@ -700,6 +700,8 @@ class TestHelper {
     // console.log("---extraParams:", extraParams);
     // console.log("---end extraParams.value:", extraParams.value.toString());  
 
+    await contracts.collateralToken.mint(extraParams.from, extraParams.value);
+    await contracts.collateralToken.approveInternal(extraParams.from, contracts.borrowerOperations.address, extraParams.value);
     // await WETH.transfer(contracts.borrowerOperations.address, totalDebt);
     const tx = await contracts.borrowerOperations.openTrove(maxFeePercentage, lusdAmount, upperHint, lowerHint, extraParams.value, extraParams)
 
