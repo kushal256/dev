@@ -1072,7 +1072,6 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
 
             // Transfer from DefaultPool to ActivePool
             _movePendingTroveRewardsToActivePool(_activePool, _defaultPool, pendingLUSDDebtReward, pendingETHReward);
-
             emit TroveUpdated(
                 _borrower,
                 Troves[_borrower].debt,

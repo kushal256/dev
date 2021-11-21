@@ -13,4 +13,5 @@ interface IDefaultPool is IPool {
 
     // --- Functions ---
     function sendCollateralToActivePool(uint _amount) external;
+    function addCollateral(uint _amount) external;
 }

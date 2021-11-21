@@ -601,6 +601,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(TCR_5.gte(TCR_4))
   })
 
+  //failing
   it("liquidate(): a pure redistribution reduces the TCR only as a result of compensation", async () => {
     await openTrove({ ICR: toBN(dec(4, 18)), extraParams: { from: whale } })
 
@@ -837,6 +838,7 @@ contract('TroveManager', async accounts => {
     assert.isAtMost(th.getDifference(bob_ETHGain_After, bob_ETHGain_Before.add(th.applyLiquidationFee(B_collateral).mul(bob_Deposit_Before).div(totalDeposits))), 1000000)
   })
 
+  //failing
   it("liquidate(): does not alter the liquidated user's token balance", async () => {
     await openTrove({ ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
     const { lusdAmount: A_lusdAmount } = await openTrove({ ICR: toBN(dec(2, 18)), extraLUSDAmount: toBN(dec(300, 18)), extraParams: { from: alice } })
@@ -879,6 +881,7 @@ contract('TroveManager', async accounts => {
     assert.equal((await lusdToken.balanceOf(carol)).toString(), C_lusdAmount)
   })
 
+  // failing
   it("liquidate(): liquidates based on entire/collateral debt (including pending rewards), not raw collateral/debt", async () => {
     await openTrove({ ICR: toBN(dec(8, 18)), extraLUSDAmount: toBN(dec(100, 18)), extraParams: { from: alice } })
     await openTrove({ ICR: toBN(dec(221, 16)), extraLUSDAmount: toBN(dec(100, 18)), extraParams: { from: bob } })
@@ -1038,7 +1041,7 @@ contract('TroveManager', async accounts => {
   })
 
   // --- liquidateTroves() ---
-
+  //failing
   it('liquidateTroves(): liquidates a Trove that a) was skipped in a previous liquidation and b) has pending rewards', async () => {
     // A, B, C, D, E open troves
     await openTrove({ ICR: toBN(dec(333, 16)), extraParams: { from: D } })
@@ -1284,7 +1287,7 @@ contract('TroveManager', async accounts => {
     assert.equal(listSize_Before, listSize_After)
   })
 
-  
+  //failing
   it("liquidateTroves(): liquidates based on entire/collateral debt (including pending rewards), not raw collateral/debt", async () => {
     await openTrove({ ICR: toBN(dec(400, 16)), extraParams: { from: alice } })
     await openTrove({ ICR: toBN(dec(221, 16)), extraParams: { from: bob } })
@@ -1601,6 +1604,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(TCR_After.gte(TCR_Before.mul(toBN(995)).div(toBN(1000))))
   })
 
+  //failing
   it("liquidateTroves(): Liquidating troves with SP deposits correctly impacts their SP deposit and ETH gain", async () => {
     // Whale provides 400 LUSD to the SP
     const whaleDeposit = toBN(dec(40000, 18))
@@ -1777,7 +1781,7 @@ contract('TroveManager', async accounts => {
 
 
   // --- batchLiquidateTroves() ---
-
+  //failing
   it('batchLiquidateTroves(): liquidates a Trove that a) was skipped in a previous liquidation and b) has pending rewards', async () => {
     // A, B, C, D, E open troves 
     await openTrove({ ICR: toBN(dec(300, 16)), extraParams: { from: C } })
@@ -2324,6 +2328,7 @@ contract('TroveManager', async accounts => {
     assert.equal(partialRedemptionHintNICR, '0')
   });
 
+  //failing
   it('redeemCollateral(): cancels the provided LUSD with debt from Troves with the lowest ICRs and sends an equivalent amount of Ether', async () => {
     // --- SETUP ---
     const { totalDebt: A_totalDebt } = await openTrove({ ICR: toBN(dec(310, 16)), extraLUSDAmount: dec(10, 18), extraParams: { from: alice } })
@@ -2404,6 +2409,7 @@ contract('TroveManager', async accounts => {
     assert.equal(dennis_LUSDBalance_After, dennis_LUSDBalance_Before.sub(redemptionAmount))
   })
 
+  //failing
   it('redeemCollateral(): with invalid first hint, zero address', async () => {
     // --- SETUP ---
     const { totalDebt: A_totalDebt } = await openTrove({ ICR: toBN(dec(310, 16)), extraLUSDAmount: dec(10, 18), extraParams: { from: alice } })
@@ -2484,6 +2490,7 @@ contract('TroveManager', async accounts => {
     assert.equal(dennis_LUSDBalance_After, dennis_LUSDBalance_Before.sub(redemptionAmount))
   })
 
+  //failing
   it('redeemCollateral(): with invalid first hint, non-existent trove', async () => {
     // --- SETUP ---
     const { totalDebt: A_totalDebt } = await openTrove({ ICR: toBN(dec(310, 16)), extraLUSDAmount: dec(10, 18), extraParams: { from: alice } })
@@ -2564,6 +2571,7 @@ contract('TroveManager', async accounts => {
     assert.equal(dennis_LUSDBalance_After, dennis_LUSDBalance_Before.sub(redemptionAmount))
   })
 
+  //failing
   it('redeemCollateral(): with invalid first hint, trove below MCR', async () => {
     // --- SETUP ---
     const { totalDebt: A_totalDebt } = await openTrove({ ICR: toBN(dec(310, 16)), extraLUSDAmount: dec(10, 18), extraParams: { from: alice } })
@@ -2752,6 +2760,7 @@ contract('TroveManager', async accounts => {
     assert.equal(carol_Status, 1)
   })
 
+  //failing
   it("redeemCollateral(): performs partial redemption if resultant debt is > minimum net debt", async () => {
     await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(10000, 18)), A, A, { from: A, value: dec(1000, 'ether') })
     await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(20000, 18)), B, B, { from: B, value: dec(1000, 'ether') })
@@ -2780,6 +2789,7 @@ contract('TroveManager', async accounts => {
     await th.assertIsApproximatelyEqual(A_debt, dec(4600, 18), 1000) 
   })
 
+  //failing
   it("redeemCollateral(): doesn't perform partial redemption if resultant debt would be < minimum net debt", async () => {
     await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(6000, 18)), A, A, { from: A, value: dec(1000, 'ether') })
     await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(20000, 18)), B, B, { from: B, value: dec(1000, 'ether') })
@@ -2809,6 +2819,7 @@ contract('TroveManager', async accounts => {
     await th.assertIsApproximatelyEqual(A_debt, dec(6000, 18))
   })
 
+  //failing
   it('redeemCollateral(): doesnt perform the final partial redemption in the sequence if the hint is out-of-date', async () => {
     // --- SETUP ---
     const { totalDebt: A_totalDebt } = await openTrove({ ICR: toBN(dec(363, 16)), extraLUSDAmount: dec(5, 18), extraParams: { from: alice } })
@@ -3205,6 +3216,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(tx5.receipt.status)
   })
 
+  //failing
   it("redeemCollateral(): doesn't affect the Stability Pool deposits or ETH gain of redeemed-from troves", async () => {
     await openTrove({ ICR: toBN(dec(20, 18)), extraParams: { from: whale } })
 
@@ -3825,6 +3837,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(lastFeeOpTime_3.gt(lastFeeOpTime_1))
   })
 
+  //failing
   it("redeemCollateral(): a redemption made at zero base rate send a non-zero ETHFee to LQTY staking contract", async () => {
     // time fast-forwards 1 year, and multisig stakes 1 LQTY
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_YEAR, web3.currentProvider)
@@ -3897,6 +3910,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(F_ETH_After.gt('0'))
   })
 
+  //failing
   it("redeemCollateral(): a redemption made at a non-zero base rate send a non-zero ETHFee to LQTY staking contract", async () => {
     // time fast-forwards 1 year, and multisig stakes 1 LQTY
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_YEAR, web3.currentProvider)
@@ -3982,6 +3996,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(F_ETH_After.gt(F_ETH_Before))
   })
 
+  //failing
   it("redeemCollateral(): a redemption sends the ETH remainder (ETHDrawn - ETHFee) to the redeemer", async () => {
     // time fast-forwards 1 year, and multisig stakes 1 LQTY
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_YEAR, web3.currentProvider)
@@ -4191,6 +4206,7 @@ contract('TroveManager', async accounts => {
     th.assertIsApproximatelyEqual(D_emittedColl, D_coll.sub(partialAmount.mul(mv._1e18BN).div(price)))
   })
 
+  //failing
   it("redeemCollateral(): a redemption that closes a trove leaves the trove's ETH surplus (collateral - ETH drawn) available for the trove owner to claim", async () => {
     const {
       A_netDebt, A_coll,
@@ -4220,6 +4236,7 @@ contract('TroveManager', async accounts => {
     th.assertIsApproximatelyEqual(C_balanceAfter, C_balanceBefore.add(C_coll.sub(C_netDebt.mul(mv._1e18BN).div(price))))
   })
 
+  //failing
   it("redeemCollateral(): a redemption that closes a trove leaves the trove's ETH surplus (collateral - ETH drawn) available for the trove owner after re-opening trove", async () => {
     const {
       A_netDebt, A_coll: A_collBefore,
@@ -4261,6 +4278,7 @@ contract('TroveManager', async accounts => {
     th.assertIsApproximatelyEqual(C_balanceAfter, C_balanceBefore.add(C_surplus))
   })
 
+  //failing
   it('redeemCollateral(): reverts if fee eats up all returned collateral', async () => {
     // --- SETUP ---
     const { lusdAmount } = await openTrove({ ICR: toBN(dec(200, 16)), extraLUSDAmount: dec(1, 24), extraParams: { from: alice } })

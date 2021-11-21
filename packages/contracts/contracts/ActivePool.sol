@@ -3,6 +3,7 @@
 pragma solidity 0.6.11;
 
 import './Interfaces/IActivePool.sol';
+import './Interfaces/IDefaultPool.sol';
 import "./Dependencies/SafeMath.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
@@ -93,6 +94,11 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         // Collateral = Collateral.sub(_amount);
         // emit ActivePoolCollateralUpdated(Collateral); //TODO before was current value, now would be delta value
         emit CollateralSent(_account, _amount);
+
+        if (_account == defaultPoolAddress) {
+            IDefaultPool(defaultPoolAddress).addCollateral(_amount);
+        }
+
         // console.log("Sending collateral to account:", _account, _amount);
         collateralToken.safeTransfer(_account, _amount);
        
