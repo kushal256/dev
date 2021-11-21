@@ -1214,10 +1214,10 @@ class TestHelper {
       params.reduce((acc, p) => acc + this.formatParam(p), '')
   }
 
-  static async depositCollateral(coreContracts) {
-    await coreContracts.collateralToken.deposit({ value: this.dec(10, 34), gas: 200000 });
-    await coreContracts.collateralToken.transfer(coreContracts.borrowerOperations.address, this.dec(10, 33));
-  }
+  // static async depositCollateral(coreContracts) {
+  //   await coreContracts.collateralToken.deposit({ value: this.dec(10, 34), gas: 200000 });
+  //   await coreContracts.collateralToken.transfer(coreContracts.borrowerOperations.address, this.dec(10, 33));
+  // }
 }
 
 TestHelper.ZERO_ADDRESS = '0x' + '0'.repeat(40)

@@ -26,7 +26,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool {
     address public troveManagerAddress;
     address public activePoolAddress;
     IERC20 internal collateralToken;
-    uint256 internal Collateral;  // deposited ETH tracker
+    // uint256 internal Collateral;  // deposited ETH tracker
     uint256 internal Debt;  // debt
 
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
@@ -80,8 +80,8 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool {
         _requireCallerIsTroveManager();
         address activePool = activePoolAddress; // cache to save an SLOAD
 //        require(1 < 0, "oh no in sendCollateralToActivePool!");
-        Collateral = Collateral.sub(_amount);
-        emit DefaultPoolCollateralUpdated(Collateral);
+        // Collateral = Collateral.sub(_amount);
+        // emit DefaultPoolCollateralUpdated(Collateral);
         emit CollateralSent(activePool, _amount);
 
         collateralToken.safeTransfer(activePool, _amount);

@@ -52,7 +52,7 @@ interface IBorrowerOperations {
 
     function closeTrove() external;
 
-    function adjustTrove(uint _maxFee, uint _collWithdrawal, uint _debtChange, bool isDebtIncrease, address _upperHint, address _lowerHint) external payable;
+    function adjustTrove(uint _amount, uint _maxFee, uint _collWithdrawal, uint _debtChange, bool isDebtIncrease, address _upperHint, address _lowerHint) external;
 
     function claimCollateral() external;
 
