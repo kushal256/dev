@@ -4,6 +4,7 @@ pragma solidity 0.6.11;
 
 import './Interfaces/IActivePool.sol';
 import './Interfaces/IDefaultPool.sol';
+import './Interfaces/IStabilityPool.sol';
 import "./Dependencies/SafeMath.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
@@ -97,6 +98,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
         if (_account == defaultPoolAddress) {
             IDefaultPool(defaultPoolAddress).addCollateral(_amount);
+        } else if (_account == stabilityPoolAddress) {
+            IStabilityPool(stabilityPoolAddress).addCollateral(_amount);
         }
 
         // console.log("Sending collateral to account:", _account, _amount);

@@ -319,6 +319,12 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         return totalLUSDDeposits;
     }
 
+    function addCollateral(uint _amount) external override {
+        _requireCallerIsActivePool();
+        ETH = ETH.add(_amount);
+        StabilityPoolCollateralUpdated(ETH);
+    }
+
     // --- External Depositor Functions ---
 
     /*  provideToSP():
@@ -991,9 +997,9 @@ require(1 < 0, "_sendCollateralGainToDepositor");
 
     // --- Fallback function ---
 
-    receive() external payable {
-        _requireCallerIsActivePool();
-        ETH = ETH.add(msg.value);
-        StabilityPoolCollateralUpdated(ETH);
-    }
+    // receive() external payable {
+    //     _requireCallerIsActivePool();
+    //     ETH = ETH.add(msg.value);
+    //     StabilityPoolCollateralUpdated(ETH);
+    // }
 }

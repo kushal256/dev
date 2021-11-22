@@ -8,10 +8,12 @@ import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
 import "./Dependencies/console.sol";
 import "./Dependencies/IERC20.sol";
+import "./LPRewards/Dependencies/SafeERC20.sol";
 
 
 contract CollSurplusPool is Ownable, CheckContract, ICollSurplusPool {
     using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
     string constant public NAME = "CollSurplusPool";
 
@@ -94,9 +96,11 @@ contract CollSurplusPool is Ownable, CheckContract, ICollSurplusPool {
         // Collateral = Collateral.sub(claimableColl);
         emit CollateralSent(_account, claimableColl);
 
-require(1 < 0, "claimColl");
-        (bool success, ) = _account.call{ value: claimableColl }("");
-        require(success, "CollSurplusPool: sending ETH failed");
+        collateralToken.safeTransfer(_account, claimableColl);
+
+// require(1 < 0, "claimColl");
+//         (bool success, ) = _account.call{ value: claimableColl }("");
+//         require(success, "CollSurplusPool: sending ETH failed");
     }
 
     // --- 'require' functions ---
