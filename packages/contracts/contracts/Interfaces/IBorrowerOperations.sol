@@ -38,11 +38,11 @@ interface IBorrowerOperations {
         address _collateralTokenAddress
     ) external;
 
-    function openTrove(uint _maxFee, uint _LUSDAmount, address _upperHint, address _lowerHint, uint _collateralAmount) external payable;
+    function openTrove(uint _collateralAmount, uint _maxFee, uint _LUSDAmount, address _upperHint, address _lowerHint) external payable;
 
-    function addColl(address _upperHint, address _lowerHint) external payable;
+    function addColl(uint _amount, address _upperHint, address _lowerHint) external;
 
-    function moveETHGainToTrove(address _user, address _upperHint, address _lowerHint) external payable;
+    function moveETHGainToTrove(uint _amount, address _user, address _upperHint, address _lowerHint) external;
 
     function withdrawColl(uint _amount, address _upperHint, address _lowerHint) external;
 

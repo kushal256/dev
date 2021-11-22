@@ -388,6 +388,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "_upperHint",
         "type": "address"
@@ -400,11 +405,16 @@
     ],
     "name": "addColl",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      },
       {
         "internalType": "uint256",
         "name": "_maxFeePercentage",
@@ -438,7 +448,7 @@
     ],
     "name": "adjustTrove",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -568,6 +578,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "_borrower",
         "type": "address"
@@ -585,7 +600,7 @@
     ],
     "name": "moveETHGainToTrove",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

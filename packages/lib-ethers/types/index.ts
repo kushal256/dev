@@ -84,11 +84,11 @@ interface BorrowerOperationsCalls {
 }
 
 interface BorrowerOperationsTransactions {
-  addColl(_upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
-  adjustTrove(_maxFeePercentage: BigNumberish, _collWithdrawal: BigNumberish, _LUSDChange: BigNumberish, _isDebtIncrease: boolean, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
+  addColl(_amount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
+  adjustTrove(_amount: BigNumberish, _maxFeePercentage: BigNumberish, _collWithdrawal: BigNumberish, _LUSDChange: BigNumberish, _isDebtIncrease: boolean, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
   claimCollateral(_overrides?: Overrides): Promise<void>;
   closeTrove(_overrides?: Overrides): Promise<void>;
-  moveETHGainToTrove(_borrower: string, _upperHint: string, _lowerHint: string, _overrides?: PayableOverrides): Promise<void>;
+  moveETHGainToTrove(_amount: BigNumberish, _borrower: string, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
   openTrove(_maxFeePercentage: BigNumberish, _LUSDAmount: BigNumberish, _upperHint: string, _lowerHint: string, _collateralAmount: BigNumberish, _overrides?: PayableOverrides): Promise<void>;
   repayLUSD(_LUSDAmount: BigNumberish, _upperHint: string, _lowerHint: string, _overrides?: Overrides): Promise<void>;
   setAddresses(_troveManagerAddress: string, _activePoolAddress: string, _defaultPoolAddress: string, _stabilityPoolAddress: string, _gasPoolAddress: string, _collSurplusPoolAddress: string, _priceFeedAddress: string, _sortedTrovesAddress: string, _debtTokenAddress: string, _lqtyStakingAddress: string, _collateralTokenAddress: string, _overrides?: Overrides): Promise<void>;
@@ -217,7 +217,7 @@ interface DefaultPoolTransactions {
   decreaseDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   increaseDebt(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
   sendCollateralToActivePool(_amount: BigNumberish, _overrides?: Overrides): Promise<void>;
-  setAddresses(_troveManagerAddress: string, _activePoolAddress: string, _overrides?: Overrides): Promise<void>;
+  setAddresses(_troveManagerAddress: string, _activePoolAddress: string, _collateralTokenAddress: string, _overrides?: Overrides): Promise<void>;
 }
 
 export interface DefaultPool
@@ -226,6 +226,7 @@ export interface DefaultPool
     ActivePoolAddressChanged(_newActivePoolAddress?: null): EventFilter;
     CollateralBalanceUpdated(_newBalance?: null): EventFilter;
     CollateralSent(_to?: null, _amount?: null): EventFilter;
+    CollateralTokenAddressChanged(_newCollateralTokenAddress?: null): EventFilter;
     DebtBalanceUpdated(_newBalance?: null): EventFilter;
     DefaultPoolAddressChanged(_newDefaultPoolAddress?: null): EventFilter;
     DefaultPoolCollateralUpdated(_ETH?: null): EventFilter;
@@ -237,6 +238,7 @@ export interface DefaultPool
   extractEvents(logs: Log[], name: "ActivePoolAddressChanged"): _TypedLogDescription<{ _newActivePoolAddress: string }>[];
   extractEvents(logs: Log[], name: "CollateralBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "CollateralSent"): _TypedLogDescription<{ _to: string; _amount: BigNumber }>[];
+  extractEvents(logs: Log[], name: "CollateralTokenAddressChanged"): _TypedLogDescription<{ _newCollateralTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "DebtBalanceUpdated"): _TypedLogDescription<{ _newBalance: BigNumber }>[];
   extractEvents(logs: Log[], name: "DefaultPoolAddressChanged"): _TypedLogDescription<{ _newDefaultPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "DefaultPoolCollateralUpdated"): _TypedLogDescription<{ _ETH: BigNumber }>[];

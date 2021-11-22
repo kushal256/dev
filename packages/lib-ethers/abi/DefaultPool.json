@@ -49,6 +49,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "_newCollateralTokenAddress",
+        "type": "address"
+      }
+    ],
+    "name": "CollateralTokenAddressChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "_newBalance",
         "type": "uint256"
@@ -268,6 +281,11 @@
       {
         "internalType": "address",
         "name": "_activePoolAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_collateralTokenAddress",
         "type": "address"
       }
     ],
