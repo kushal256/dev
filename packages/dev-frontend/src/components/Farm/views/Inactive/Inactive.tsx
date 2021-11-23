@@ -36,7 +36,7 @@ export const Inactive: React.FC = () => {
 
           <Paragraph sx={{ mt: 2 }}>
             You can obtain LP tokens by adding liquidity to the{" "}
-            <Link href={uniLink(addresses["lusdToken"])} target="_blank">
+            <Link href={uniLink(addresses["debtToken"])} target="_blank">
               ETH/LUSD pool on Uniswap. <Icon name="external-link-alt" size="xs" />
             </Link>
           </Paragraph>

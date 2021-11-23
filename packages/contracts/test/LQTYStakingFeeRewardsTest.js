@@ -32,7 +32,7 @@ contract('LQTYStaking revenue share tests', async accounts => {
   const [owner, A, B, C, D, E, F, G, whale] = accounts;
 
   let priceFeed
-  let lusdToken
+  let debtToken
   let sortedTroves
   let troveManager
   let activePool
@@ -62,7 +62,7 @@ contract('LQTYStaking revenue share tests', async accounts => {
 
     nonPayable = await NonPayable.new() 
     priceFeed = contracts.priceFeedTestnet
-    lusdToken = contracts.lusdToken
+    debtToken = contracts.debtToken
     sortedTroves = contracts.sortedTroves
     troveManager = contracts.troveManager
     activePool = contracts.activePool
@@ -111,11 +111,11 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const F_Collateral_Before = await lqtyStaking.F_Collateral()
     assert.equal(F_Collateral_Before, '0')
 
-    const B_BalBeforeREdemption = await lusdToken.balanceOf(B)
+    const B_BalBeforeREdemption = await debtToken.balanceOf(B)
     // B redeems
     const redemptionTx = await th.redeemCollateralAndGetTxObject(B, contracts, dec(100, 18))
     
-    const B_BalAfterRedemption = await lusdToken.balanceOf(B)
+    const B_BalAfterRedemption = await debtToken.balanceOf(B)
     assert.isTrue(B_BalAfterRedemption.lt(B_BalBeforeREdemption))
 
     // check Collateral fee emitted in event is non-zero
@@ -148,11 +148,11 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const F_Collateral_Before = await lqtyStaking.F_Collateral()
     assert.equal(F_Collateral_Before, '0')
 
-    const B_BalBeforeREdemption = await lusdToken.balanceOf(B)
+    const B_BalBeforeREdemption = await debtToken.balanceOf(B)
     // B redeems
     const redemptionTx = await th.redeemCollateralAndGetTxObject(B, contracts, dec(100, 18))
     
-    const B_BalAfterRedemption = await lusdToken.balanceOf(B)
+    const B_BalAfterRedemption = await debtToken.balanceOf(B)
     assert.isTrue(B_BalAfterRedemption.lt(B_BalBeforeREdemption))
 
     // check Collateral fee emitted in event is non-zero
@@ -185,11 +185,11 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const F_Debt_Before = await lqtyStaking.F_Collateral()
     assert.equal(F_Debt_Before, '0')
 
-    const B_BalBeforeREdemption = await lusdToken.balanceOf(B)
+    const B_BalBeforeREdemption = await debtToken.balanceOf(B)
     // B redeems
     const redemptionTx = await th.redeemCollateralAndGetTxObject(B, contracts, dec(100, 18))
     
-    const B_BalAfterRedemption = await lusdToken.balanceOf(B)
+    const B_BalAfterRedemption = await debtToken.balanceOf(B)
     assert.isTrue(B_BalAfterRedemption.lt(B_BalBeforeREdemption))
 
     // Check base rate is now non-zero
@@ -229,11 +229,11 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const F_Debt_Before = await lqtyStaking.F_Collateral()
     assert.equal(F_Debt_Before, '0')
 
-    const B_BalBeforeREdemption = await lusdToken.balanceOf(B)
+    const B_BalBeforeREdemption = await debtToken.balanceOf(B)
     // B redeems
     const redemptionTx = await th.redeemCollateralAndGetTxObject(B, contracts, dec(100, 18))
     
-    const B_BalAfterRedemption = await lusdToken.balanceOf(B)
+    const B_BalAfterRedemption = await debtToken.balanceOf(B)
     assert.isTrue(B_BalAfterRedemption.lt(B_BalBeforeREdemption))
 
     // Check base rate is now non-zero
@@ -269,22 +269,22 @@ contract('LQTYStaking revenue share tests', async accounts => {
     await lqtyToken.approve(lqtyStaking.address, dec(100, 18), {from: A})
     await lqtyStaking.stake(dec(100, 18), {from: A})
 
-    const B_BalBeforeREdemption = await lusdToken.balanceOf(B)
+    const B_BalBeforeREdemption = await debtToken.balanceOf(B)
     // B redeems
     const redemptionTx_1 = await th.redeemCollateralAndGetTxObject(B, contracts, dec(100, 18))
     
-    const B_BalAfterRedemption = await lusdToken.balanceOf(B)
+    const B_BalAfterRedemption = await debtToken.balanceOf(B)
     assert.isTrue(B_BalAfterRedemption.lt(B_BalBeforeREdemption))
 
     // check Collateral fee 1 emitted in event is non-zero
     const emittedCollateralFee_1 = toBN((await th.getEmittedRedemptionValues(redemptionTx_1))[3])
     assert.isTrue(emittedCollateralFee_1.gt(toBN('0')))
 
-    const C_BalBeforeREdemption = await lusdToken.balanceOf(C)
+    const C_BalBeforeREdemption = await debtToken.balanceOf(C)
     // C redeems
     const redemptionTx_2 = await th.redeemCollateralAndGetTxObject(C, contracts, dec(100, 18))
     
-    const C_BalAfterRedemption = await lusdToken.balanceOf(C)
+    const C_BalAfterRedemption = await debtToken.balanceOf(C)
     assert.isTrue(C_BalAfterRedemption.lt(C_BalBeforeREdemption))
  
      // check Collateral fee 2 emitted in event is non-zero
@@ -309,13 +309,13 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const expectedTotalLUSDGain = emittedLUSDFee_1.add(emittedLUSDFee_2)
 
     const A_CollateralBalance_Before = toBN(await collateralToken.balanceOf(A))
-    const A_LUSDBalance_Before = toBN(await lusdToken.balanceOf(A))
+    const A_LUSDBalance_Before = toBN(await debtToken.balanceOf(A))
 
     // A un-stakes
     await lqtyStaking.unstake(dec(100, 18), {from: A})
 
     const A_CollateralBalance_After = toBN(await collateralToken.balanceOf(A))
-    const A_LUSDBalance_After = toBN(await lusdToken.balanceOf(A))
+    const A_LUSDBalance_After = toBN(await debtToken.balanceOf(A))
 
 
     const A_CollateralGain = A_CollateralBalance_After.sub(A_CollateralBalance_Before)
@@ -342,22 +342,22 @@ contract('LQTYStaking revenue share tests', async accounts => {
     await lqtyToken.approve(lqtyStaking.address, dec(100, 18), {from: A})
     await lqtyStaking.stake(dec(50, 18), {from: A})
 
-    const B_BalBeforeREdemption = await lusdToken.balanceOf(B)
+    const B_BalBeforeREdemption = await debtToken.balanceOf(B)
     // B redeems
     const redemptionTx_1 = await th.redeemCollateralAndGetTxObject(B, contracts, dec(100, 18))
     
-    const B_BalAfterRedemption = await lusdToken.balanceOf(B)
+    const B_BalAfterRedemption = await debtToken.balanceOf(B)
     assert.isTrue(B_BalAfterRedemption.lt(B_BalBeforeREdemption))
 
     // check Collateral fee 1 emitted in event is non-zero
     const emittedCollateralFee_1 = toBN((await th.getEmittedRedemptionValues(redemptionTx_1))[3])
     assert.isTrue(emittedCollateralFee_1.gt(toBN('0')))
 
-    const C_BalBeforeREdemption = await lusdToken.balanceOf(C)
+    const C_BalBeforeREdemption = await debtToken.balanceOf(C)
     // C redeems
     const redemptionTx_2 = await th.redeemCollateralAndGetTxObject(C, contracts, dec(100, 18))
     
-    const C_BalAfterRedemption = await lusdToken.balanceOf(C)
+    const C_BalAfterRedemption = await debtToken.balanceOf(C)
     assert.isTrue(C_BalAfterRedemption.lt(C_BalBeforeREdemption))
  
      // check Collateral fee 2 emitted in event is non-zero
@@ -382,13 +382,13 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const expectedTotalLUSDGain = emittedLUSDFee_1.add(emittedLUSDFee_2)
 
     const A_CollateralBalance_Before = toBN(await collateralToken.balanceOf(A))
-    const A_LUSDBalance_Before = toBN(await lusdToken.balanceOf(A))
+    const A_LUSDBalance_Before = toBN(await debtToken.balanceOf(A))
 
     // A tops up
     await lqtyStaking.stake(dec(50, 18), {from: A})
 
     const A_CollateralBalance_After = toBN(await collateralToken.balanceOf(A))
-    const A_LUSDBalance_After = toBN(await lusdToken.balanceOf(A))
+    const A_LUSDBalance_After = toBN(await debtToken.balanceOf(A))
 
     const A_CollateralGain = A_CollateralBalance_After.sub(A_CollateralBalance_Before)
     const A_LUSDGain = A_LUSDBalance_After.sub(A_LUSDBalance_Before)
@@ -414,22 +414,22 @@ contract('LQTYStaking revenue share tests', async accounts => {
     await lqtyToken.approve(lqtyStaking.address, dec(100, 18), {from: A})
     await lqtyStaking.stake(dec(50, 18), {from: A})
 
-    const B_BalBeforeREdemption = await lusdToken.balanceOf(B)
+    const B_BalBeforeREdemption = await debtToken.balanceOf(B)
     // B redeems
     const redemptionTx_1 = await th.redeemCollateralAndGetTxObject(B, contracts, dec(100, 18))
     
-    const B_BalAfterRedemption = await lusdToken.balanceOf(B)
+    const B_BalAfterRedemption = await debtToken.balanceOf(B)
     assert.isTrue(B_BalAfterRedemption.lt(B_BalBeforeREdemption))
 
     // check Collateral fee 1 emitted in event is non-zero
     const emittedCollateralFee_1 = toBN((await th.getEmittedRedemptionValues(redemptionTx_1))[3])
     assert.isTrue(emittedCollateralFee_1.gt(toBN('0')))
 
-    const C_BalBeforeREdemption = await lusdToken.balanceOf(C)
+    const C_BalBeforeREdemption = await debtToken.balanceOf(C)
     // C redeems
     const redemptionTx_2 = await th.redeemCollateralAndGetTxObject(C, contracts, dec(100, 18))
     
-    const C_BalAfterRedemption = await lusdToken.balanceOf(C)
+    const C_BalAfterRedemption = await debtToken.balanceOf(C)
     assert.isTrue(C_BalAfterRedemption.lt(C_BalBeforeREdemption))
  
      // check Collateral fee 2 emitted in event is non-zero
@@ -460,22 +460,22 @@ contract('LQTYStaking revenue share tests', async accounts => {
     await lqtyToken.approve(lqtyStaking.address, dec(100, 18), {from: A})
     await lqtyStaking.stake(dec(50, 18), {from: A})
 
-    const B_BalBeforeREdemption = await lusdToken.balanceOf(B)
+    const B_BalBeforeREdemption = await debtToken.balanceOf(B)
     // B redeems
     const redemptionTx_1 = await th.redeemCollateralAndGetTxObject(B, contracts, dec(100, 18))
     
-    const B_BalAfterRedemption = await lusdToken.balanceOf(B)
+    const B_BalAfterRedemption = await debtToken.balanceOf(B)
     assert.isTrue(B_BalAfterRedemption.lt(B_BalBeforeREdemption))
 
     // check Collateral fee 1 emitted in event is non-zero
     const emittedCollateralFee_1 = toBN((await th.getEmittedRedemptionValues(redemptionTx_1))[3])
     assert.isTrue(emittedCollateralFee_1.gt(toBN('0')))
 
-    const C_BalBeforeREdemption = await lusdToken.balanceOf(C)
+    const C_BalBeforeREdemption = await debtToken.balanceOf(C)
     // C redeems
     const redemptionTx_2 = await th.redeemCollateralAndGetTxObject(C, contracts, dec(100, 18))
     
-    const C_BalAfterRedemption = await lusdToken.balanceOf(C)
+    const C_BalAfterRedemption = await debtToken.balanceOf(C)
     assert.isTrue(C_BalAfterRedemption.lt(C_BalBeforeREdemption))
  
      // check Collateral fee 2 emitted in event is non-zero
@@ -619,13 +619,13 @@ contract('LQTYStaking revenue share tests', async accounts => {
 
 
     const A_CollateralBalance_Before = toBN(await collateralToken.balanceOf(A))
-    const A_LUSDBalance_Before = toBN(await lusdToken.balanceOf(A))
+    const A_LUSDBalance_Before = toBN(await debtToken.balanceOf(A))
     const B_CollateralBalance_Before = toBN(await collateralToken.balanceOf(B))
-    const B_LUSDBalance_Before = toBN(await lusdToken.balanceOf(B))
+    const B_LUSDBalance_Before = toBN(await debtToken.balanceOf(B))
     const C_CollateralBalance_Before = toBN(await collateralToken.balanceOf(C))
-    const C_LUSDBalance_Before = toBN(await lusdToken.balanceOf(C))
+    const C_LUSDBalance_Before = toBN(await debtToken.balanceOf(C))
     const D_CollateralBalance_Before = toBN(await collateralToken.balanceOf(D))
-    const D_LUSDBalance_Before = toBN(await lusdToken.balanceOf(D))
+    const D_LUSDBalance_Before = toBN(await debtToken.balanceOf(D))
 
     // A-D un-stake
     const unstake_A = await lqtyStaking.unstake(dec(100, 18), {from: A})
@@ -641,13 +641,13 @@ contract('LQTYStaking revenue share tests', async accounts => {
 
     // Get A-D Collateral and LUSD balances
     const A_CollateralBalance_After = toBN(await collateralToken.balanceOf(A))
-    const A_LUSDBalance_After = toBN(await lusdToken.balanceOf(A))
+    const A_LUSDBalance_After = toBN(await debtToken.balanceOf(A))
     const B_CollateralBalance_After = toBN(await collateralToken.balanceOf(B))
-    const B_LUSDBalance_After = toBN(await lusdToken.balanceOf(B))
+    const B_LUSDBalance_After = toBN(await debtToken.balanceOf(B))
     const C_CollateralBalance_After = toBN(await collateralToken.balanceOf(C))
-    const C_LUSDBalance_After = toBN(await lusdToken.balanceOf(C))
+    const C_LUSDBalance_After = toBN(await debtToken.balanceOf(C))
     const D_CollateralBalance_After = toBN(await collateralToken.balanceOf(D))
-    const D_LUSDBalance_After = toBN(await lusdToken.balanceOf(D))
+    const D_LUSDBalance_After = toBN(await debtToken.balanceOf(D))
 
     // Get Collateral and LUSD gains
     const A_CollateralGain = A_CollateralBalance_After.sub(A_CollateralBalance_Before)

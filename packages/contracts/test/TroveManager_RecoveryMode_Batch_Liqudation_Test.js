@@ -29,7 +29,7 @@ contract('TroveManager - in Recovery Mode - back to normal mode in 1 tx', async 
     ERC20Mock.setAsDeployed(collateralToken)
     contracts = await deploymentHelper.deployLiquityCore(collateralToken)
     contracts.troveManager = await TroveManagerTester.new()
-    contracts.lusdToken = await DebtToken.new(
+    contracts.debtToken = await DebtToken.new(
       contracts.troveManager.address,
       contracts.stabilityPool.address,
       contracts.borrowerOperations.address
@@ -118,7 +118,7 @@ contract('TroveManager - in Recovery Mode - back to normal mode in 1 tx', async 
       } = await setup()
 
       const spEthBefore = await stabilityPool.getETH()
-      const spLusdBefore = await stabilityPool.getTotalLUSDDeposits()
+      const spLusdBefore = await stabilityPool.getTotalDebtDeposits()
 
       const tx = await troveManager.batchLiquidateTroves([alice, carol])
 
@@ -131,7 +131,7 @@ contract('TroveManager - in Recovery Mode - back to normal mode in 1 tx', async 
       assert.equal((await troveManager.Troves(carol))[3], '3')
 
       const spEthAfter = await stabilityPool.getETH()
-      const spLusdAfter = await stabilityPool.getTotalLUSDDeposits()
+      const spLusdAfter = await stabilityPool.getTotalDebtDeposits()
 
       // liquidate collaterals with the gas compensation fee subtracted
       const expectedCollateralLiquidatedA = th.applyLiquidationFee(A_totalDebt.mul(mv._MCR).div(price))

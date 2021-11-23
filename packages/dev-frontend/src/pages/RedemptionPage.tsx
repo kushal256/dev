@@ -28,7 +28,7 @@ export const RedemptionPage: React.FC = () => {
               </Paragraph>
               <Paragraph sx={{ mt: 2 }}>
                 Most of the time you will get a better rate for converting LUSD to ETH on{" "}
-                <Link href={uniLink(addresses["lusdToken"])} target="_blank">
+                <Link href={uniLink(addresses["debtToken"])} target="_blank">
                   Uniswap <Icon name="external-link-alt" size="xs" />
                 </Link>{" "}
                 or other exchanges.

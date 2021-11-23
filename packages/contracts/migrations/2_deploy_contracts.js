@@ -23,7 +23,7 @@ module.exports = function(deployer) {
   deployer.deploy(ActivePool)
   deployer.deploy(StabilityPool)
   deployer.deploy(DefaultPool)
-  deployer.deploy(LUSDToken)
+  deployer.deploy(DebtToken)
   deployer.deploy(FunctionCaller)
 
   deployer.then(async () => {
@@ -34,13 +34,13 @@ module.exports = function(deployer) {
     const activePool = await ActivePool.deployed()
     const stabilityPool = await StabilityPool.deployed()
     const defaultPool = await DefaultPool.deployed()
-    const lusdToken = await DebtToken.deployed()
+    const debtToken = await DebtToken.deployed()
     const functionCaller = await FunctionCaller.deployed()
 
     const liquityContracts = {
       borrowerOperations,
       priceFeed,
-      lusdToken,
+      debtToken,
       sortedTroves,
       troveManager,
       activePool,

@@ -42,8 +42,8 @@ async function mainnetDeploy(configParams) {
   await mdh.logContractObjects(liquityCore)
 
   // Check Uniswap Pair LUSD-ETH pair before pair creation
-  let LUSDWETHPairAddr = await uniswapV2Factory.getPair(liquityCore.lusdToken.address, configParams.externalAddrs.WETH_ERC20)
-  let WETHLUSDPairAddr = await uniswapV2Factory.getPair(configParams.externalAddrs.WETH_ERC20, liquityCore.lusdToken.address)
+  let LUSDWETHPairAddr = await uniswapV2Factory.getPair(liquityCore.debtToken.address, configParams.externalAddrs.WETH_ERC20)
+  let WETHLUSDPairAddr = await uniswapV2Factory.getPair(configParams.externalAddrs.WETH_ERC20, liquityCore.debtToken.address)
   assert.equal(LUSDWETHPairAddr, WETHLUSDPairAddr)
 
 
@@ -51,14 +51,14 @@ async function mainnetDeploy(configParams) {
     // Deploy Unipool for LUSD-WETH
     await mdh.sendAndWaitForTransaction(uniswapV2Factory.createPair(
       configParams.externalAddrs.WETH_ERC20,
-      liquityCore.lusdToken.address,
+      liquityCore.debtToken.address,
       { gasPrice }
     ))
 
     // Check Uniswap Pair LUSD-WETH pair after pair creation (forwards and backwards should have same address)
-    LUSDWETHPairAddr = await uniswapV2Factory.getPair(liquityCore.lusdToken.address, configParams.externalAddrs.WETH_ERC20)
+    LUSDWETHPairAddr = await uniswapV2Factory.getPair(liquityCore.debtToken.address, configParams.externalAddrs.WETH_ERC20)
     assert.notEqual(LUSDWETHPairAddr, th.ZERO_ADDRESS)
-    WETHLUSDPairAddr = await uniswapV2Factory.getPair(configParams.externalAddrs.WETH_ERC20, liquityCore.lusdToken.address)
+    WETHLUSDPairAddr = await uniswapV2Factory.getPair(configParams.externalAddrs.WETH_ERC20, liquityCore.debtToken.address)
     console.log(`LUSD-WETH pair contract address after Uniswap pair creation: ${LUSDWETHPairAddr}`)
     assert.equal(WETHLUSDPairAddr, LUSDWETHPairAddr)
   }
@@ -288,7 +288,7 @@ async function mainnetDeploy(configParams) {
   // console.log(`deployer's trove status: ${deployerTrove[3]}`)
 
   // // Check deployer has LUSD
-  // let deployerLUSDBal = await liquityCore.lusdToken.balanceOf(deployerWallet.address)
+  // let deployerLUSDBal = await liquityCore.debtToken.balanceOf(deployerWallet.address)
   // th.logBN("deployer's LUSD balance", deployerLUSDBal)
 
   // // Check Uniswap pool has LUSD and WETH tokens
@@ -301,7 +301,7 @@ async function mainnetDeploy(configParams) {
   // const token0Addr = await LUSDETHPair.token0()
   // const token1Addr = await LUSDETHPair.token1()
   // console.log(`LUSD-ETH Pair token 0: ${th.squeezeAddr(token0Addr)},
-  //       DebtToken contract addr: ${th.squeezeAddr(liquityCore.lusdToken.address)}`)
+  //       DebtToken contract addr: ${th.squeezeAddr(liquityCore.debtToken.address)}`)
   // console.log(`LUSD-ETH Pair token 1: ${th.squeezeAddr(token1Addr)},
   //       WETH ERC20 contract addr: ${th.squeezeAddr(configParams.externalAddrs.WETH_ERC20)}`)
 
@@ -322,10 +322,10 @@ async function mainnetDeploy(configParams) {
   // if (deployerLPTokenBal.toString() == '0') {
   //   console.log('Providing liquidity to Uniswap...')
   //   // Give router an allowance for LUSD
-  //   await liquityCore.lusdToken.increaseAllowance(uniswapV2Router02.address, dec(10000, 18))
+  //   await liquityCore.debtToken.increaseAllowance(uniswapV2Router02.address, dec(10000, 18))
 
   //   // Check Router's spending allowance
-  //   const routerLUSDAllowanceFromDeployer = await liquityCore.lusdToken.allowance(deployerWallet.address, uniswapV2Router02.address)
+  //   const routerLUSDAllowanceFromDeployer = await liquityCore.debtToken.allowance(deployerWallet.address, uniswapV2Router02.address)
   //   th.logBN("router's spending allowance for deployer's LUSD", routerLUSDAllowanceFromDeployer)
 
   //   // Get amounts for liquidity provision
@@ -346,7 +346,7 @@ async function mainnetDeploy(configParams) {
   //   // Provide liquidity to LUSD-ETH pair
   //   await mdh.sendAndWaitForTransaction(
   //     uniswapV2Router02.addLiquidityETH(
-  //       liquityCore.lusdToken.address, // address of LUSD token
+  //       liquityCore.debtToken.address, // address of LUSD token
   //       LUSDAmount, // LUSD provision
   //       minLUSDAmount, // minimum LUSD provision
   //       LP_ETH, // minimum ETH provision
@@ -515,14 +515,14 @@ async function mainnetDeploy(configParams) {
   // console.log("CHECK DEPLOYER WITHDRAWING STAKING GAINS")
 
   // // check deployer's LUSD balance before withdrawing staking gains
-  // deployerLUSDBal = await liquityCore.lusdToken.balanceOf(deployerWallet.address)
+  // deployerLUSDBal = await liquityCore.debtToken.balanceOf(deployerWallet.address)
   // th.logBN('deployer LUSD bal before withdrawing staking gains', deployerLUSDBal)
 
   // // Deployer withdraws staking gains
   // await mdh.sendAndWaitForTransaction(LQTYContracts.lqtyStaking.unstake(0, { gasPrice, gasLimit: 1000000 }))
 
   // // check deployer's LUSD balance after withdrawing staking gains
-  // deployerLUSDBal = await liquityCore.lusdToken.balanceOf(deployerWallet.address)
+  // deployerLUSDBal = await liquityCore.debtToken.balanceOf(deployerWallet.address)
   // th.logBN('deployer LUSD bal after withdrawing staking gains', deployerLUSDBal)
 
 
@@ -558,7 +558,7 @@ async function mainnetDeploy(configParams) {
   th.logBN("Current borrowing rate", currentBorrowingRate)
 
   // total SP deposits
-  const totalSPDeposits = await liquityCore.stabilityPool.getTotalLUSDDeposits()
+  const totalSPDeposits = await liquityCore.stabilityPool.getTotalDebtDeposits()
   th.logBN("Total LUSD SP deposits", totalSPDeposits)
 
   // total LQTY Staked in LQTYStaking

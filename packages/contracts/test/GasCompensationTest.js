@@ -2,7 +2,7 @@ const deploymentHelper = require("../utils/deploymentHelpers.js")
 const testHelpers = require("../utils/testHelpers.js")
 const TroveManagerTester = artifacts.require("./TroveManagerTester.sol")
 const BorrowerOperationsTester = artifacts.require("./BorrowerOperationsTester.sol")
-const DebtToken = artifacts.require("LUSDToken")
+const DebtToken = artifacts.require("DebtToken")
 
 const th = testHelpers.TestHelper
 const dec = th.dec
@@ -19,7 +19,7 @@ contract('Gas compensation tests', async accounts => {
     const [bountyAddress, lpRewardsAddress, multisig] = accounts.slice(997, 1000)
 
   let priceFeed
-  let lusdToken
+  let debtToken
   let sortedTroves
   let troveManager
   let activePool
@@ -51,7 +51,7 @@ contract('Gas compensation tests', async accounts => {
   beforeEach(async () => {
     contracts = await deploymentHelper.deployLiquityCore()
     contracts.troveManager = await TroveManagerTester.new()
-    contracts.lusdToken = await DebtToken.new(
+    contracts.debtToken = await DebtToken.new(
       contracts.troveManager.address,
       contracts.stabilityPool.address,
       contracts.borrowerOperations.address
@@ -59,7 +59,7 @@ contract('Gas compensation tests', async accounts => {
     const LQTYContracts = await deploymentHelper.deployLQTYContracts(bountyAddress, lpRewardsAddress, multisig)
 
     priceFeed = contracts.priceFeedTestnet
-    lusdToken = contracts.lusdToken
+    debtToken = contracts.debtToken
     sortedTroves = contracts.sortedTroves
     troveManager = contracts.troveManager
     activePool = contracts.activePool
@@ -355,7 +355,7 @@ contract('Gas compensation tests', async accounts => {
     await stabilityPool.provideToSP(A_totalDebt, ZERO_ADDRESS, { from: dennis })
     await stabilityPool.provideToSP(B_totalDebt.add(C_totalDebt), ZERO_ADDRESS, { from: erin })
 
-    const LUSDinSP_0 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_0 = await stabilityPool.getTotalDebtDeposits()
 
     // --- Price drops to 9.99 ---
     await priceFeed.setPrice('9990000000000000000')
@@ -381,7 +381,7 @@ contract('Gas compensation tests', async accounts => {
     assert.equal(compensationReceived_A, _0pt5percent_aliceColl)
 
     // Check SP LUSD has decreased due to the liquidation 
-    const LUSDinSP_A = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_A = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_A.lte(LUSDinSP_0))
 
     // Check ETH in SP has received the liquidation
@@ -411,7 +411,7 @@ contract('Gas compensation tests', async accounts => {
     assert.equal(compensationReceived_B, _0pt5percent_bobColl) // 0.5% of 2 ETH
 
     // Check SP LUSD has decreased due to the liquidation of B
-    const LUSDinSP_B = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_B = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_B.lt(LUSDinSP_A))
 
     // Check ETH in SP has received the liquidation
@@ -443,7 +443,7 @@ contract('Gas compensation tests', async accounts => {
     assert.equal(compensationReceived_C, _0pt5percent_carolColl)
 
     // Check SP LUSD has decreased due to the liquidation of C
-    const LUSDinSP_C = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_C = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_C.lt(LUSDinSP_B))
 
     // Check ETH in SP has not changed due to the lquidation of C
@@ -466,7 +466,7 @@ contract('Gas compensation tests', async accounts => {
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: dennis })
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: erin })
 
-    const LUSDinSP_0 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_0 = await stabilityPool.getTotalDebtDeposits()
     const ETHinSP_0 = await stabilityPool.getETH()
 
     // --- Price drops to 199.999 ---
@@ -500,7 +500,7 @@ contract('Gas compensation tests', async accounts => {
     assert.equal(compensationReceived_A, _0pt5percent_aliceColl)
 
     // Check SP LUSD has decreased due to the liquidation of A
-    const LUSDinSP_A = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_A = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_A.lt(LUSDinSP_0))
 
     // Check ETH in SP has increased by the remainder of B's coll
@@ -542,7 +542,7 @@ contract('Gas compensation tests', async accounts => {
     assert.equal(compensationReceived_B, _0pt5percent_bobColl)
 
     // Check SP LUSD has decreased due to the liquidation of B
-    const LUSDinSP_B = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_B = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_B.lt(LUSDinSP_A))
 
     // Check ETH in SP has increased by the remainder of B's coll
@@ -570,7 +570,7 @@ contract('Gas compensation tests', async accounts => {
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: dennis })
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: erin })
 
-    const LUSDinSP_0 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_0 = await stabilityPool.getTotalDebtDeposits()
     const ETHinSP_0 = await stabilityPool.getETH()
 
     await priceFeed.setPrice(dec(200, 18))
@@ -603,7 +603,7 @@ contract('Gas compensation tests', async accounts => {
     assert.equal(compensationReceived_A, _0pt5percent_aliceColl)
 
     // Check SP LUSD has decreased due to the liquidation of A 
-    const LUSDinSP_A = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_A = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_A.lt(LUSDinSP_0))
 
     // Check ETH in SP has increased by the remainder of A's coll
@@ -642,7 +642,7 @@ contract('Gas compensation tests', async accounts => {
     assert.equal(compensationReceived_B, _0pt5percent_bobColl)
 
     // Check SP LUSD has decreased due to the liquidation of B
-    const LUSDinSP_B = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_B = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_B.lt(LUSDinSP_A))
 
     // Check ETH in SP has increased by the remainder of B's coll
@@ -671,7 +671,7 @@ contract('Gas compensation tests', async accounts => {
     await stabilityPool.provideToSP(A_totalDebt, ZERO_ADDRESS, { from: dennis })
     await stabilityPool.provideToSP(B_totalDebt, ZERO_ADDRESS, { from: erin })
 
-    const LUSDinSP_0 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_0 = await stabilityPool.getTotalDebtDeposits()
 
     th.logBN('TCR', await troveManager.getTCR(await priceFeed.getPrice()))
     // --- Price drops to 9.99 ---
@@ -745,7 +745,7 @@ contract('Gas compensation tests', async accounts => {
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: dennis })
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: erin })
 
-    const LUSDinSP_0 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_0 = await stabilityPool.getTotalDebtDeposits()
     const ETHinSP_0 = await stabilityPool.getETH()
 
     // --- Price drops to 199.999 ---
@@ -841,7 +841,7 @@ contract('Gas compensation tests', async accounts => {
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: dennis })
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: erin })
 
-    const LUSDinSP_0 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_0 = await stabilityPool.getTotalDebtDeposits()
     const ETHinSP_0 = await stabilityPool.getETH()
 
     await priceFeed.setPrice(dec(200, 18))
@@ -922,7 +922,7 @@ contract('Gas compensation tests', async accounts => {
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: erin })
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: flyn })
 
-    const LUSDinSP_0 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_0 = await stabilityPool.getTotalDebtDeposits()
 
     // price drops to 200 
     await priceFeed.setPrice(dec(200, 18))
@@ -980,7 +980,7 @@ contract('Gas compensation tests', async accounts => {
     const liquidatorBalance_after = web3.utils.toBN(await web3.eth.getBalance(liquidator))
 
     // Check LUSD in SP has decreased
-    const LUSDinSP_1 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_1 = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_1.lt(LUSDinSP_0))
 
     // Check liquidator's balance has increased by the expected compensation amount
@@ -1087,7 +1087,7 @@ contract('Gas compensation tests', async accounts => {
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: erin })
     await stabilityPool.provideToSP(dec(1, 23), ZERO_ADDRESS, { from: flyn })
 
-    const LUSDinSP_0 = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_0 = await stabilityPool.getTotalDebtDeposits()
 
     // price drops to 200 
     await priceFeed.setPrice(dec(200, 18))

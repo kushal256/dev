@@ -552,7 +552,7 @@
     },
     {
       "inputs": [],
-      "name": "getTotalLUSDDeposits",
+      "name": "getTotalDebtDeposits",
       "outputs": [
         {
           "internalType": "uint256",

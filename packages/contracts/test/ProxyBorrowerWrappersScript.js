@@ -37,7 +37,7 @@ contract('BorrowerWrappers', async accounts => {
   const [bountyAddress, lpRewardsAddress, multisig] = accounts.slice(997, 1000)
 
   let priceFeed
-  let lusdToken
+  let debtToken
   let sortedTroves
   let troveManagerOriginal
   let troveManager
@@ -63,7 +63,7 @@ contract('BorrowerWrappers', async accounts => {
   beforeEach(async () => {
     contracts = await deploymentHelper.deployLiquityCore()
     contracts.troveManager = await TroveManagerTester.new()
-    contracts = await deploymentHelper.deployLUSDToken(contracts)
+    contracts = await deploymentHelper.deployDebtToken(contracts)
     const LQTYContracts = await deploymentHelper.deployLQTYTesterContractsHardhat(bountyAddress, lpRewardsAddress, multisig)
 
     await deploymentHelper.connectLQTYContracts(LQTYContracts)
@@ -77,7 +77,7 @@ contract('BorrowerWrappers', async accounts => {
     await deploymentHelper.deployProxyScripts(contracts, LQTYContracts, owner, users)
 
     priceFeed = contracts.priceFeedTestnet
-    lusdToken = contracts.lusdToken
+    debtToken = contracts.debtToken
     sortedTroves = contracts.sortedTroves
     troveManager = contracts.troveManager
     activePool = contracts.activePool
@@ -155,7 +155,7 @@ contract('BorrowerWrappers', async accounts => {
     // check everything remain the same
     assert.equal(await web3.eth.getBalance(proxyAddress), '0')
     th.assertIsApproximatelyEqual(await collSurplusPool.getCollateral(proxyAddress), '0')
-    th.assertIsApproximatelyEqual(await lusdToken.balanceOf(proxyAddress), lusdAmount)
+    th.assertIsApproximatelyEqual(await debtToken.balanceOf(proxyAddress), lusdAmount)
     assert.equal(await troveManager.getTroveStatus(proxyAddress), 1)
     th.assertIsApproximatelyEqual(await troveManager.getTroveColl(proxyAddress), collateral)
   })
@@ -187,7 +187,7 @@ contract('BorrowerWrappers', async accounts => {
 
     assert.equal(await web3.eth.getBalance(proxyAddress), '0')
     th.assertIsApproximatelyEqual(await collSurplusPool.getCollateral(proxyAddress), '0')
-    th.assertIsApproximatelyEqual(await lusdToken.balanceOf(proxyAddress), lusdAmount.mul(toBN(2)))
+    th.assertIsApproximatelyEqual(await debtToken.balanceOf(proxyAddress), lusdAmount.mul(toBN(2)))
     assert.equal(await troveManager.getTroveStatus(proxyAddress), 1)
     th.assertIsApproximatelyEqual(await troveManager.getTroveColl(proxyAddress), expectedSurplus)
   })
@@ -219,7 +219,7 @@ contract('BorrowerWrappers', async accounts => {
 
     assert.equal(await web3.eth.getBalance(proxyAddress), '0')
     th.assertIsApproximatelyEqual(await collSurplusPool.getCollateral(proxyAddress), '0')
-    th.assertIsApproximatelyEqual(await lusdToken.balanceOf(proxyAddress), lusdAmount.mul(toBN(2)))
+    th.assertIsApproximatelyEqual(await debtToken.balanceOf(proxyAddress), lusdAmount.mul(toBN(2)))
     assert.equal(await troveManager.getTroveStatus(proxyAddress), 1)
     th.assertIsApproximatelyEqual(await troveManager.getTroveColl(proxyAddress), expectedSurplus.add(collateral))
   })
@@ -290,7 +290,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceBefore = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollBefore = await troveManager.getTroveColl(alice)
-    const lusdBalanceBefore = await lusdToken.balanceOf(alice)
+    const lusdBalanceBefore = await debtToken.balanceOf(alice)
     const troveDebtBefore = await troveManager.getTroveDebt(alice)
     const lqtyBalanceBefore = await lqtyToken.balanceOf(alice)
     const ICRBefore = await troveManager.getCurrentICR(alice, price)
@@ -314,7 +314,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceAfter = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollAfter = await troveManager.getTroveColl(alice)
-    const lusdBalanceAfter = await lusdToken.balanceOf(alice)
+    const lusdBalanceAfter = await debtToken.balanceOf(alice)
     const troveDebtAfter = await troveManager.getTroveDebt(alice)
     const lqtyBalanceAfter = await lqtyToken.balanceOf(alice)
     const ICRAfter = await troveManager.getCurrentICR(alice, price)
@@ -415,7 +415,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceBefore = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollBefore = await troveManager.getTroveColl(alice)
-    const lusdBalanceBefore = await lusdToken.balanceOf(alice)
+    const lusdBalanceBefore = await debtToken.balanceOf(alice)
     const troveDebtBefore = await troveManager.getTroveDebt(alice)
     const lqtyBalanceBefore = await lqtyToken.balanceOf(alice)
     const ICRBefore = await troveManager.getCurrentICR(alice, price)
@@ -430,7 +430,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceAfter = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollAfter = await troveManager.getTroveColl(alice)
-    const lusdBalanceAfter = await lusdToken.balanceOf(alice)
+    const lusdBalanceAfter = await debtToken.balanceOf(alice)
     const troveDebtAfter = await troveManager.getTroveDebt(alice)
     const lqtyBalanceAfter = await lqtyToken.balanceOf(alice)
     const ICRAfter = await troveManager.getCurrentICR(alice, price)
@@ -489,7 +489,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceBefore = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollBefore = await troveManager.getTroveColl(alice)
-    const lusdBalanceBefore = await lusdToken.balanceOf(alice)
+    const lusdBalanceBefore = await debtToken.balanceOf(alice)
     const troveDebtBefore = await troveManager.getTroveDebt(alice)
     const lqtyBalanceBefore = await lqtyToken.balanceOf(alice)
     const ICRBefore = await troveManager.getCurrentICR(alice, price)
@@ -512,7 +512,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceAfter = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollAfter = await troveManager.getTroveColl(alice)
-    const lusdBalanceAfter = await lusdToken.balanceOf(alice)
+    const lusdBalanceAfter = await debtToken.balanceOf(alice)
     const troveDebtAfter = await troveManager.getTroveDebt(alice)
     const lqtyBalanceAfter = await lqtyToken.balanceOf(alice)
     const ICRAfter = await troveManager.getCurrentICR(alice, price)
@@ -570,7 +570,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceBefore = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollBefore = await troveManager.getTroveColl(alice)
-    const lusdBalanceBefore = await lusdToken.balanceOf(alice)
+    const lusdBalanceBefore = await debtToken.balanceOf(alice)
     const troveDebtBefore = await troveManager.getTroveDebt(alice)
     const lqtyBalanceBefore = await lqtyToken.balanceOf(alice)
     const ICRBefore = await troveManager.getCurrentICR(alice, price)
@@ -584,7 +584,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceAfter = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollAfter = await troveManager.getTroveColl(alice)
-    const lusdBalanceAfter = await lusdToken.balanceOf(alice)
+    const lusdBalanceAfter = await debtToken.balanceOf(alice)
     const troveDebtAfter = await troveManager.getTroveDebt(alice)
     const lqtyBalanceAfter = await lqtyToken.balanceOf(alice)
     const ICRAfter = await troveManager.getCurrentICR(alice, price)
@@ -650,7 +650,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceBefore = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollBefore = await troveManager.getTroveColl(alice)
-    const lusdBalanceBefore = await lusdToken.balanceOf(alice)
+    const lusdBalanceBefore = await debtToken.balanceOf(alice)
     const troveDebtBefore = await troveManager.getTroveDebt(alice)
     const lqtyBalanceBefore = await lqtyToken.balanceOf(alice)
     const ICRBefore = await troveManager.getCurrentICR(alice, price)
@@ -673,7 +673,7 @@ contract('BorrowerWrappers', async accounts => {
 
     const ethBalanceAfter = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollAfter = await troveManager.getTroveColl(alice)
-    const lusdBalanceAfter = await lusdToken.balanceOf(alice)
+    const lusdBalanceAfter = await debtToken.balanceOf(alice)
     const troveDebtAfter = await troveManager.getTroveDebt(alice)
     const lqtyBalanceAfter = await lqtyToken.balanceOf(alice)
     const ICRAfter = await troveManager.getCurrentICR(alice, price)

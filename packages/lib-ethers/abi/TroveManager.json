@@ -486,7 +486,7 @@
   },
   {
     "inputs": [],
-    "name": "L_debt",
+    "name": "L_collateral",
     "outputs": [
       {
         "internalType": "uint256",
@@ -499,7 +499,7 @@
   },
   {
     "inputs": [],
-    "name": "L_collateral",
+    "name": "L_debt",
     "outputs": [
       {
         "internalType": "uint256",

@@ -1011,7 +1011,7 @@
     },
     {
       "inputs": [],
-      "name": "getTotalLUSDDeposits",
+      "name": "getTotalDebtDeposits",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1076,7 +1076,7 @@
     },
     {
       "inputs": [],
-      "name": "lusdToken",
+      "name": "debtToken",
       "outputs": [
         {
           "internalType": "contract DebtToken",

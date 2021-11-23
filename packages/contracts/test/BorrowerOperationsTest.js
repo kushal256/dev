@@ -39,7 +39,7 @@ contract('BorrowerOperations', async accounts => {
   // const frontEnds = [frontEnd_1, frontEnd_2, frontEnd_3]
 
   let priceFeed
-  let lusdToken
+  let debtToken
   let sortedTroves
   let troveManager
   let activePool
@@ -96,7 +96,7 @@ contract('BorrowerOperations', async accounts => {
       }
 
       priceFeed = contracts.priceFeedTestnet
-      lusdToken = contracts.lusdToken
+      debtToken = contracts.debtToken
       collateralToken = contracts.collateralToken
       sortedTroves = contracts.sortedTroves
       troveManager = contracts.troveManager
@@ -738,7 +738,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(20, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: D } })
       await openTrove({ extraLUSDAmount: toBN(dec(20, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: E } })
 
-      const A_LUSDBal = await lusdToken.balanceOf(A)
+      const A_LUSDBal = await debtToken.balanceOf(A)
 
       // Artificially set base rate to 5%
       await troveManager.setBaseRate(dec(5, 16))
@@ -795,7 +795,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(80, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: D } })
       await openTrove({ extraLUSDAmount: toBN(dec(180, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: E } })
 
-      const totalSupply = await lusdToken.totalSupply()
+      const totalSupply = await debtToken.totalSupply()
 
       // Artificially make baseRate 5%
       await troveManager.setBaseRate(dec(5, 16))
@@ -841,7 +841,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(80, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: D } })
       await openTrove({ extraLUSDAmount: toBN(dec(180, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: E } })
 
-      const totalSupply = await lusdToken.totalSupply()
+      const totalSupply = await debtToken.totalSupply()
 
       // Artificially make baseRate 5%
       await troveManager.setBaseRate(dec(5, 16))
@@ -999,7 +999,7 @@ contract('BorrowerOperations', async accounts => {
       await lqtyStaking.stake(dec(1, 18), { from: multisig })
 
       // Check LQTY LUSD balance before == 0
-      const lqtyStaking_LUSDBalance_Before = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_Before = await debtToken.balanceOf(lqtyStaking.address)
       assert.equal(lqtyStaking_LUSDBalance_Before, '0')
 
       await openTrove({ ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
@@ -1023,7 +1023,7 @@ contract('BorrowerOperations', async accounts => {
       await borrowerOperations.withdrawLUSD(th._100pct, dec(37, 18), C, C, { from: D })
 
       // Check LQTY LUSD balance after has increased
-      const lqtyStaking_LUSDBalance_After = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_After = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStaking_LUSDBalance_After.gt(lqtyStaking_LUSDBalance_Before))
     })
 
@@ -1108,7 +1108,7 @@ contract('BorrowerOperations', async accounts => {
       await lqtyStaking.stake(dec(1, 18), { from: multisig })
 
       // Check LQTY Staking contract balance before == 0
-      const lqtyStaking_LUSDBalance_Before = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_Before = await debtToken.balanceOf(lqtyStaking.address)
       assert.equal(lqtyStaking_LUSDBalance_Before, '0')
 
       await openTrove({ ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
@@ -1128,18 +1128,18 @@ contract('BorrowerOperations', async accounts => {
       // 2 hours pass
       th.fastForwardTime(7200, web3.currentProvider)
 
-      const D_LUSDBalanceBefore = await lusdToken.balanceOf(D)
+      const D_LUSDBalanceBefore = await debtToken.balanceOf(D)
 
       // D withdraws LUSD
       const D_LUSDRequest = toBN(dec(37, 18))
       await borrowerOperations.withdrawLUSD(th._100pct, D_LUSDRequest, D, D, { from: D })
 
       // Check LQTY staking LUSD balance has increased
-      const lqtyStaking_LUSDBalance_After = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_After = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStaking_LUSDBalance_After.gt(lqtyStaking_LUSDBalance_Before))
 
       // Check D's LUSD balance now equals their initial balance plus request LUSD
-      const D_LUSDBalanceAfter = await lusdToken.balanceOf(D)
+      const D_LUSDBalanceAfter = await debtToken.balanceOf(D)
       assert.isTrue(D_LUSDBalanceAfter.eq(D_LUSDBalanceBefore.add(D_LUSDRequest)))
     })
 
@@ -1187,14 +1187,14 @@ contract('BorrowerOperations', async accounts => {
       // 2 hours pass
       th.fastForwardTime(7200, web3.currentProvider)
 
-      const D_LUSDBalanceBefore = await lusdToken.balanceOf(D)
+      const D_LUSDBalanceBefore = await debtToken.balanceOf(D)
 
       // D withdraws LUSD
       const D_LUSDRequest = toBN(dec(37, 18))
       await borrowerOperations.withdrawLUSD(th._100pct, dec(37, 18), D, D, { from: D })
 
       // Check D's LUSD balance now equals their requested LUSD
-      const D_LUSDBalanceAfter = await lusdToken.balanceOf(D)
+      const D_LUSDBalanceAfter = await debtToken.balanceOf(D)
 
       // Check D's trove debt == D's LUSD balance + liquidation reserve
       assert.isTrue(D_LUSDBalanceAfter.eq(D_LUSDBalanceBefore.add(D_LUSDRequest)))
@@ -1346,14 +1346,14 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraParams: { value: toBN(dec(100, 'ether')), from: alice } })
 
       // check before
-      const alice_LUSDTokenBalance_Before = await lusdToken.balanceOf(alice)
-      assert.isTrue(alice_LUSDTokenBalance_Before.gt(toBN('0')))
+      const alice_DebtTokenBalance_Before = await debtToken.balanceOf(alice)
+      assert.isTrue(alice_DebtTokenBalance_Before.gt(toBN('0')))
 
       await borrowerOperations.withdrawLUSD(th._100pct, dec(10000, 18), alice, alice, { from: alice })
 
       // check after
-      const alice_LUSDTokenBalance_After = await lusdToken.balanceOf(alice)
-      assert.isTrue(alice_LUSDTokenBalance_After.eq(alice_LUSDTokenBalance_Before.add(toBN(dec(10000, 18)))))
+      const alice_DebtTokenBalance_After = await debtToken.balanceOf(alice)
+      assert.isTrue(alice_DebtTokenBalance_After.eq(alice_DebtTokenBalance_Before.add(toBN(dec(10000, 18)))))
     })
 
     // --- repayLUSD() ---
@@ -1473,14 +1473,14 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(aliceDebtBefore.gt(toBN('0')))
 
       // check before
-      const alice_LUSDTokenBalance_Before = await lusdToken.balanceOf(alice)
-      assert.isTrue(alice_LUSDTokenBalance_Before.gt(toBN('0')))
+      const alice_DebtTokenBalance_Before = await debtToken.balanceOf(alice)
+      assert.isTrue(alice_DebtTokenBalance_Before.gt(toBN('0')))
 
       await borrowerOperations.repayLUSD(aliceDebtBefore.div(toBN(10)), alice, alice, { from: alice })  // Repays 1/10 her debt
 
       // check after
-      const alice_LUSDTokenBalance_After = await lusdToken.balanceOf(alice)
-      th.assertIsApproximatelyEqual(alice_LUSDTokenBalance_After, alice_LUSDTokenBalance_Before.sub(aliceDebtBefore.div(toBN(10))))
+      const alice_DebtTokenBalance_After = await debtToken.balanceOf(alice)
+      th.assertIsApproximatelyEqual(alice_DebtTokenBalance_After, alice_DebtTokenBalance_Before.sub(aliceDebtBefore.div(toBN(10))))
     })
 
     it('repayLUSD(): can repay debt in Recovery Mode', async () => {
@@ -1506,14 +1506,14 @@ contract('BorrowerOperations', async accounts => {
     it("repayLUSD(): Reverts if borrower has insufficient LUSD balance to cover his debt repayment", async () => {
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: alice } })
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: B } })
-      const bobBalBefore = await lusdToken.balanceOf(B)
+      const bobBalBefore = await debtToken.balanceOf(B)
       assert.isTrue(bobBalBefore.gt(toBN('0')))
 
       // Bob transfers all but 5 of his LUSD to Carol
-      await lusdToken.transfer(C, bobBalBefore.sub((toBN(dec(5, 18)))), { from: B })
+      await debtToken.transfer(C, bobBalBefore.sub((toBN(dec(5, 18)))), { from: B })
 
       //Confirm B's LUSD balance has decreased to 5 LUSD
-      const bobBalAfter = await lusdToken.balanceOf(B)
+      const bobBalAfter = await debtToken.balanceOf(B)
 
       assert.isTrue(bobBalAfter.eq(toBN(dec(5, 18))))
       
@@ -1741,7 +1741,7 @@ contract('BorrowerOperations', async accounts => {
       await lqtyStaking.stake(dec(1, 18), { from: multisig })
 
       // Check LQTY LUSD balance before == 0
-      const lqtyStaking_LUSDBalance_Before = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_Before = await debtToken.balanceOf(lqtyStaking.address)
       assert.equal(lqtyStaking_LUSDBalance_Before, '0')
 
       await openTrove({ ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
@@ -1764,7 +1764,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(37, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: D } })
 
       // Check LQTY LUSD balance after has increased
-      const lqtyStaking_LUSDBalance_After = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_After = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStaking_LUSDBalance_After.gt(lqtyStaking_LUSDBalance_Before))
     })
 
@@ -1850,7 +1850,7 @@ contract('BorrowerOperations', async accounts => {
       await lqtyStaking.stake(dec(1, 18), { from: multisig })
 
       // Check LQTY Staking contract balance before == 0
-      const lqtyStaking_LUSDBalance_Before = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_Before = await debtToken.balanceOf(lqtyStaking.address)
       assert.equal(lqtyStaking_LUSDBalance_Before, '0')
 
       await openTrove({ ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
@@ -1859,7 +1859,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(50, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: C } })
       await openTrove({ extraLUSDAmount: toBN(dec(50, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: D } })
 
-      const D_LUSDBalanceBefore = await lusdToken.balanceOf(D)
+      const D_LUSDBalanceBefore = await debtToken.balanceOf(D)
 
       // Artificially make baseRate 5%
       await troveManager.setBaseRate(dec(5, 16))
@@ -1877,11 +1877,11 @@ contract('BorrowerOperations', async accounts => {
       await borrowerOperations.adjustTrove(0, th._100pct, 0, LUSDRequest_D, true, D, D, { from: D })
 
       // Check LQTY staking LUSD balance has increased
-      const lqtyStaking_LUSDBalance_After = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_After = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStaking_LUSDBalance_After.gt(lqtyStaking_LUSDBalance_Before))
 
       // Check D's LUSD balance has increased by their requested LUSD
-      const D_LUSDBalanceAfter = await lusdToken.balanceOf(D)
+      const D_LUSDBalanceAfter = await debtToken.balanceOf(D)
       assert.isTrue(D_LUSDBalanceAfter.eq(D_LUSDBalanceBefore.add(LUSDRequest_D)))
     })
 
@@ -1900,14 +1900,14 @@ contract('BorrowerOperations', async accounts => {
       th.fastForwardTime(7200, web3.currentProvider)
 
       // Check staking LUSD balance before > 0
-      const lqtyStaking_LUSDBalance_Before = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_Before = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStaking_LUSDBalance_Before.gt(toBN('0')))
 
       // D adjusts trove
       await borrowerOperations.adjustTrove(0, th._100pct, 0, dec(37, 18), true, D, D, { from: D })
 
       // Check staking LUSD balance after > staking balance before
-      const lqtyStaking_LUSDBalance_After = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_After = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStaking_LUSDBalance_After.gt(lqtyStaking_LUSDBalance_Before))
     })
 
@@ -1948,7 +1948,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(40000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: C } })
       await openTrove({ extraLUSDAmount: toBN(dec(40000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: D } })
 
-      const D_LUSDBalBefore = await lusdToken.balanceOf(D)
+      const D_LUSDBalBefore = await debtToken.balanceOf(D)
       // Check baseRate is zero
       const baseRate_1 = await troveManager.baseRate()
       assert.equal(baseRate_1, '0')
@@ -1956,14 +1956,14 @@ contract('BorrowerOperations', async accounts => {
       // 2 hours pass
       th.fastForwardTime(7200, web3.currentProvider)
 
-      const DUSDBalanceBefore = await lusdToken.balanceOf(D)
+      const DUSDBalanceBefore = await debtToken.balanceOf(D)
 
       // D adjusts trove
       const LUSDRequest_D = toBN(dec(40, 18))
       await borrowerOperations.adjustTrove(0, th._100pct, 0, LUSDRequest_D, true, D, D, { from: D })
 
       // Check D's LUSD balance increased by their requested LUSD
-      const LUSDBalanceAfter = await lusdToken.balanceOf(D)
+      const LUSDBalanceAfter = await debtToken.balanceOf(D)
       assert.isTrue(LUSDBalanceAfter.eq(D_LUSDBalBefore.add(LUSDRequest_D)))
     })
 
@@ -2193,7 +2193,7 @@ contract('BorrowerOperations', async accounts => {
       await lqtyToken.unprotectedMint(bob, dec(100, 18))
       await lqtyStaking.stake(dec(100, 18), { from: bob })
 
-      const lqtyStakingLUSDBalanceBefore = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStakingLUSDBalanceBefore = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStakingLUSDBalanceBefore.gt(toBN('0')))
 
       const txAlice = await borrowerOperations.adjustTrove(dec(100, 'ether'), th._100pct, 0, dec(50, 18), true, alice, alice, { from: alice })
@@ -2206,7 +2206,7 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(await th.checkRecoveryMode(contracts))
 
       // Check no fee was sent to staking contract
-      const lqtyStakingLUSDBalanceAfter = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStakingLUSDBalanceAfter = await debtToken.balanceOf(lqtyStaking.address)
       assert.equal(lqtyStakingLUSDBalanceAfter.toString(), lqtyStakingLUSDBalanceBefore.toString())
     })
 
@@ -2241,7 +2241,7 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(bobFee.gt(toBN('0')))
 
       // Alice transfers LUSD to bob to compensate borrowing fees
-      await lusdToken.transfer(bob, bobFee, { from: alice })
+      await debtToken.transfer(bob, bobFee, { from: alice })
 
       const remainingDebt = (await troveManager.getTroveDebt(bob)).sub(DEBT_GAS_COMPENSATION)
 
@@ -2449,15 +2449,15 @@ contract('BorrowerOperations', async accounts => {
 
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(10, 18)), extraParams: { from: alice } })
 
-      const alice_LUSDTokenBalance_Before = await lusdToken.balanceOf(alice)
-      assert.isTrue(alice_LUSDTokenBalance_Before.gt(toBN('0')))
+      const alice_DebtTokenBalance_Before = await debtToken.balanceOf(alice)
+      assert.isTrue(alice_DebtTokenBalance_Before.gt(toBN('0')))
 
       // Alice adjusts trove - coll decrease and debt decrease
       await borrowerOperations.adjustTrove(0, th._100pct, dec(100, 'finney'), dec(10, 18), false, alice, alice, { from: alice })
 
       // check after
-      const alice_LUSDTokenBalance_After = await lusdToken.balanceOf(alice)
-      assert.isTrue(alice_LUSDTokenBalance_After.eq(alice_LUSDTokenBalance_Before.sub(toBN(dec(10, 18)))))
+      const alice_DebtTokenBalance_After = await debtToken.balanceOf(alice)
+      assert.isTrue(alice_DebtTokenBalance_After.eq(alice_DebtTokenBalance_Before.sub(toBN(dec(10, 18)))))
     })
 
     it("adjustTrove(): changes DebtToken balance by the requested increase", async () => {
@@ -2465,15 +2465,15 @@ contract('BorrowerOperations', async accounts => {
 
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(10, 18)), extraParams: { from: alice } })
 
-      const alice_LUSDTokenBalance_Before = await lusdToken.balanceOf(alice)
-      assert.isTrue(alice_LUSDTokenBalance_Before.gt(toBN('0')))
+      const alice_DebtTokenBalance_Before = await debtToken.balanceOf(alice)
+      assert.isTrue(alice_DebtTokenBalance_Before.gt(toBN('0')))
 
       // Alice adjusts trove - coll increase and debt increase
       await borrowerOperations.adjustTrove(dec(1, 'ether'), th._100pct, 0, dec(100, 18), true, alice, alice, { from: alice })
 
       // check after
-      const alice_LUSDTokenBalance_After = await lusdToken.balanceOf(alice)
-      assert.isTrue(alice_LUSDTokenBalance_After.eq(alice_LUSDTokenBalance_Before.add(toBN(dec(100, 18)))))
+      const alice_DebtTokenBalance_After = await debtToken.balanceOf(alice)
+      assert.isTrue(alice_DebtTokenBalance_After.eq(alice_DebtTokenBalance_Before.add(toBN(dec(100, 18)))))
     })
 
     it("adjustTrove(): Changes the activePool ETH and raw ether balance by the requested decrease", async () => {
@@ -2601,10 +2601,10 @@ contract('BorrowerOperations', async accounts => {
       const bobDebt = await getTroveEntireDebt(B)
 
       // Bob transfers some LUSD to carol
-      await lusdToken.transfer(C, dec(10, 18), { from: B })
+      await debtToken.transfer(C, dec(10, 18), { from: B })
 
       //Confirm B's LUSD balance is less than 50 LUSD
-      const B_LUSDBal = await lusdToken.balanceOf(B)
+      const B_LUSDBal = await debtToken.balanceOf(B)
       assert.isTrue(B_LUSDBal.lt(bobDebt))
 
       const repayLUSDPromise_B = borrowerOperations.adjustTrove(0, th._100pct, 0, bobDebt, false, B, B, { from: B })
@@ -2638,7 +2638,7 @@ contract('BorrowerOperations', async accounts => {
       const price = await priceFeed.getPrice()
       
       // to compensate borrowing fees
-      await lusdToken.transfer(alice, dec(300, 18), { from: bob })
+      await debtToken.transfer(alice, dec(300, 18), { from: bob })
 
       assert.isFalse(await troveManager.checkRecoveryMode(price))
     
@@ -2667,9 +2667,9 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: carol } })
 
       // Alice transfers her LUSD to Bob and Carol so they can cover fees
-      const aliceBal = await lusdToken.balanceOf(alice)
-      await lusdToken.transfer(bob, aliceBal.div(toBN(2)), { from: alice })
-      await lusdToken.transfer(carol, aliceBal.div(toBN(2)), { from: alice })
+      const aliceBal = await debtToken.balanceOf(alice)
+      await debtToken.transfer(bob, aliceBal.div(toBN(2)), { from: alice })
+      await debtToken.transfer(carol, aliceBal.div(toBN(2)), { from: alice })
 
       // check Recovery Mode 
       assert.isFalse(await th.checkRecoveryMode(contracts))
@@ -2690,10 +2690,10 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(100000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: alice } })
 
       // Artificially mint to Alice so she has enough to close her trove
-      await lusdToken.unprotectedMint(alice, dec(100000, 18))
+      await debtToken.unprotectedMint(alice, dec(100000, 18))
 
       // Check she has more LUSD than her trove debt
-      const aliceBal = await lusdToken.balanceOf(alice)
+      const aliceBal = await debtToken.balanceOf(alice)
       const aliceDebt = await getTroveEntireDebt(alice)
       assert.isTrue(aliceBal.gt(aliceDebt))
 
@@ -2710,12 +2710,12 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: alice } })
 
       const aliceCollBefore = await getTroveEntireColl(alice)
-      const dennisLUSD = await lusdToken.balanceOf(dennis)
+      const dennisLUSD = await debtToken.balanceOf(dennis)
       assert.isTrue(aliceCollBefore.gt(toBN('0')))
       assert.isTrue(dennisLUSD.gt(toBN('0')))
 
       // To compensate borrowing fees
-      await lusdToken.transfer(alice, dennisLUSD.div(toBN(2)), { from: dennis })
+      await debtToken.transfer(alice, dennisLUSD.div(toBN(2)), { from: dennis })
 
       // Alice attempts to close trove
       await borrowerOperations.closeTrove({ from: alice })
@@ -2730,12 +2730,12 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: alice } })
 
       const aliceDebtBefore = await getTroveEntireColl(alice)
-      const dennisLUSD = await lusdToken.balanceOf(dennis)
+      const dennisLUSD = await debtToken.balanceOf(dennis)
       assert.isTrue(aliceDebtBefore.gt(toBN('0')))
       assert.isTrue(dennisLUSD.gt(toBN('0')))
 
       // To compensate borrowing fees
-      await lusdToken.transfer(alice, dennisLUSD.div(toBN(2)), { from: dennis })
+      await debtToken.transfer(alice, dennisLUSD.div(toBN(2)), { from: dennis })
 
       // Alice attempts to close trove
       await borrowerOperations.closeTrove({ from: alice })
@@ -2752,12 +2752,12 @@ contract('BorrowerOperations', async accounts => {
       const aliceStakeBefore = await getTroveStake(alice)
       assert.isTrue(aliceStakeBefore.gt(toBN('0')))
 
-      const dennisLUSD = await lusdToken.balanceOf(dennis)
+      const dennisLUSD = await debtToken.balanceOf(dennis)
       assert.isTrue(aliceStakeBefore.gt(toBN('0')))
       assert.isTrue(dennisLUSD.gt(toBN('0')))
 
       // To compensate borrowing fees
-      await lusdToken.transfer(alice, dennisLUSD.div(toBN(2)), { from: dennis })
+      await debtToken.transfer(alice, dennisLUSD.div(toBN(2)), { from: dennis })
 
       // Alice attempts to close trove
       await borrowerOperations.closeTrove({ from: alice })
@@ -2808,7 +2808,7 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(L_debt_Snapshot_A_AfterLiquidation.gt(toBN('0')))
 
       // to compensate borrowing fees
-      await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennis })
+      await debtToken.transfer(alice, await debtToken.balanceOf(dennis), { from: dennis })
 
       await priceFeed.setPrice(dec(200, 18))
 
@@ -2836,7 +2836,7 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(await sortedTroves.contains(alice))
 
       // to compensate borrowing fees
-      await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennis })
+      await debtToken.transfer(alice, await debtToken.balanceOf(dennis), { from: dennis })
 
       // Close the trove
       await borrowerOperations.closeTrove({ from: alice })
@@ -2865,7 +2865,7 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(activePool_RawEther_before.eq(activePool_ETH_before))
 
       // to compensate borrowing fees
-      await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennis })
+      await debtToken.transfer(alice, await debtToken.balanceOf(dennis), { from: dennis })
 
       // Close the trove
       await borrowerOperations.closeTrove({ from: alice })
@@ -2892,7 +2892,7 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(activePool_Debt_before.gt(toBN('0')))
 
       // to compensate borrowing fees
-      await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennis })
+      await debtToken.transfer(alice, await debtToken.balanceOf(dennis), { from: dennis })
 
       // Close the trove
       await borrowerOperations.closeTrove({ from: alice })
@@ -2920,7 +2920,7 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(totalStakesBefore.eq(aliceStakeBefore.add(bobStakeBefore).add(dennisStakeBefore)))
 
       // to compensate borrowing fees
-      await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennis })
+      await debtToken.transfer(alice, await debtToken.balanceOf(dennis), { from: dennis })
 
       // Alice closes trove
       await borrowerOperations.closeTrove({ from: alice })
@@ -2944,7 +2944,7 @@ contract('BorrowerOperations', async accounts => {
         const alice_ETHBalance_Before = web3.utils.toBN(await collateralToken.balanceOf(alice))
 
         // to compensate borrowing fees
-        await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennis })
+        await debtToken.transfer(alice, await debtToken.balanceOf(dennis), { from: dennis })
 
         await borrowerOperations.closeTrove({ from: alice })
 
@@ -2963,16 +2963,16 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(aliceDebt.gt(toBN('0')))
 
       // to compensate borrowing fees
-      await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennis })
+      await debtToken.transfer(alice, await debtToken.balanceOf(dennis), { from: dennis })
 
-      const alice_LUSDBalance_Before = await lusdToken.balanceOf(alice)
+      const alice_LUSDBalance_Before = await debtToken.balanceOf(alice)
       assert.isTrue(alice_LUSDBalance_Before.gt(toBN('0')))
 
       // close trove
       await borrowerOperations.closeTrove({ from: alice })
 
       // check alice LUSD balance after
-      const alice_LUSDBalance_After = await lusdToken.balanceOf(alice)
+      const alice_LUSDBalance_After = await debtToken.balanceOf(alice)
       th.assertIsApproximatelyEqual(alice_LUSDBalance_After, alice_LUSDBalance_Before.sub(aliceDebt.sub(DEBT_GAS_COMPENSATION)))
     })
 
@@ -2990,8 +2990,8 @@ contract('BorrowerOperations', async accounts => {
       const carolColl = await getTroveEntireColl(carol)
 
       // Whale transfers to A and B to cover their fees
-      await lusdToken.transfer(alice, dec(10000, 18), { from: whale })
-      await lusdToken.transfer(bob, dec(10000, 18), { from: whale })
+      await debtToken.transfer(alice, dec(10000, 18), { from: whale })
+      await debtToken.transfer(bob, dec(10000, 18), { from: whale })
 
       // --- TEST ---
 
@@ -3061,7 +3061,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(5000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: B } })
 
       //Confirm Bob's LUSD balance is less than his trove debt
-      const B_LUSDBal = await lusdToken.balanceOf(B)
+      const B_LUSDBal = await debtToken.balanceOf(B)
       const B_troveDebt = await getTroveEntireDebt(B)
 
       assert.isTrue(B_LUSDBal.lt(B_troveDebt))
@@ -3294,7 +3294,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(30000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: B } })
       await openTrove({ extraLUSDAmount: toBN(dec(40000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: C } })
 
-      const totalSupply = await lusdToken.totalSupply()
+      const totalSupply = await debtToken.totalSupply()
 
       // Artificially make baseRate 5%
       await troveManager.setBaseRate(dec(5, 16))
@@ -3406,7 +3406,7 @@ contract('BorrowerOperations', async accounts => {
       await lqtyStaking.stake(dec(1, 18), { from: multisig })
 
       // Check LQTY LUSD balance before == 0
-      const lqtyStaking_LUSDBalance_Before = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_Before = await debtToken.balanceOf(lqtyStaking.address)
       assert.equal(lqtyStaking_LUSDBalance_Before, '0')
 
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
@@ -3429,7 +3429,7 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(40000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: D } })
 
       // Check LQTY LUSD balance after has increased
-      const lqtyStaking_LUSDBalance_After = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_After = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStaking_LUSDBalance_After.gt(lqtyStaking_LUSDBalance_Before))
     })
 
@@ -3512,7 +3512,7 @@ contract('BorrowerOperations', async accounts => {
       await lqtyStaking.stake(dec(1, 18), { from: multisig })
 
       // Check LQTY Staking contract balance before == 0
-      const lqtyStaking_LUSDBalance_Before = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_Before = await debtToken.balanceOf(lqtyStaking.address)
       assert.equal(lqtyStaking_LUSDBalance_Before, '0')
 
       await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
@@ -3536,11 +3536,11 @@ contract('BorrowerOperations', async accounts => {
       await borrowerOperations.openTrove(dec(500, 'ether'), th._100pct, LUSDRequest_D, D, D, { from: D })
 
       // Check LQTY staking LUSD balance has increased
-      const lqtyStaking_LUSDBalance_After = await lusdToken.balanceOf(lqtyStaking.address)
+      const lqtyStaking_LUSDBalance_After = await debtToken.balanceOf(lqtyStaking.address)
       assert.isTrue(lqtyStaking_LUSDBalance_After.gt(lqtyStaking_LUSDBalance_Before))
 
       // Check D's LUSD balance now equals their requested LUSD
-      const LUSDBalance_D = await lusdToken.balanceOf(D)
+      const LUSDBalance_D = await debtToken.balanceOf(D)
       assert.isTrue(LUSDRequest_D.eq(LUSDBalance_D))
     })
 
@@ -3859,7 +3859,7 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(await sortedTroves.contains(alice))
 
       // to compensate borrowing fees
-      await lusdToken.transfer(alice, dec(10000, 18), { from: whale })
+      await debtToken.transfer(alice, dec(10000, 18), { from: whale })
 
       // Repay and close Trove
       await borrowerOperations.closeTrove({ from: alice })
@@ -3908,14 +3908,14 @@ contract('BorrowerOperations', async accounts => {
 
     it("openTrove(): increases user DebtToken balance by correct amount", async () => {
       // check before
-      const alice_LUSDTokenBalance_Before = await lusdToken.balanceOf(alice)
-      assert.equal(alice_LUSDTokenBalance_Before, 0)
+      const alice_DebtTokenBalance_Before = await debtToken.balanceOf(alice)
+      assert.equal(alice_DebtTokenBalance_Before, 0)
 
       await borrowerOperations.openTrove(dec(100, 'ether'), th._100pct, dec(10000, 18), alice, alice, { from: alice})
 
       // check after
-      const alice_LUSDTokenBalance_After = await lusdToken.balanceOf(alice)
-      assert.equal(alice_LUSDTokenBalance_After, dec(10000, 18))
+      const alice_DebtTokenBalance_After = await debtToken.balanceOf(alice)
+      assert.equal(alice_DebtTokenBalance_After, dec(10000, 18))
     })
 
     //  --- getNewICRFromTroveChange - (external wrapper in Tester contract calls internal function) ---
@@ -4326,7 +4326,7 @@ contract('BorrowerOperations', async accounts => {
         await borrowerOperations.openTrove(dec(1000, 18), th._100pct, dec(100000, 18), alice, alice, { from: alice})
 
         // Alice sends LUSD to NonPayable so its LUSD balance covers its debt
-        await lusdToken.transfer(nonPayable.address, dec(10000, 18), {from: alice})
+        await debtToken.transfer(nonPayable.address, dec(10000, 18), {from: alice})
 
         // open trove from NonPayable proxy contract
         const _100pctHex = '0xde0b6b3a7640000'

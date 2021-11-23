@@ -25,7 +25,7 @@ contract('TroveManager', async accounts => {
     contracts = await deploymentHelper.deployLiquityCore()
     const LQTYContracts = await deploymentHelper.deployLQTYContracts(bountyAddress, lpRewardsAddress)
     
-    lusdToken = contracts.lusdToken
+    debtToken = contracts.debtToken
     priceFeed = contracts.priceFeedTestnet
     sortedTroves = contracts.sortedTroves
     troveManager = contracts.troveManager
@@ -590,7 +590,7 @@ contract('TroveManager', async accounts => {
     
     await stabilityPool.withdrawFromSP(dec(50, 18), {from: accounts[1]} )
     const SP_ETH = await stabilityPool.getETH()
-    const SP_LUSD = await stabilityPool.getTotalLUSDDeposits()  
+    const SP_LUSD = await stabilityPool.getTotalDebtDeposits()  
 
     const SP_LUSD_Insufficiency = web3.utils.toBN(whaleSPDeposit).sub(SP_LUSD)
 
@@ -643,7 +643,7 @@ contract('TroveManager', async accounts => {
     
     await stabilityPool.withdrawFromSP(dec(50, 18), {from: accounts[1]} )
     const SP_ETH = await stabilityPool.getETH()
-    const SP_LUSD = await stabilityPool.getTotalLUSDDeposits()  
+    const SP_LUSD = await stabilityPool.getTotalDebtDeposits()  
 
     const SP_LUSD_Insufficiency = web3.utils.toBN(whaleSPDeposit).sub(SP_LUSD)
 
@@ -696,7 +696,7 @@ contract('TroveManager', async accounts => {
     
     await stabilityPool.withdrawFromSP(account1SPDeposit, {from: accounts[1]} )
     const SP_ETH = await stabilityPool.getETH()
-    const SP_LUSD = await stabilityPool.getTotalLUSDDeposits()  
+    const SP_LUSD = await stabilityPool.getTotalDebtDeposits()  
 
     const SP_LUSD_Insufficiency = web3.utils.toBN(whaleSPDeposit).sub(SP_LUSD)
 
@@ -756,7 +756,7 @@ contract('TroveManager', async accounts => {
     await stabilityPool.withdrawFromSP(account1SPDeposit, {from: accounts[1]} )
 
     const SP_ETH = await stabilityPool.getETH()
-    const SP_LUSD = await stabilityPool.getTotalLUSDDeposits()  
+    const SP_LUSD = await stabilityPool.getTotalDebtDeposits()  
 
     const SP_LUSD_Insufficiency = web3.utils.toBN(whaleSPDeposit).sub(SP_LUSD)
 
@@ -813,7 +813,7 @@ contract('TroveManager', async accounts => {
   await stabilityPool.withdrawFromSP(account1SPDeposit, {from: accounts[1]} )
 
   const SP_ETH = await stabilityPool.getETH()
-  const SP_LUSD = await stabilityPool.getTotalLUSDDeposits()  
+  const SP_LUSD = await stabilityPool.getTotalDebtDeposits()  
 
   const SP_LUSD_Insufficiency = web3.utils.toBN(whaleSPDeposit).sub(SP_LUSD)
 

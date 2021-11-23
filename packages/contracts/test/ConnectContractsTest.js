@@ -6,7 +6,7 @@ contract('Deployment script - Sets correct contract addresses dependencies after
   const [bountyAddress, lpRewardsAddress, multisig] = accounts.slice(997, 1000)
   
   let priceFeed
-  let lusdToken
+  let debtToken
   let sortedTroves
   let troveManager
   let activePool
@@ -24,7 +24,7 @@ contract('Deployment script - Sets correct contract addresses dependencies after
     const LQTYContracts = await deploymentHelper.deployLQTYContracts(bountyAddress, lpRewardsAddress, multisig)
 
     priceFeed = coreContracts.priceFeedTestnet
-    lusdToken = coreContracts.lusdToken
+    debtToken = coreContracts.debtToken
     sortedTroves = coreContracts.sortedTroves
     troveManager = coreContracts.troveManager
     activePool = coreContracts.activePool
@@ -52,9 +52,9 @@ contract('Deployment script - Sets correct contract addresses dependencies after
   })
 
   it('Sets the correct DebtToken address in TroveManager', async () => {
-    const DebtTokenAddress = lusdToken.address
+    const DebtTokenAddress = debtToken.address
 
-    const recordedClvTokenAddress = await troveManager.lusdToken()
+    const recordedClvTokenAddress = await troveManager.debtToken()
 
     assert.equal(DebtTokenAddress, recordedClvTokenAddress)
   })
@@ -161,9 +161,9 @@ contract('Deployment script - Sets correct contract addresses dependencies after
   })
 
   it('Sets the correct DebtToken address in StabilityPool', async () => {
-    const DebtTokenAddress = lusdToken.address
+    const DebtTokenAddress = debtToken.address
 
-    const recordedClvTokenAddress = await stabilityPool.lusdToken()
+    const recordedClvTokenAddress = await stabilityPool.debtToken()
 
     assert.equal(DebtTokenAddress, recordedClvTokenAddress)
   })
@@ -276,9 +276,9 @@ contract('Deployment script - Sets correct contract addresses dependencies after
 
   // Sets DebtToken in LQTYStaking
   it('Sets the correct ActivePool address in LQTYStaking', async () => {
-    const DebtTokenAddress = lusdToken.address
+    const DebtTokenAddress = debtToken.address
 
-    const recordedDebtTokenAddress = await lqtyStaking.lusdToken()
+    const recordedDebtTokenAddress = await lqtyStaking.debtToken()
     assert.equal(DebtTokenAddress, recordedDebtTokenAddress)
   })
 

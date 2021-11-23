@@ -16,7 +16,7 @@ contract('Pool Manager: Sum-Product rounding errors', async accounts => {
   let contracts
 
   let priceFeed
-  let lusdToken
+  let debtToken
   let stabilityPool
   let troveManager
   let borrowerOperations
@@ -25,7 +25,7 @@ contract('Pool Manager: Sum-Product rounding errors', async accounts => {
     contracts = await deployLiquity()
     
     priceFeed = contracts.priceFeedTestnet
-    lusdToken = contracts.lusdToken
+    debtToken = contracts.debtToken
     stabilityPool = contracts.stabilityPool
     troveManager = contracts.troveManager
     borrowerOperations = contracts.borrowerOperations
@@ -59,7 +59,7 @@ contract('Pool Manager: Sum-Product rounding errors', async accounts => {
       await troveManager.liquidate(defaulter, { from: owner });
     }
 
-    const SP_TotalDeposits = await stabilityPool.getTotalLUSDDeposits()
+    const SP_TotalDeposits = await stabilityPool.getTotalDebtDeposits()
     const SP_ETH = await stabilityPool.getETH()
     const compoundedDeposit = await stabilityPool.getCompoundedDebtDeposit(depositors[0])
     const ETH_Gain = await stabilityPool.getCurrentETHGain(depositors[0])

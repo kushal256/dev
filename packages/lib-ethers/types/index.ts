@@ -771,8 +771,8 @@ interface TroveManagerCalls {
   CCR(_overrides?: CallOverrides): Promise<BigNumber>;
   DEBT_GAS_COMPENSATION(_overrides?: CallOverrides): Promise<BigNumber>;
   DECIMAL_PRECISION(_overrides?: CallOverrides): Promise<BigNumber>;
-  L_debt(_overrides?: CallOverrides): Promise<BigNumber>;
   L_collateral(_overrides?: CallOverrides): Promise<BigNumber>;
+  L_debt(_overrides?: CallOverrides): Promise<BigNumber>;
   MAX_BORROWING_FEE(_overrides?: CallOverrides): Promise<BigNumber>;
   MCR(_overrides?: CallOverrides): Promise<BigNumber>;
   MINUTE_DECAY_FACTOR(_overrides?: CallOverrides): Promise<BigNumber>;

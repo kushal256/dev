@@ -18,14 +18,14 @@ const deployLiquity = async () => {
   const defaultPool = await DefaultPool.new()
   const functionCaller = await FunctionCaller.new()
   const borrowerOperations = await BorrowerOperations.new()
-  const lusdToken = await DebtToken.new(
+  const debtToken = await DebtToken.new(
     troveManager.address,
     stabilityPool.address,
     borrowerOperations.address
   )
   DefaultPool.setAsDeployed(defaultPool)
   PriceFeedTestnet.setAsDeployed(priceFeedTestnet)
-  DebtToken.setAsDeployed(lusdToken)
+  DebtToken.setAsDeployed(debtToken)
   SortedTroves.setAsDeployed(sortedTroves)
   TroveManager.setAsDeployed(troveManager)
   ActivePool.setAsDeployed(activePool)
@@ -35,7 +35,7 @@ const deployLiquity = async () => {
 
   const contracts = {
     priceFeedTestnet,
-    lusdToken,
+    debtToken,
     sortedTroves,
     troveManager,
     activePool,
@@ -51,7 +51,7 @@ const getAddresses = (contracts) => {
   return {
     BorrowerOperations: contracts.borrowerOperations.address,
     PriceFeedTestnet: contracts.priceFeedTestnet.address,
-    DebtToken: contracts.lusdToken.address,
+    DebtToken: contracts.debtToken.address,
     SortedTroves: contracts.sortedTroves.address,
     TroveManager: contracts.troveManager.address,
     StabilityPool: contracts.stabilityPool.address,
@@ -74,7 +74,7 @@ const connectContracts = async (contracts, addresses) => {
   await contracts.priceFeedTestnet.setTroveManagerAddress(addresses.TroveManager)
 
   // set contracts in the Trove Manager
-  await contracts.troveManager.setLUSDToken(addresses.LUSDToken)
+  await contracts.troveManager.setDebtToken(addresses.DebtToken)
   await contracts.troveManager.setSortedTroves(addresses.SortedTroves)
   await contracts.troveManager.setPriceFeed(addresses.PriceFeedTestnet)
   await contracts.troveManager.setActivePool(addresses.ActivePool)

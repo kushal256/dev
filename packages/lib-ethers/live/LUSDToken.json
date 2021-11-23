@@ -1,6 +1,6 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "LUSDToken",
+  "contractName": "DebtToken",
   "sourceName": "contracts/DebtToken.sol",
   "abi": [
     {
@@ -78,7 +78,7 @@
           "type": "uint256"
         }
       ],
-      "name": "LUSDTokenBalanceUpdated",
+      "name": "DebtTokenBalanceUpdated",
       "type": "event"
     },
     {

@@ -2,7 +2,7 @@ const { TestHelper: { dec } } = require("../utils/testHelpers.js")
 
 const EchidnaTester = artifacts.require('EchidnaTester')
 const TroveManager = artifacts.require('TroveManager')
-const DebtToken = artifacts.require('LUSDToken')
+const DebtToken = artifacts.require('DebtToken')
 const ActivePool = artifacts.require('ActivePool')
 const DefaultPool = artifacts.require('DefaultPool')
 const StabilityPool = artifacts.require('StabilityPool')
@@ -13,7 +13,7 @@ const StabilityPool = artifacts.require('StabilityPool')
 contract('Echidna debugger', async accounts => {
   let echidnaTester
   let troveManager
-  let lusdToken
+  let debtToken
   let activePool
   let defaultPool
   let stabilityPool
@@ -22,7 +22,7 @@ contract('Echidna debugger', async accounts => {
   before(async () => {
     echidnaTester = await EchidnaTester.new({ value: dec(11, 25) })
     troveManager = await TroveManager.at(await echidnaTester.troveManager())
-    lusdToken = await DebtToken.at(await echidnaTester.lusdToken())
+    debtToken = await DebtToken.at(await echidnaTester.debtToken())
     activePool = await ActivePool.at(await echidnaTester.activePool())
     defaultPool = await DefaultPool.at(await echidnaTester.defaultPool())
     stabilityPool = await StabilityPool.at(await echidnaTester.stabilityPool())
@@ -68,13 +68,13 @@ contract('Echidna debugger', async accounts => {
   it.only('LUSD balance', async () => {
     await echidnaTester.openTroveExt('0', '0', '4210965169908805439447313562489173090')
 
-    const totalSupply = await lusdToken.totalSupply();
-    const gasPoolBalance = await lusdToken.balanceOf(GAS_POOL_ADDRESS);
+    const totalSupply = await debtToken.totalSupply();
+    const gasPoolBalance = await debtToken.balanceOf(GAS_POOL_ADDRESS);
     const activePoolBalance = await activePool.getDebt();
     const defaultPoolBalance = await defaultPool.getDebt();
-    const stabilityPoolBalance = await stabilityPool.getTotalLUSDDeposits();
+    const stabilityPoolBalance = await stabilityPool.getTotalDebtDeposits();
     const currentTrove = await echidnaTester.echidnaProxies(0);
-    const troveBalance = lusdToken.balanceOf(currentTrove);
+    const troveBalance = debtToken.balanceOf(currentTrove);
 
     console.log('totalSupply', totalSupply.toString());
     console.log('gasPoolBalance', gasPoolBalance.toString());

@@ -628,7 +628,7 @@ issuance fraction after: 949066037374286
 
   Contract: StabilityPool
     ✓ getETH(): gets the recorded ETH balance
-    ✓ getTotalLUSDDeposits(): gets the recorded LUSD balance
+    ✓ getTotalDebtDeposits(): gets the recorded LUSD balance
 
   Contract: ActivePool
     ✓ getETH(): gets the recorded ETH balance

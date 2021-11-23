@@ -526,7 +526,7 @@
     },
     {
       "inputs": [],
-      "name": "lusdToken",
+      "name": "debtToken",
       "outputs": [
         {
           "internalType": "contract DebtToken",
