@@ -11,6 +11,7 @@ const timeValues = testHelpers.TimeValues
 
 const TroveManagerTester = artifacts.require("TroveManagerTester")
 const LUSDToken = artifacts.require("LUSDToken")
+const ERC20Mock = artifacts.require("./ERC20Mock.sol")
 
 contract('CollSurplusPool', async accounts => {
   const [
@@ -29,7 +30,10 @@ contract('CollSurplusPool', async accounts => {
   const openTrove = async (params) => th.openTrove(contracts, params)
 
   beforeEach(async () => {
-    contracts = await deploymentHelper.deployLiquityCore()
+    collateralToken = await ERC20Mock.new("Test Collateral Token", "TEST", owner, 0);
+    ERC20Mock.setAsDeployed(collateralToken)
+
+    contracts = await deploymentHelper.deployLiquityCore(collateralToken)
     contracts.troveManager = await TroveManagerTester.new()
     contracts.lusdToken = await LUSDToken.new(
       contracts.troveManager.address,
@@ -45,18 +49,18 @@ contract('CollSurplusPool', async accounts => {
     await deploymentHelper.connectCoreContracts(contracts, LQTYContracts)
     await deploymentHelper.connectLQTYContracts(LQTYContracts)
     await deploymentHelper.connectLQTYContractsToCore(LQTYContracts, contracts)
-    await th.depositCollateral(contracts)
+
+    const users = [A, B, C, D, E, contracts.borrowerOperations.address];
+    for(let user of users) {
+      await collateralToken.mint(user, dec(10, 35));
+      await collateralToken.approveInternal(user, contracts.borrowerOperations.address, dec(10, 35));
+    }
   })
 
   it("CollSurplusPool::getETH(): Returns the ETH balance of the CollSurplusPool after redemption", async () => {
     const ETH_1 = await collSurplusPool.getCollateralBalance()
     assert.equal(ETH_1, '0')
-
-    // await contracts.collateralToken.deposit({ value: dec(10000, 'ether') });
-    // const totalSupply = await contracts.collateralToken.totalSupply();
-
-    // await contracts.collateralToken.transfer(contracts.borrowerOperations.address, dec(5000, 'ether'));
-
+    
     const price = toBN(dec(100, 18))
     await priceFeed.setPrice(price)
 
