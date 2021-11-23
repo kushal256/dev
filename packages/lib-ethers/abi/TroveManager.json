@@ -172,7 +172,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_DebtGasCompensation",
+        "name": "_debtGasCompensation",
         "type": "uint256"
       }
     ],

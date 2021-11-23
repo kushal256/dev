@@ -178,7 +178,7 @@ export class ReadableEthersLiquity implements ReadableLiquity {
         decimalify(trove.coll),
         decimalify(trove.debt),
         decimalify(trove.stake),
-        new Trove(decimalify(snapshot.ETH), decimalify(snapshot.LUSDDebt))
+        new Trove(decimalify(snapshot.Collateral), decimalify(snapshot.Debt))
       );
     } else {
       return new TroveWithPendingRedistribution(address, userTroveStatusFrom(trove.status));
@@ -477,8 +477,8 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     const [stakedLQTY, collateralGain, lusdGain] = await Promise.all(
       [
         lqtyStaking.stakes(address, { ...overrides }),
-        lqtyStaking.getPendingETHGain(address, { ...overrides }),
-        lqtyStaking.getPendingLUSDGain(address, { ...overrides })
+        lqtyStaking.getPendingCollateralGain(address, { ...overrides }),
+        lqtyStaking.getPendingDebtGain(address, { ...overrides })
       ].map(getBigNumber => getBigNumber.then(decimalify))
     );
 
