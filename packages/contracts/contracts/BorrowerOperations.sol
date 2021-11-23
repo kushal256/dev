@@ -230,6 +230,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     // Send ETH as collateral to a trove
     function addColl(uint _amount, address _upperHint, address _lowerHint) external override {
+        collateralToken.safeTransferFrom(msg.sender, address(this), _amount);
         _adjustTrove(_amount, msg.sender, 0, 0, false, _upperHint, _lowerHint, 0);
     }
 

@@ -28,6 +28,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool {
     IERC20 internal collateralToken;
     // uint256 internal Collateral;  // deposited ETH tracker
     uint256 internal Debt;  // debt
+    uint256 internal Collateral;
 
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event CollateralTokenAddressChanged(address _newCollateralTokenAddress);

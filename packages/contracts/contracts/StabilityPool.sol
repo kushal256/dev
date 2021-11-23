@@ -15,6 +15,8 @@ import "./Dependencies/LiquitySafeMath128.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
 import "./Dependencies/console.sol";
+import "./Dependencies/IERC20.sol";
+import "./LPRewards/Dependencies/SafeERC20.sol";
 
 /*
  * The Stability Pool holds LUSD tokens deposited by Stability Pool depositors.
@@ -147,6 +149,7 @@ import "./Dependencies/console.sol";
  */
 contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
     using LiquitySafeMath128 for uint128;
+    using SafeERC20 for IERC20;
 
     string constant public NAME = "StabilityPool";
 
@@ -165,6 +168,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
 
     // Tracker for LUSD held in the pool. Changes when users deposit/withdraw, and when Trove debt is offset.
     uint256 internal totalLUSDDeposits;
+
+    IERC20 internal collateralToken;
 
    // --- Data structures ---
 
@@ -247,6 +252,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
     event SortedTrovesAddressChanged(address _newSortedTrovesAddress);
     event PriceFeedAddressChanged(address _newPriceFeedAddress);
     event CommunityIssuanceAddressChanged(address _newCommunityIssuanceAddress);
+    event CollateralTokenAddressChanged(address _newCollateralTokenAddress);
 
     event P_Updated(uint _P);
     event S_Updated(uint _S, uint128 _epoch, uint128 _scale);
@@ -276,7 +282,8 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         address _debtTokenAddress,
         address _sortedTrovesAddress,
         address _priceFeedAddress,
-        address _communityIssuanceAddress
+        address _communityIssuanceAddress,
+        address _collateralTokenAddress
     )
         external
         override
@@ -289,6 +296,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         checkContract(_sortedTrovesAddress);
         checkContract(_priceFeedAddress);
         checkContract(_communityIssuanceAddress);
+        checkContract(_collateralTokenAddress);
 
         borrowerOperations = IBorrowerOperations(_borrowerOperationsAddress);
         troveManager = ITroveManager(_troveManagerAddress);
@@ -297,6 +305,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
         priceFeed = IPriceFeed(_priceFeedAddress);
         communityIssuance = ICommunityIssuance(_communityIssuanceAddress);
+        collateralToken = IERC20(_collateralTokenAddress);
 
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         emit TroveManagerAddressChanged(_troveManagerAddress);
@@ -305,6 +314,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
         emit PriceFeedAddressChanged(_priceFeedAddress);
         emit CommunityIssuanceAddressChanged(_communityIssuanceAddress);
+        emit CollateralTokenAddressChanged(_collateralTokenAddress);
 
         _renounceOwnership();
     }
@@ -842,9 +852,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         emit StabilityPoolCollateralUpdated(newETH);
         emit CollateralSent(msg.sender, _amount);
 
-require(1 < 0, "_sendCollateralGainToDepositor");
-        (bool success, ) = msg.sender.call{ value: _amount }("");
-        require(success, "StabilityPool: sending ETH failed");
+        collateralToken.safeTransfer(msg.sender, _amount);
     }
 
     // Send LUSD to user and decrease LUSD in Pool

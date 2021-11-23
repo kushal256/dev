@@ -142,13 +142,15 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(activePool_ETH_Before.eq(aliceColl))
       assert.isTrue(activePool_RawEther_Before.eq(aliceColl))
 
-      await borrowerOperations.addColl(dec(1, 'ether'), alice, alice, { from: alice })
+      await collateralToken.mint(alice, dec(1, 18))
+      await collateralToken.approveInternal(alice, borrowerOperations.address, dec(1, 18))
+      await borrowerOperations.addColl(dec(1, 18), alice, alice, { from: alice })
 
       const activePool_ETH_After = await activePool.getCollateral()
       const activePool_RawEther_After = toBN(await collateralToken.balanceOf(activePool.address))
       
-      assert.isTrue(activePool_ETH_After.eq(aliceColl.add(toBN(dec(1, 'ether')))))
-      assert.isTrue(activePool_RawEther_After.eq(aliceColl.add(toBN(dec(1, 'ether')))))
+      assert.isTrue(activePool_ETH_After.eq(aliceColl.add(toBN(dec(1, 18)))))
+      assert.isTrue(activePool_RawEther_After.eq(aliceColl.add(toBN(dec(1, 18)))))
     })
 
     it("addColl(), active Trove: adds the correct collateral amount to the Trove", async () => {
@@ -163,14 +165,16 @@ contract('BorrowerOperations', async accounts => {
       assert.equal(status_Before, 1)
 
       // Alice adds second collateral
-      await borrowerOperations.addColl(dec(1, 'ether'), alice, alice, { from: alice })
+      await collateralToken.mint(alice, dec(1, 18))
+      await collateralToken.approveInternal(alice, borrowerOperations.address, dec(1, 18))
+      await borrowerOperations.addColl(dec(1, 18), alice, alice, { from: alice })
 
       const alice_Trove_After = await troveManager.Troves(alice)
       const coll_After = alice_Trove_After[1]
       const status_After = alice_Trove_After[3]
 
       // check coll increases by correct amount,and status remains active
-      assert.isTrue(coll_After.eq(coll_before.add(toBN(dec(1, 'ether')))))
+      assert.isTrue(coll_After.eq(coll_before.add(toBN(dec(1, 18)))))
       assert.equal(status_After, 1)
     })
 
@@ -184,7 +188,9 @@ contract('BorrowerOperations', async accounts => {
       assert.equal(aliceTroveInList_Before, true)
       assert.equal(listIsEmpty_Before, false)
 
-      await borrowerOperations.addColl(dec(1, 'ether'), alice, alice, { from: alice })
+      await collateralToken.mint(alice, dec(1, 18))
+      await collateralToken.approveInternal(alice, borrowerOperations.address, dec(1, 18))
+      await borrowerOperations.addColl(dec(1, 18), alice, alice, { from: alice })
 
       // check Alice is still in list after
       const aliceTroveInList_After = await sortedTroves.contains(alice)
@@ -204,15 +210,17 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(totalStakes_Before.eq(alice_Stake_Before))
 
       // Alice tops up Trove collateral with 2 ether
-      await borrowerOperations.addColl(dec(2, 'ether'), alice, alice, { from: alice })
+      await collateralToken.mint(alice, dec(2, 18))
+      await collateralToken.approveInternal(alice, borrowerOperations.address, dec(2, 18))
+      await borrowerOperations.addColl(dec(2, 18), alice, alice, { from: alice })
 
       // Check stake and total stakes get updated
       const alice_Trove_After = await troveManager.Troves(alice)
       const alice_Stake_After = alice_Trove_After[2]
       const totalStakes_After = (await troveManager.totalStakes())
 
-      assert.isTrue(alice_Stake_After.eq(alice_Stake_Before.add(toBN(dec(2, 'ether')))))
-      assert.isTrue(totalStakes_After.eq(totalStakes_Before.add(toBN(dec(2, 'ether')))))
+      assert.isTrue(alice_Stake_After.eq(alice_Stake_Before.add(toBN(dec(2, 18)))))
+      assert.isTrue(totalStakes_After.eq(totalStakes_Before.add(toBN(dec(2, 18)))))
     })
 
     it("addColl(), active Trove: applies pending rewards and updates user's L_ETH, L_LUSDDebt snapshots", async () => {
@@ -261,7 +269,11 @@ contract('BorrowerOperations', async accounts => {
       const aliceTopUp = toBN(dec(5, 'ether'))
       const bobTopUp = toBN(dec(1, 'ether'))
 
+      await collateralToken.mint(alice, aliceTopUp)
+      await collateralToken.approveInternal(alice, borrowerOperations.address, aliceTopUp)
       await borrowerOperations.addColl(aliceTopUp, alice, alice, { from: alice })
+      await collateralToken.mint(bob, bobTopUp)
+      await collateralToken.approveInternal(bob, borrowerOperations.address, bobTopUp)
       await borrowerOperations.addColl(bobTopUp, bob, bob, { from: bob })
 
       // Check that both alice and Bob have had pending rewards applied in addition to their top-ups. 
@@ -337,9 +349,11 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ ICR: toBN(dec(2, 18)), extraParams: { from: alice } })
       await openTrove({ ICR: toBN(dec(2, 18)), extraParams: { from: bob } })
 
+      await collateralToken.mint(carol, dec(1, 18))
+      await collateralToken.approveInternal(carol, borrowerOperations.address, dec(1, 18))
       // Carol attempts to add collateral to her non-existent trove
       try {
-        const txCarol = await borrowerOperations.addColl(dec(1, 'ether'), carol, carol, { from: carol })
+        const txCarol = await borrowerOperations.addColl(dec(1, 18), carol, carol, { from: carol })
         assert.isFalse(txCarol.receipt.status)
       } catch (error) {
         assert.include(error.message, "revert")
@@ -354,9 +368,11 @@ contract('BorrowerOperations', async accounts => {
 
       assert.isFalse(await sortedTroves.contains(bob))
 
+      await collateralToken.mint(bob, dec(1, 18))
+      await collateralToken.approveInternal(bob, borrowerOperations.address, dec(1, 18))
       // Bob attempts to add collateral to his closed trove
       try {
-        const txBob = await borrowerOperations.addColl(dec(1, 'ether'), bob, bob, { from: bob })
+        const txBob = await borrowerOperations.addColl(dec(1, 18), bob, bob, { from: bob })
         assert.isFalse(txBob.receipt.status)
       } catch (error) {
         assert.include(error.message, "revert")
@@ -374,6 +390,8 @@ contract('BorrowerOperations', async accounts => {
       assert.isTrue(await th.checkRecoveryMode(contracts))
 
       const collTopUp = toBN(dec(1, 'ether'))
+      await collateralToken.mint(alice, collTopUp)
+      await collateralToken.approveInternal(alice, borrowerOperations.address, collTopUp)
       await borrowerOperations.addColl(collTopUp, alice, alice, { from: alice })
 
       // Check Alice's collateral
