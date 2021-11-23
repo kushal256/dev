@@ -71,8 +71,8 @@ TroveManager state variables:
 Total trove stakes: 22706.606961025510177440
 Snapshot of total trove stakes before last liq. : 13721.981761025510177440
 Snapshot of total trove collateral before last liq. : 13721.981761025510177440
-L_ETH: .000000000000000000
-L_LUSDDebt: .000000000000000000
+L_collateral: .000000000000000000
+L_debt: .000000000000000000
 StabilityPool state variables:
 Product P: .997452296010360274
 Current epoch: .000000000000000000
@@ -80,7 +80,7 @@ Current scale: .000000000000000000
 Sum S, at current epoch and scale: 1316865179060.000000000000000000
 Sum G, at current epoch and scale: 350440404386765668230.305464806947340628
 LQTYStaking state variables:
-F_LUSD: 551.177204461747963720
+F_Debt: 551.177204461747963720
 F_ETH: .000000000000000000
 CommunityIssuance state variables:
 Total LQTY issued to depositors / front ends: 17592.871388312448000000

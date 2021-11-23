@@ -18,7 +18,7 @@ contract TroveManagerTester is TroveManager {
     }
 
     function getLUSDGasCompensation() external pure returns (uint) {
-        return LUSD_GAS_COMPENSATION;
+        return DEBT_GAS_COMPENSATION;
     }
 
     function getCompositeDebt(uint _debt) external pure returns (uint) {

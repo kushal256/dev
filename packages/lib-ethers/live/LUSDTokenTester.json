@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "LUSDTokenTester",
-  "sourceName": "contracts/TestContracts/LUSDTokenTester.sol",
+  "contractName": "DebtTokenTester",
+  "sourceName": "contracts/TestContracts/DebtTokenTester.sol",
   "abi": [
     {
       "inputs": [

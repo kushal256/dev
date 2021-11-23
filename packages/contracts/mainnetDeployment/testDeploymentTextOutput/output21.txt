@@ -86,7 +86,7 @@ deployer stake: 3.000000000000000000
 deployer's trove status: 1
 deployer's LUSD balance: 2311.224204161781052791
 LUSD-ETH Pair token 0: 0xaa05...87A5,
-        LUSDToken contract addr: 0xaa05...87A5
+        DebtToken contract addr: 0xaa05...87A5
 LUSD-ETH Pair token 1: 0xC02a...6Cc2,
         WETH ERC20 contract addr: 0xc02a...6cc2
 LUSD-ETH Pair's LUSD reserves before provision: 40.036378355965833891
@@ -144,8 +144,8 @@ TroveManager state variables:
 Total trove stakes: 6.000000000000000000
 Snapshot of total trove stakes before last liq. : .000000000000000000
 Snapshot of total trove collateral before last liq. : .000000000000000000
-L_ETH: .000000000000000000
-L_LUSDDebt: .000000000000000000
+L_collateral: .000000000000000000
+L_debt: .000000000000000000
 StabilityPool state variables:
 Product P: 1.000000000000000000
 Current epoch: .000000000000000000
@@ -153,7 +153,7 @@ Current scale: .000000000000000000
 Sum S, at current epoch and scale: .000000000000000000
 Sum G, at current epoch and scale: 3970851179672782442853.000000000000000000
 LQTYStaking state variables:
-F_LUSD: .867298124760811327
+F_Debt: .867298124760811327
 F_ETH: .000000000000000000
 CommunityIssuance state variables:
 Total LQTY issued to depositors / front ends: 207710.212876695936000000

@@ -49,7 +49,7 @@ contract BorrowerWrappersScript is BorrowerOperationsScript, ETHTransferScript, 
         checkContract(address(priceFeedCached));
         priceFeed = priceFeedCached;
 
-        address lusdTokenCached = address(troveManagerCached.lusdToken());
+        address lusdTokenCached = address(troveManagerCached.debtToken());
         checkContract(lusdTokenCached);
         lusdToken = IERC20(lusdTokenCached);
 

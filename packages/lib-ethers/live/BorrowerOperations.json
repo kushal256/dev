@@ -268,7 +268,7 @@
     },
     {
       "inputs": [],
-      "name": "LUSD_GAS_COMPENSATION",
+      "name": "DEBT_GAS_COMPENSATION",
       "outputs": [
         {
           "internalType": "uint256",
@@ -529,7 +529,7 @@
       "name": "lusdToken",
       "outputs": [
         {
-          "internalType": "contract ILUSDToken",
+          "internalType": "contract DebtToken",
           "name": "",
           "type": "address"
         }

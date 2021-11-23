@@ -40,7 +40,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
   before(async () => {
     coreContracts = await deploymentHelper.deployLiquityCore()
     coreContracts.troveManager = await TroveManagerTester.new()
-    coreContracts = await deploymentHelper.deployLUSDTokenTester(coreContracts)
+    coreContracts = await deploymentHelper.deployDebtTokenTester(coreContracts)
     const LQTYContracts = await deploymentHelper.deployLQTYTesterContractsHardhat(bountyAddress, lpRewardsAddress, multisig)
     
     priceFeed = coreContracts.priceFeed
@@ -469,9 +469,9 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
   })
 
   describe('LQTYStaking', async accounts => {
-    it("increaseF_LUSD(): reverts when caller is not TroveManager", async () => {
+    it("increaseF_Debt(): reverts when caller is not TroveManager", async () => {
       try {
-        const txAlice = await lqtyStaking.increaseF_LUSD(dec(1, 18), { from: alice })
+        const txAlice = await lqtyStaking.increaseF_Debt(dec(1, 18), { from: alice })
         
       } catch (err) {
         assert.include(err.message, "revert")

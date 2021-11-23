@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
   "contractName": "LUSDToken",
-  "sourceName": "contracts/LUSDToken.sol",
+  "sourceName": "contracts/DebtToken.sol",
   "abi": [
     {
       "inputs": [

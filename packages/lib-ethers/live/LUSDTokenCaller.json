@@ -88,7 +88,7 @@
     {
       "inputs": [
         {
-          "internalType": "contract ILUSDToken",
+          "internalType": "contract DebtToken",
           "name": "_LUSD",
           "type": "address"
         }

@@ -3,7 +3,7 @@ const { TestHelper: th, MoneyValues: mv } = require("../utils/testHelpers.js")
 const { toBN, dec, ZERO_ADDRESS } = th
 
 const TroveManagerTester = artifacts.require("./TroveManagerTester")
-const LUSDToken = artifacts.require("./LUSDToken.sol")
+const DebtToken = artifacts.require("./DebtToken.sol")
 const ERC20Mock = artifacts.require("./ERC20Mock.sol")
 
 contract('TroveManager - in Recovery Mode - back to normal mode in 1 tx', async accounts => {
@@ -29,7 +29,7 @@ contract('TroveManager - in Recovery Mode - back to normal mode in 1 tx', async 
     ERC20Mock.setAsDeployed(collateralToken)
     contracts = await deploymentHelper.deployLiquityCore(collateralToken)
     contracts.troveManager = await TroveManagerTester.new()
-    contracts.lusdToken = await LUSDToken.new(
+    contracts.lusdToken = await DebtToken.new(
       contracts.troveManager.address,
       contracts.stabilityPool.address,
       contracts.borrowerOperations.address

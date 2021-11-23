@@ -151,8 +151,8 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     const { troveManager } = _getContracts(this.connection);
 
     const [collateral, debt] = await Promise.all([
-      troveManager.L_ETH({ ...overrides }).then(decimalify),
-      troveManager.L_LUSDDebt({ ...overrides }).then(decimalify)
+      troveManager.L_collateral({ ...overrides }).then(decimalify),
+      troveManager.L_debt({ ...overrides }).then(decimalify)
     ]);
 
     return new Trove(collateral, debt);
@@ -262,8 +262,8 @@ export class ReadableEthersLiquity implements ReadableLiquity {
       lqtyReward
     ] = await Promise.all([
       stabilityPool.deposits(address, { ...overrides }),
-      stabilityPool.getCompoundedLUSDDeposit(address, { ...overrides }),
-      stabilityPool.getDepositorETHGain(address, { ...overrides }),
+      stabilityPool.getCompoundedDebtDeposit(address, { ...overrides }),
+      stabilityPool.getDepositorCollateralGain(address, { ...overrides }),
       stabilityPool.getDepositorLQTYGain(address, { ...overrides })
     ]);
 

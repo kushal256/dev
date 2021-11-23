@@ -1451,7 +1451,7 @@ contract('StabilityPool - Withdrawal of stability deposit - Reward calculations'
       const txL1 = await troveManager.liquidate(defaulter_1, { from: owner });
       assert.isTrue(txL1.receipt.status)
 
-      const aliceDeposit = (await stabilityPool.getCompoundedLUSDDeposit(alice)).toString()
+      const aliceDeposit = (await stabilityPool.getCompoundedDebtDeposit(alice)).toString()
       console.log(`alice deposit: ${aliceDeposit}`)
       assert.equal(aliceDeposit, 0)
     })
@@ -1568,8 +1568,8 @@ contract('StabilityPool - Withdrawal of stability deposit - Reward calculations'
       assert.isTrue(txL1.receipt.status)
 
       // Check compounded deposits
-      const A_deposit = await stabilityPool.getCompoundedLUSDDeposit(A)
-      const B_deposit = await stabilityPool.getCompoundedLUSDDeposit(B)
+      const A_deposit = await stabilityPool.getCompoundedDebtDeposit(A)
+      const B_deposit = await stabilityPool.getCompoundedDebtDeposit(B)
       // console.log(`A_deposit: ${A_deposit}`)
       // console.log(`B_deposit: ${B_deposit}`)
       assert.equal(A_deposit, '0')
@@ -1608,8 +1608,8 @@ contract('StabilityPool - Withdrawal of stability deposit - Reward calculations'
       assert.isTrue(txL2.receipt.status)
 
       // Check compounded deposits
-      const C_deposit = await stabilityPool.getCompoundedLUSDDeposit(C)
-      const D_deposit = await stabilityPool.getCompoundedLUSDDeposit(D)
+      const C_deposit = await stabilityPool.getCompoundedDebtDeposit(C)
+      const D_deposit = await stabilityPool.getCompoundedDebtDeposit(D)
       // console.log(`A_deposit: ${C_deposit}`)
       // console.log(`B_deposit: ${D_deposit}`)
       assert.equal(C_deposit, '0')
@@ -1648,8 +1648,8 @@ contract('StabilityPool - Withdrawal of stability deposit - Reward calculations'
       assert.isTrue(txL3.receipt.status)
 
       // Check compounded deposits
-      const E_deposit = await stabilityPool.getCompoundedLUSDDeposit(E)
-      const F_deposit = await stabilityPool.getCompoundedLUSDDeposit(F)
+      const E_deposit = await stabilityPool.getCompoundedDebtDeposit(E)
+      const F_deposit = await stabilityPool.getCompoundedDebtDeposit(F)
       // console.log(`E_deposit: ${E_deposit}`)
       // console.log(`F_deposit: ${F_deposit}`)
       assert.equal(E_deposit, '0')
@@ -1724,7 +1724,7 @@ contract('StabilityPool - Withdrawal of stability deposit - Reward calculations'
       assert.equal(await stabilityPool.P(), dec(1, 16)) // Scale changes and P changes to 1e(12-5+9) = 1e16
       assert.equal(await stabilityPool.currentScale(), '2')
 
-      const alice_ETHGainAt2ndScaleChange = (await stabilityPool.getDepositorETHGain(alice)).toString()
+      const alice_ETHGainAt2ndScaleChange = (await stabilityPool.getDepositorCollateralGain(alice)).toString()
 
       // E deposits 9999.9 LUSD
       await lusdToken.transfer(erin, dec(99999, 17), { from: whale })
@@ -1736,7 +1736,7 @@ contract('StabilityPool - Withdrawal of stability deposit - Reward calculations'
       assert.equal(await stabilityPool.P(), dec(1, 11)) // P decreases to 1e(16-5) = 1e11
       assert.equal(await stabilityPool.currentScale(), '2')
 
-      const alice_ETHGainAfterFurtherLiquidation = (await stabilityPool.getDepositorETHGain(alice)).toString()
+      const alice_ETHGainAfterFurtherLiquidation = (await stabilityPool.getDepositorCollateralGain(alice)).toString()
   
       const alice_scaleSnapshot = (await stabilityPool.depositSnapshots(alice))[2].toString()
 

@@ -18,7 +18,7 @@ n_sim = year
 # number of liquidations for each call to `liquidateTroves`
 NUM_LIQUIDATIONS = 10
 
-LUSD_GAS_COMPENSATION = 200.0
+DEBT_GAS_COMPENSATION = 200.0
 MIN_NET_DEBT = 1800.0
 MAX_FEE = Wei(1e18)
 
@@ -653,7 +653,7 @@ def open_trove(accounts, contracts, active_accounts, inactive_accounts, supply_t
     #hints = get_hints_from_ICR(accounts, active_accounts, CR_ratio)
     hints = get_hints_from_amounts(accounts, contracts, active_accounts, quantity_ether, supply_trove, price_ether_current)
     coll = floatToWei(quantity_ether)
-    debtChange = floatToWei(supply_trove) + LUSD_GAS_COMPENSATION
+    debtChange = floatToWei(supply_trove) + DEBT_GAS_COMPENSATION
     lusd = get_lusd_amount_from_net_debt(contracts, floatToWei(supply_trove))
     if isNewTCRAboveCCR(contracts, coll, True, debtChange, True, floatToWei(price_ether_current)):
         contracts.borrowerOperations.openTrove(MAX_FEE, lusd, hints[0], hints[1],
@@ -739,7 +739,7 @@ def stability_update(accounts, contracts, active_accounts, return_stability, ind
               remaining = remaining - deposit
           i = i + 1
     else:
-        current_deposit = contracts.stabilityPool.getCompoundedLUSDDeposit(accounts[0])
+        current_deposit = contracts.stabilityPool.getCompoundedDebtDeposit(accounts[0])
         if current_deposit > 0:
             new_withdraw = min(floatToWei(stability_pool_previous - stability_pool), current_deposit)
             contracts.stabilityPool.withdrawFromSP(new_withdraw, { 'from': accounts[0] })

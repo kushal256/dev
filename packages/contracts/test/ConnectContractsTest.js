@@ -51,7 +51,7 @@ contract('Deployment script - Sets correct contract addresses dependencies after
     assert.equal(priceFeedAddress, recordedPriceFeedAddress)
   })
 
-  it('Sets the correct LUSDToken address in TroveManager', async () => {
+  it('Sets the correct DebtToken address in TroveManager', async () => {
     const DebtTokenAddress = lusdToken.address
 
     const recordedClvTokenAddress = await troveManager.lusdToken()
@@ -160,7 +160,7 @@ contract('Deployment script - Sets correct contract addresses dependencies after
     assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress)
   })
 
-  it('Sets the correct LUSDToken address in StabilityPool', async () => {
+  it('Sets the correct DebtToken address in StabilityPool', async () => {
     const DebtTokenAddress = lusdToken.address
 
     const recordedClvTokenAddress = await stabilityPool.lusdToken()
@@ -274,7 +274,7 @@ contract('Deployment script - Sets correct contract addresses dependencies after
     assert.equal(activePoolAddress, recordedActivePoolAddress)
   })
 
-  // Sets LUSDToken in LQTYStaking
+  // Sets DebtToken in LQTYStaking
   it('Sets the correct ActivePool address in LQTYStaking', async () => {
     const DebtTokenAddress = lusdToken.address
 

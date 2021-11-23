@@ -21,7 +21,7 @@
           "type": "address"
         },
         {
-          "internalType": "contract LUSDToken",
+          "internalType": "contract DebtToken",
           "name": "_lusdToken",
           "type": "address"
         }

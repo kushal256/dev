@@ -251,7 +251,7 @@ async function mainnetDeploy(configParams) {
 
   // // --- TroveManager ---
 
-  // const liqReserve = await liquityCore.troveManager.LUSD_GAS_COMPENSATION()
+  // const liqReserve = await liquityCore.troveManager.DEBT_GAS_COMPENSATION()
   // const minNetDebt = await liquityCore.troveManager.MIN_NET_DEBT()
 
   // th.logBN('system liquidation reserve', liqReserve)
@@ -301,7 +301,7 @@ async function mainnetDeploy(configParams) {
   // const token0Addr = await LUSDETHPair.token0()
   // const token1Addr = await LUSDETHPair.token1()
   // console.log(`LUSD-ETH Pair token 0: ${th.squeezeAddr(token0Addr)},
-  //       LUSDToken contract addr: ${th.squeezeAddr(liquityCore.lusdToken.address)}`)
+  //       DebtToken contract addr: ${th.squeezeAddr(liquityCore.lusdToken.address)}`)
   // console.log(`LUSD-ETH Pair token 1: ${th.squeezeAddr(token1Addr)},
   //       WETH ERC20 contract addr: ${th.squeezeAddr(configParams.externalAddrs.WETH_ERC20)}`)
 
@@ -410,14 +410,14 @@ async function mainnetDeploy(configParams) {
   // // --- Make SP deposit and earn LQTY ---
   // console.log("CHECK DEPLOYER MAKING DEPOSIT AND EARNING LQTY")
 
-  // let SPDeposit = await liquityCore.stabilityPool.getCompoundedLUSDDeposit(deployerWallet.address)
+  // let SPDeposit = await liquityCore.stabilityPool.getCompoundedDebtDeposit(deployerWallet.address)
   // th.logBN("deployer SP deposit before making deposit", SPDeposit)
 
   // // Provide to SP
   // await mdh.sendAndWaitForTransaction(liquityCore.stabilityPool.provideToSP(dec(15, 18), th.ZERO_ADDRESS, { gasPrice, gasLimit: 400000 }))
 
   // // Get SP deposit 
-  // SPDeposit = await liquityCore.stabilityPool.getCompoundedLUSDDeposit(deployerWallet.address)
+  // SPDeposit = await liquityCore.stabilityPool.getCompoundedDebtDeposit(deployerWallet.address)
   // th.logBN("deployer SP deposit after depositing 15 LUSD", SPDeposit)
 
   // console.log("wait 90 seconds before withdrawing...")
@@ -427,7 +427,7 @@ async function mainnetDeploy(configParams) {
   // // Withdraw from SP
   // // await mdh.sendAndWaitForTransaction(liquityCore.stabilityPool.withdrawFromSP(dec(1000, 18), { gasPrice, gasLimit: 400000 }))
 
-  // // SPDeposit = await liquityCore.stabilityPool.getCompoundedLUSDDeposit(deployerWallet.address)
+  // // SPDeposit = await liquityCore.stabilityPool.getCompoundedDebtDeposit(deployerWallet.address)
   // // th.logBN("deployer SP deposit after full withdrawal", SPDeposit)
 
   // // deployerLQTYBal = await LQTYContracts.lqtyToken.balanceOf(deployerWallet.address)
@@ -580,10 +580,10 @@ async function mainnetDeploy(configParams) {
   th.logBN("Snapshot of total trove stakes before last liq. ", totalStakesSnapshot)
   th.logBN("Snapshot of total trove collateral before last liq. ", totalCollateralSnapshot)
 
-  const L_ETH = await liquityCore.troveManager.L_ETH()
-  const L_LUSDDebt = await liquityCore.troveManager.L_LUSDDebt()
-  th.logBN("L_ETH", L_ETH)
-  th.logBN("L_LUSDDebt", L_LUSDDebt)
+  const L_collateral = await liquityCore.troveManager.L_collateral()
+  const L_debt = await liquityCore.troveManager.L_debt()
+  th.logBN("L_collateral", L_collateral)
+  th.logBN("L_debt", L_debt)
 
   // StabilityPool
   console.log("StabilityPool state variables:")
@@ -600,9 +600,9 @@ async function mainnetDeploy(configParams) {
 
   // LQTYStaking
   console.log("LQTYStaking state variables:")
-  const F_LUSD = await LQTYContracts.lqtyStaking.F_LUSD()
+  const F_Debt = await LQTYContracts.lqtyStaking.F_Debt()
   const F_ETH = await LQTYContracts.lqtyStaking.F_ETH()
-  th.logBN("F_LUSD", F_LUSD)
+  th.logBN("F_Debt", F_Debt)
   th.logBN("F_ETH", F_ETH)
 
 

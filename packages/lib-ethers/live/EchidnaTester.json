@@ -469,7 +469,7 @@
       "name": "lusdToken",
       "outputs": [
         {
-          "internalType": "contract LUSDToken",
+          "internalType": "contract DebtToken",
           "name": "",
           "type": "address"
         }

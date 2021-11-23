@@ -89,7 +89,7 @@ deployer stake: 3.000000000000000000
 deployer's trove status: 1
 deployer's LUSD balance: 988.098905929999999990
 LUSD-ETH Pair token 0: 0x5f98...8bA0,
-        LUSDToken contract addr: 0x5f98...8bA0
+        DebtToken contract addr: 0x5f98...8bA0
 LUSD-ETH Pair token 1: 0xC02a...6Cc2,
         WETH ERC20 contract addr: 0xc02a...6cc2
 LUSD-ETH Pair's LUSD reserves before provision: 2021.901094070000000000

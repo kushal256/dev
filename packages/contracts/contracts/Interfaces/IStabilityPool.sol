@@ -38,7 +38,7 @@ interface IStabilityPool {
     // --- Events ---
     
     event StabilityPoolCollateralUpdated(uint _newBalance);
-    event StabilityPoolLUSDBalanceUpdated(uint _newBalance);
+    event StabilityPoolDebtBalanceUpdated(uint _newBalance);
 
     event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
@@ -159,12 +159,12 @@ interface IStabilityPool {
     /*
      * Returns LUSD held in the pool. Changes when users deposit/withdraw, and when Trove debt is offset.
      */
-    function getTotalLUSDDeposits() external view returns (uint);
+    function getTotalDebtDeposits() external view returns (uint);
 
     /*
      * Calculates the ETH gain earned by the deposit since its last snapshots were taken.
      */
-    function getDepositorETHGain(address _depositor) external view returns (uint);
+    function getDepositorCollateralGain(address _depositor) external view returns (uint);
 
     /*
      * Calculate the LQTY gain earned by a deposit since its last snapshots were taken.
@@ -182,7 +182,7 @@ interface IStabilityPool {
     /*
      * Return the user's compounded deposit.
      */
-    function getCompoundedLUSDDeposit(address _depositor) external view returns (uint);
+    function getCompoundedDebtDeposit(address _depositor) external view returns (uint);
 
     /*
      * Return the front end's compounded stake.

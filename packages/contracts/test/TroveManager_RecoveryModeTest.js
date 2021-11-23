@@ -10,7 +10,7 @@ const mv = testHelpers.MoneyValues
 const timeValues = testHelpers.TimeValues
 
 const TroveManagerTester = artifacts.require("./TroveManagerTester")
-const LUSDToken = artifacts.require("./LUSDToken.sol")
+const DebtToken = artifacts.require("./DebtToken.sol")
 
 contract('TroveManager - in Recovery Mode', async accounts => {
   const _1_Ether = web3.utils.toWei('1', 'ether')
@@ -58,7 +58,7 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     ERC20Mock.setAsDeployed(collateralToken)
     contracts = await deploymentHelper.deployLiquityCore(collateralToken)
     contracts.troveManager = await TroveManagerTester.new()
-    contracts.lusdToken = await LUSDToken.new(
+    contracts.lusdToken = await DebtToken.new(
       contracts.troveManager.address,
       contracts.stabilityPool.address,
       contracts.borrowerOperations.address
@@ -500,8 +500,8 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     // Liquidate Bob
     await troveManager.liquidate(bob, { from: owner })
 
-    const aliceDeposit = await stabilityPool.getCompoundedLUSDDeposit(alice)
-    const aliceETHGain = await stabilityPool.getDepositorETHGain(alice)
+    const aliceDeposit = await stabilityPool.getCompoundedDebtDeposit(alice)
+    const aliceETHGain = await stabilityPool.getDepositorCollateralGain(alice)
     const aliceExpectedETHGain = spDeposit.mul(th.applyLiquidationFee(B_coll)).div(B_totalDebt)
 
     assert.equal(aliceDeposit.toString(), 0)
@@ -513,14 +513,14 @@ contract('TroveManager - in Recovery Mode', async accounts => {
   
     Rewards-per-unit-staked from the redistribution should be:
   
-    L_LUSDDebt = 1610 / 6 = 268.333 LUSD
-    L_ETH = 16.820475 /6 =  2.8034125 ether
+    L_debt = 1610 / 6 = 268.333 LUSD
+    L_collateral = 16.820475 /6 =  2.8034125 ether
     */
-    const L_LUSDDebt = (await troveManager.L_LUSDDebt()).toString()
-    const L_ETH = (await troveManager.L_ETH()).toString()
+    const L_debt = (await troveManager.L_debt()).toString()
+    const L_collateral = (await troveManager.L_collateral()).toString()
 
-    assert.isAtMost(th.getDifference(L_LUSDDebt, B_totalDebt.sub(spDeposit).mul(mv._1e18BN).div(A_coll.add(D_coll))), 100)
-    assert.isAtMost(th.getDifference(L_ETH, th.applyLiquidationFee(B_coll.sub(B_coll.mul(spDeposit).div(B_totalDebt)).mul(mv._1e18BN).div(A_coll.add(D_coll)))), 100)
+    assert.isAtMost(th.getDifference(L_debt, B_totalDebt.sub(spDeposit).mul(mv._1e18BN).div(A_coll.add(D_coll))), 100)
+    assert.isAtMost(th.getDifference(L_collateral, th.applyLiquidationFee(B_coll.sub(B_coll.mul(spDeposit).div(B_totalDebt)).mul(mv._1e18BN).div(A_coll.add(D_coll)))), 100)
   })
 
   // --- liquidate(), applied to trove with ICR > 110% that has the lowest ICR 
@@ -559,11 +559,11 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     assert.equal(P_Before, '1000000000000000000')
 
     // Check that redistribution rewards don't change
-    const L_LUSDDebt = (await troveManager.L_LUSDDebt()).toString()
-    const L_ETH = (await troveManager.L_ETH()).toString()
+    const L_debt = (await troveManager.L_debt()).toString()
+    const L_collateral = (await troveManager.L_collateral()).toString()
 
-    assert.equal(L_LUSDDebt, '0')
-    assert.equal(L_ETH, '0')
+    assert.equal(L_debt, '0')
+    assert.equal(L_collateral, '0')
 
     // Check that Bob's Trove and stake remains active with unchanged coll and debt
     const bob_Trove = await troveManager.Troves(bob);
@@ -617,8 +617,8 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     Alice's expected ETH gain:  Bob's liquidated capped coll (minus gas comp), 2.75*0.995 ether
   
     */
-    const aliceExpectedDeposit = await stabilityPool.getCompoundedLUSDDeposit(alice)
-    const aliceExpectedETHGain = await stabilityPool.getDepositorETHGain(alice)
+    const aliceExpectedDeposit = await stabilityPool.getCompoundedDebtDeposit(alice)
+    const aliceExpectedETHGain = await stabilityPool.getDepositorCollateralGain(alice)
 
     assert.isAtMost(th.getDifference(aliceExpectedDeposit.toString(), spDeposit.sub(B_totalDebt)), 2000)
     assert.isAtMost(th.getDifference(aliceExpectedETHGain, th.applyLiquidationFee(B_totalDebt.mul(th.toBN(dec(11, 17))).div(price))), 3000)
@@ -668,8 +668,8 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     Alice's expected ETH gain:  Bob's liquidated capped coll (minus gas comp), 2.75*0.995 ether
 
     */
-    const aliceExpectedDeposit = await stabilityPool.getCompoundedLUSDDeposit(alice)
-    const aliceExpectedETHGain = await stabilityPool.getDepositorETHGain(alice)
+    const aliceExpectedDeposit = await stabilityPool.getCompoundedDebtDeposit(alice)
+    const aliceExpectedETHGain = await stabilityPool.getDepositorCollateralGain(alice)
 
     assert.isAtMost(th.getDifference(aliceExpectedDeposit.toString(), spDeposit.sub(B_totalDebt)), 2000)
     assert.isAtMost(th.getDifference(aliceExpectedETHGain, th.applyLiquidationFee(B_totalDebt.mul(th.toBN(dec(11, 17))).div(price))), 3000)
@@ -1101,8 +1101,8 @@ contract('TroveManager - in Recovery Mode', async accounts => {
 
     // check Stability Pool rewards. Nothing happened, so everything should remain the same
 
-    const aliceExpectedDeposit = await stabilityPool.getCompoundedLUSDDeposit(alice)
-    const aliceExpectedETHGain = await stabilityPool.getDepositorETHGain(alice)
+    const aliceExpectedDeposit = await stabilityPool.getCompoundedDebtDeposit(alice)
+    const aliceExpectedETHGain = await stabilityPool.getDepositorCollateralGain(alice)
 
     assert.equal(aliceExpectedDeposit.toString(), dec(100, 18))
     assert.equal(aliceExpectedETHGain.toString(), '0')
@@ -1110,11 +1110,11 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     /* For this Recovery Mode test case with ICR > 110%, there should be no redistribution of remainder to active Troves. 
     Redistribution rewards-per-unit-staked should be zero. */
 
-    const L_LUSDDebt_After = (await troveManager.L_LUSDDebt()).toString()
-    const L_ETH_After = (await troveManager.L_ETH()).toString()
+    const L_debt_After = (await troveManager.L_debt()).toString()
+    const L_collateral_After = (await troveManager.L_collateral()).toString()
 
-    assert.equal(L_LUSDDebt_After, '0')
-    assert.equal(L_ETH_After, '0')
+    assert.equal(L_debt_After, '0')
+    assert.equal(L_collateral_After, '0')
   })
 
   it("liquidate(), with ICR > 110%, and StabilityPool LUSD < liquidated debt: ICR of non liquidated trove does not change", async () => {
@@ -1207,11 +1207,11 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     assert.equal(carol_ICR_After, carol_ICR_Before)
 
     //Confirm liquidations have not led to any redistributions to troves
-    const L_LUSDDebt_After = (await troveManager.L_LUSDDebt()).toString()
-    const L_ETH_After = (await troveManager.L_ETH()).toString()
+    const L_debt_After = (await troveManager.L_debt()).toString()
+    const L_collateral_After = (await troveManager.L_collateral()).toString()
 
-    assert.equal(L_LUSDDebt_After, '0')
-    assert.equal(L_ETH_After, '0')
+    assert.equal(L_debt_After, '0')
+    assert.equal(L_collateral_After, '0')
   })
 
   it("liquidate() with ICR > 110%, and StabilityPool LUSD < liquidated debt: total liquidated coll and debt is correct", async () => {
@@ -1541,8 +1541,8 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     await troveManager.liquidate(carol)
 
     // Check Dennis' SP deposit has absorbed Carol's debt, and he has received her liquidated ETH
-    const dennis_Deposit_Before = (await stabilityPool.getCompoundedLUSDDeposit(dennis)).toString()
-    const dennis_ETHGain_Before = (await stabilityPool.getDepositorETHGain(dennis)).toString()
+    const dennis_Deposit_Before = (await stabilityPool.getCompoundedDebtDeposit(dennis)).toString()
+    const dennis_ETHGain_Before = (await stabilityPool.getDepositorCollateralGain(dennis)).toString()
     assert.isAtMost(th.getDifference(dennis_Deposit_Before, spDeposit.sub(C_totalDebt)), 1000)
     assert.isAtMost(th.getDifference(dennis_ETHGain_Before, th.applyLiquidationFee(C_coll)), 1000)
 
@@ -1554,8 +1554,8 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     }
 
     // Check Dennis' SP deposit does not change after liquidation attempt
-    const dennis_Deposit_After = (await stabilityPool.getCompoundedLUSDDeposit(dennis)).toString()
-    const dennis_ETHGain_After = (await stabilityPool.getDepositorETHGain(dennis)).toString()
+    const dennis_Deposit_After = (await stabilityPool.getCompoundedDebtDeposit(dennis)).toString()
+    const dennis_ETHGain_After = (await stabilityPool.getDepositorCollateralGain(dennis)).toString()
     assert.equal(dennis_Deposit_Before, dennis_Deposit_After)
     assert.equal(dennis_ETHGain_Before, dennis_ETHGain_After)
   })
@@ -2427,8 +2427,8 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     // Check A's collateral and debt remain the same
-    const entireColl_A = (await troveManager.Troves(alice))[1].add(await troveManager.getPendingETHReward(alice))
-    const entireDebt_A = (await troveManager.Troves(alice))[0].add(await troveManager.getPendingLUSDDebtReward(alice))
+    const entireColl_A = (await troveManager.Troves(alice))[1].add(await troveManager.getPendingCollateralReward(alice))
+    const entireDebt_A = (await troveManager.Troves(alice))[0].add(await troveManager.getPendingDebtReward(alice))
 
     assert.equal(entireColl_A.toString(), A_coll)
     assert.equal(entireDebt_A.toString(), A_totalDebt)
@@ -2575,13 +2575,13 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     const ETHinSP = (await stabilityPool.getETH()).toString()
 
     // Check remaining LUSD Deposits and ETH gain, for whale and depositors whose troves were liquidated
-    const whale_Deposit_After = (await stabilityPool.getCompoundedLUSDDeposit(whale)).toString()
-    const alice_Deposit_After = (await stabilityPool.getCompoundedLUSDDeposit(alice)).toString()
-    const bob_Deposit_After = (await stabilityPool.getCompoundedLUSDDeposit(bob)).toString()
+    const whale_Deposit_After = (await stabilityPool.getCompoundedDebtDeposit(whale)).toString()
+    const alice_Deposit_After = (await stabilityPool.getCompoundedDebtDeposit(alice)).toString()
+    const bob_Deposit_After = (await stabilityPool.getCompoundedDebtDeposit(bob)).toString()
 
-    const whale_ETHGain = (await stabilityPool.getDepositorETHGain(whale)).toString()
-    const alice_ETHGain = (await stabilityPool.getDepositorETHGain(alice)).toString()
-    const bob_ETHGain = (await stabilityPool.getDepositorETHGain(bob)).toString()
+    const whale_ETHGain = (await stabilityPool.getDepositorCollateralGain(whale)).toString()
+    const alice_ETHGain = (await stabilityPool.getDepositorCollateralGain(alice)).toString()
+    const bob_ETHGain = (await stabilityPool.getDepositorCollateralGain(bob)).toString()
 
     const liquidatedDebt = A_totalDebt.add(B_totalDebt).add(C_totalDebt)
     const liquidatedColl = A_coll.add(B_coll).add(C_coll)
@@ -2652,13 +2652,13 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     assert.equal(ETHinSP_Before, ETHinSP_After)
 
     // Check remaining LUSD Deposits and ETH gain, for whale and depositors whose troves were liquidated
-    const whale_Deposit_After = (await stabilityPool.getCompoundedLUSDDeposit(whale)).toString()
-    const alice_Deposit_After = (await stabilityPool.getCompoundedLUSDDeposit(alice)).toString()
-    const bob_Deposit_After = (await stabilityPool.getCompoundedLUSDDeposit(bob)).toString()
+    const whale_Deposit_After = (await stabilityPool.getCompoundedDebtDeposit(whale)).toString()
+    const alice_Deposit_After = (await stabilityPool.getCompoundedDebtDeposit(alice)).toString()
+    const bob_Deposit_After = (await stabilityPool.getCompoundedDebtDeposit(bob)).toString()
 
-    const whale_ETHGain_After = (await stabilityPool.getDepositorETHGain(whale)).toString()
-    const alice_ETHGain_After = (await stabilityPool.getDepositorETHGain(alice)).toString()
-    const bob_ETHGain_After = (await stabilityPool.getDepositorETHGain(bob)).toString()
+    const whale_ETHGain_After = (await stabilityPool.getDepositorCollateralGain(whale)).toString()
+    const alice_ETHGain_After = (await stabilityPool.getDepositorCollateralGain(alice)).toString()
+    const bob_ETHGain_After = (await stabilityPool.getDepositorCollateralGain(bob)).toString()
 
     assert.equal(whale_Deposit_After, dec(400, 18))
     assert.equal(alice_Deposit_After, dec(100, 18))
@@ -3770,13 +3770,13 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     assert.equal((await troveManager.Troves(dennis))[3], '1')
 
     // Confirm D, B, C coll & debt have not changed
-    const dennisDebt_After = (await troveManager.Troves(dennis))[0].add(await troveManager.getPendingLUSDDebtReward(dennis))
-    const bobDebt_After = (await troveManager.Troves(bob))[0].add(await troveManager.getPendingLUSDDebtReward(bob))
-    const carolDebt_After = (await troveManager.Troves(carol))[0].add(await troveManager.getPendingLUSDDebtReward(carol))
+    const dennisDebt_After = (await troveManager.Troves(dennis))[0].add(await troveManager.getPendingDebtReward(dennis))
+    const bobDebt_After = (await troveManager.Troves(bob))[0].add(await troveManager.getPendingDebtReward(bob))
+    const carolDebt_After = (await troveManager.Troves(carol))[0].add(await troveManager.getPendingDebtReward(carol))
 
-    const dennisColl_After = (await troveManager.Troves(dennis))[1].add(await troveManager.getPendingETHReward(dennis))  
-    const bobColl_After = (await troveManager.Troves(bob))[1].add(await troveManager.getPendingETHReward(bob))
-    const carolColl_After = (await troveManager.Troves(carol))[1].add(await troveManager.getPendingETHReward(carol))
+    const dennisColl_After = (await troveManager.Troves(dennis))[1].add(await troveManager.getPendingCollateralReward(dennis))  
+    const bobColl_After = (await troveManager.Troves(bob))[1].add(await troveManager.getPendingCollateralReward(bob))
+    const carolColl_After = (await troveManager.Troves(carol))[1].add(await troveManager.getPendingCollateralReward(carol))
 
     assert.isTrue(dennisColl_After.eq(dennisColl_Before))
     assert.isTrue(bobColl_After.eq(bobColl_Before))
@@ -4059,8 +4059,8 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     // Check A's collateral and debt are the same
-    const entireColl_A = (await troveManager.Troves(alice))[1].add(await troveManager.getPendingETHReward(alice))
-    const entireDebt_A = (await troveManager.Troves(alice))[0].add(await troveManager.getPendingLUSDDebtReward(alice))
+    const entireColl_A = (await troveManager.Troves(alice))[1].add(await troveManager.getPendingCollateralReward(alice))
+    const entireDebt_A = (await troveManager.Troves(alice))[0].add(await troveManager.getPendingDebtReward(alice))
 
     assert.equal(entireColl_A.toString(), A_coll)
     th.assertIsApproximatelyEqual(entireDebt_A.toString(), A_totalDebt)

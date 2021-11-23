@@ -173,8 +173,8 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
 
     for (depositor of currentDepositors) {
       const initialDeposit = (await stabilityPool.deposits(depositor))[0]
-      const finalDeposit = await stabilityPool.getCompoundedLUSDDeposit(depositor)
-      const ETHGain = await stabilityPool.getDepositorETHGain(depositor)
+      const finalDeposit = await stabilityPool.getCompoundedDebtDeposit(depositor)
+      const ETHGain = await stabilityPool.getDepositorCollateralGain(depositor)
       const ETHinSP = (await stabilityPool.getETH()).toString()
       const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
 
@@ -184,7 +184,7 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
       const ETHinSPAfter = (await stabilityPool.getETH()).toString()
       const LUSDinSPAfter = (await stabilityPool.getTotalLUSDDeposits()).toString()
       const LUSDBalanceSPAfter = (await lusdToken.balanceOf(stabilityPool.address))
-      const depositAfter = await stabilityPool.getCompoundedLUSDDeposit(depositor)
+      const depositAfter = await stabilityPool.getCompoundedDebtDeposit(depositor)
 
       console.log(`--Before withdrawal--
                     withdrawer addr: ${th.squeezeAddr(depositor)}

@@ -2,28 +2,28 @@
 
 pragma solidity 0.6.11;
 
-import "../Interfaces/ILUSDToken.sol";
+import "../Interfaces/IDebtToken.sol";
 
-contract LUSDTokenCaller {
-    ILUSDToken LUSD;
+contract DebtTokenCaller {
+    IDebtToken debt;
 
-    function setLUSD(ILUSDToken _LUSD) external {
-        LUSD = _LUSD;
+    function setdebt(IDebtToken _debt) external {
+        debt = _debt;
     }
 
-    function lusdMint(address _account, uint _amount) external {
-        LUSD.mint(_account, _amount);
+    function debtMint(address _account, uint _amount) external {
+        debt.mint(_account, _amount);
     }
 
-    function lusdBurn(address _account, uint _amount) external {
-        LUSD.burn(_account, _amount);
+    function debtBurn(address _account, uint _amount) external {
+        debt.burn(_account, _amount);
     }
 
-    function lusdSendToPool(address _sender,  address _poolAddress, uint256 _amount) external {
-        LUSD.sendToPool(_sender, _poolAddress, _amount);
+    function debtSendToPool(address _sender,  address _poolAddress, uint256 _amount) external {
+        debt.sendToPool(_sender, _poolAddress, _amount);
     }
 
-    function lusdReturnFromPool(address _poolAddress, address _receiver, uint256 _amount ) external {
-        LUSD.returnFromPool(_poolAddress, _receiver, _amount);
+    function debtReturnFromPool(address _poolAddress, address _receiver, uint256 _amount ) external {
+        debt.returnFromPool(_poolAddress, _receiver, _amount);
     }
 }

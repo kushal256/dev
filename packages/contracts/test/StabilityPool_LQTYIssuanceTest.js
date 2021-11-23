@@ -8,7 +8,7 @@ const toBN = th.toBN
 const getDifference = th.getDifference
 
 const TroveManagerTester = artifacts.require("TroveManagerTester")
-const LUSDToken = artifacts.require("LUSDToken")
+const DebtToken = artifacts.require("LUSDToken")
 
 contract('StabilityPool - LQTY Rewards', async accounts => {
 
@@ -51,7 +51,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
     beforeEach(async () => {
       contracts = await deploymentHelper.deployLiquityCore()
       contracts.troveManager = await TroveManagerTester.new()
-      contracts.lusdToken = await LUSDToken.new(
+      contracts.lusdToken = await DebtToken.new(
         contracts.troveManager.address,
         contracts.stabilityPool.address,
         contracts.borrowerOperations.address
@@ -142,7 +142,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       assert.equal(B_pendingLQTYGain, '0')
 
       // Check depositor B has a pending ETH gain
-      const B_pendingETHGain = await stabilityPool.getDepositorETHGain(B)
+      const B_pendingETHGain = await stabilityPool.getDepositorCollateralGain(B)
       assert.isTrue(B_pendingETHGain.gt(toBN('0')))
     })
 
@@ -1287,7 +1287,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       assert.isAtMost(getDifference(F2_LQTYBalance_After_M3, F2_expectedLQTYGain_M2.add(F2_expectedLQTYGain_M1)), 1e15)
 
       // Expect deposit C now to be 10125 LUSD
-      const C_compoundedLUSDDeposit = await stabilityPool.getCompoundedLUSDDeposit(C)
+      const C_compoundedLUSDDeposit = await stabilityPool.getCompoundedDebtDeposit(C)
       assert.isAtMost(getDifference(C_compoundedLUSDDeposit, dec(10125, 18)), 1000)
 
       // --- C withdraws ---
@@ -1304,7 +1304,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       // All depositors fully withdraw
       for (depositor of [A, B, C, D, E]) {
         await stabilityPool.withdrawFromSP(dec(100000, 18), { from: depositor })
-        const compoundedLUSDDeposit = await stabilityPool.getCompoundedLUSDDeposit(depositor)
+        const compoundedLUSDDeposit = await stabilityPool.getCompoundedDebtDeposit(depositor)
         assert.equal(compoundedLUSDDeposit, '0')
       }
 

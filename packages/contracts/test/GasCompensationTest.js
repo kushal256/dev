@@ -2,7 +2,7 @@ const deploymentHelper = require("../utils/deploymentHelpers.js")
 const testHelpers = require("../utils/testHelpers.js")
 const TroveManagerTester = artifacts.require("./TroveManagerTester.sol")
 const BorrowerOperationsTester = artifacts.require("./BorrowerOperationsTester.sol")
-const LUSDToken = artifacts.require("LUSDToken")
+const DebtToken = artifacts.require("LUSDToken")
 
 const th = testHelpers.TestHelper
 const dec = th.dec
@@ -51,7 +51,7 @@ contract('Gas compensation tests', async accounts => {
   beforeEach(async () => {
     contracts = await deploymentHelper.deployLiquityCore()
     contracts.troveManager = await TroveManagerTester.new()
-    contracts.lusdToken = await LUSDToken.new(
+    contracts.lusdToken = await DebtToken.new(
       contracts.troveManager.address,
       contracts.stabilityPool.address,
       contracts.borrowerOperations.address

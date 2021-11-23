@@ -8,7 +8,7 @@ const moneyVals = testHelpers.MoneyValues
 let latestRandomSeed = 31337
 
 const TroveManagerTester = artifacts.require("TroveManagerTester")
-const LUSDToken = artifacts.require("LUSDToken")
+const DebtToken = artifacts.require("LUSDToken")
 
 contract('HintHelpers', async accounts => {
  
@@ -74,7 +74,7 @@ contract('HintHelpers', async accounts => {
   before(async () => {
     contracts = await deploymentHelper.deployLiquityCore()
     contracts.troveManager = await TroveManagerTester.new()
-    contracts.lusdToken = await LUSDToken.new(
+    contracts.lusdToken = await DebtToken.new(
       contracts.troveManager.address,
       contracts.stabilityPool.address,
       contracts.borrowerOperations.address

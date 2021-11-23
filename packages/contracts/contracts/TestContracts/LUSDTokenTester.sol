@@ -2,9 +2,9 @@
 
 pragma solidity 0.6.11;
 
-import "../LUSDToken.sol";
+import "../DebtToken.sol";
 
-contract LUSDTokenTester is LUSDToken {
+contract DebtTokenTester is DebtToken {
     
     bytes32 private immutable _PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
     
@@ -12,7 +12,7 @@ contract LUSDTokenTester is LUSDToken {
         address _troveManagerAddress,
         address _stabilityPoolAddress,
         address _borrowerOperationsAddress
-    ) public LUSDToken(_troveManagerAddress,
+    ) public DebtToken(_troveManagerAddress,
                       _stabilityPoolAddress,
                       _borrowerOperationsAddress) {}
     

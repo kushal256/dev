@@ -10,10 +10,12 @@ import "../Dependencies/console.sol";
 import "../Interfaces/ILQTYToken.sol";
 import "../Interfaces/ILQTYStaking.sol";
 import "../Dependencies/LiquityMath.sol";
-import "../Interfaces/ILUSDToken.sol";
+import "../Interfaces/IDebtToken.sol";
+import "../LPRewards/Dependencies/SafeERC20.sol";
 
 contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
     using SafeMath for uint;
+    using SafeERC20 for IERC20;
 
     // --- Data ---
     string constant public NAME = "LQTYStaking";
@@ -21,19 +23,20 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
     mapping( address => uint) public stakes;
     uint public totalLQTYStaked;
 
-    uint public F_ETH;  // Running sum of ETH fees per-LQTY-staked
-    uint public F_LUSD; // Running sum of LQTY fees per-LQTY-staked
+    uint public F_Collateral;  // Running sum of Collateral fees per-LQTY-staked
+    uint public F_Debt; // Running sum of LQTY fees per-LQTY-staked
 
-    // User snapshots of F_ETH and F_LUSD, taken at the point at which their latest deposit was made
+    // User snapshots of F_Collateral and F_Debt, taken at the point at which their latest deposit was made
     mapping (address => Snapshot) public snapshots; 
 
     struct Snapshot {
-        uint F_ETH_Snapshot;
-        uint F_LUSD_Snapshot;
+        uint F_Collateral_Snapshot;
+        uint F_Debt_Snapshot;
     }
     
     ILQTYToken public lqtyToken;
-    ILUSDToken public lusdToken;
+    IDebtToken public debtToken;
+    IERC20 internal collateralToken;
 
     address public troveManagerAddress;
     address public borrowerOperationsAddress;
@@ -46,14 +49,15 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
     event TroveManagerAddressSet(address _troveManager);
     event BorrowerOperationsAddressSet(address _borrowerOperationsAddress);
     event ActivePoolAddressSet(address _activePoolAddress);
+    event CollateralTokenAddressChanged(address _collateralTokenAddress);
 
     event StakeChanged(address indexed staker, uint newStake);
-    event StakingGainsWithdrawn(address indexed staker, uint LUSDGain, uint ETHGain);
-    event F_ETHUpdated(uint _F_ETH);
-    event F_LUSDUpdated(uint _F_LUSD);
+    event StakingGainsWithdrawn(address indexed staker, uint DebtGain, uint CollateralGain);
+    event F_CollateralUpdated(uint _F_Collateral);
+    event F_DebtUpdated(uint _F_Debt);
     event TotalLQTYStakedUpdated(uint _totalLQTYStaked);
     event CollateralSent(address _account, uint _amount);
-    event StakerSnapshotsUpdated(address _staker, uint _F_ETH, uint _F_LUSD);
+    event StakerSnapshotsUpdated(address _staker, uint _F_Collateral, uint _F_Debt);
 
     // --- Functions ---
 
@@ -63,7 +67,8 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
         address _debtTokenAddress,
         address _troveManagerAddress, 
         address _borrowerOperationsAddress,
-        address _activePoolAddress
+        address _activePoolAddress,
+        address _collateralTokenAddress
     ) 
         external 
         onlyOwner 
@@ -74,34 +79,37 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
         checkContract(_troveManagerAddress);
         checkContract(_borrowerOperationsAddress);
         checkContract(_activePoolAddress);
+        checkContract(_collateralTokenAddress);
 
         lqtyToken = ILQTYToken(_lqtyTokenAddress);
-        lusdToken = ILUSDToken(_debtTokenAddress);
+        debtToken = IDebtToken(_debtTokenAddress);
         troveManagerAddress = _troveManagerAddress;
         borrowerOperationsAddress = _borrowerOperationsAddress;
         activePoolAddress = _activePoolAddress;
+        collateralToken = IERC20(_collateralTokenAddress);
 
         emit LQTYTokenAddressSet(_lqtyTokenAddress);
         emit LQTYTokenAddressSet(_debtTokenAddress);
         emit TroveManagerAddressSet(_troveManagerAddress);
         emit BorrowerOperationsAddressSet(_borrowerOperationsAddress);
         emit ActivePoolAddressSet(_activePoolAddress);
+        emit CollateralTokenAddressChanged(_collateralTokenAddress);
 
         _renounceOwnership();
     }
 
-    // If caller has a pre-existing stake, send any accumulated ETH and LUSD gains to them. 
+    // If caller has a pre-existing stake, send any accumulated Collateral and Debt gains to them. 
     function stake(uint _LQTYamount) external override {
         _requireNonZeroAmount(_LQTYamount);
 
         uint currentStake = stakes[msg.sender];
 
-        uint ETHGain;
-        uint LUSDGain;
-        // Grab any accumulated ETH and LUSD gains from the current stake
+        uint CollateralGain;
+        uint DebtGain;
+        // Grab any accumulated Collateral and Debt gains from the current stake
         if (currentStake != 0) {
-            ETHGain = _getPendingETHGain(msg.sender);
-            LUSDGain = _getPendingLUSDGain(msg.sender);
+            CollateralGain = _getPendingCollateralGain(msg.sender);
+            DebtGain = _getPendingDebtGain(msg.sender);
         }
     
        _updateUserSnapshots(msg.sender);
@@ -117,24 +125,24 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
         lqtyToken.sendToLQTYStaking(msg.sender, _LQTYamount);
 
         emit StakeChanged(msg.sender, newStake);
-        emit StakingGainsWithdrawn(msg.sender, LUSDGain, ETHGain);
+        emit StakingGainsWithdrawn(msg.sender, DebtGain, CollateralGain);
 
-         // Send accumulated LUSD and ETH gains to the caller
+         // Send accumulated Debt and Collateral gains to the caller
         if (currentStake != 0) {
-            lusdToken.transfer(msg.sender, LUSDGain);
-            _sendCollateralGainToUser(ETHGain);
+            debtToken.transfer(msg.sender, DebtGain);
+            _sendCollateralGainToUser(CollateralGain);
         }
     }
 
-    // Unstake the LQTY and send the it back to the caller, along with their accumulated LUSD & ETH gains. 
+    // Unstake the LQTY and send the it back to the caller, along with their accumulated Debt & Collateral gains. 
     // If requested amount > stake, send their entire stake.
     function unstake(uint _LQTYamount) external override {
         uint currentStake = stakes[msg.sender];
         _requireUserHasStake(currentStake);
 
-        // Grab any accumulated ETH and LUSD gains from the current stake
-        uint ETHGain = _getPendingETHGain(msg.sender);
-        uint LUSDGain = _getPendingLUSDGain(msg.sender);
+        // Grab any accumulated Collateral and Debt gains from the current stake
+        uint CollateralGain = _getPendingCollateralGain(msg.sender);
+        uint DebtGain = _getPendingDebtGain(msg.sender);
         
         _updateUserSnapshots(msg.sender);
 
@@ -154,68 +162,69 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
             emit StakeChanged(msg.sender, newStake);
         }
 
-        emit StakingGainsWithdrawn(msg.sender, LUSDGain, ETHGain);
+        emit StakingGainsWithdrawn(msg.sender, DebtGain, CollateralGain);
 
-        // Send accumulated LUSD and ETH gains to the caller
-        lusdToken.transfer(msg.sender, LUSDGain);
-        _sendCollateralGainToUser(ETHGain);
+        // Send accumulated Debt and Collateral gains to the caller
+        debtToken.transfer(msg.sender, DebtGain);
+        _sendCollateralGainToUser(CollateralGain);
     }
 
     // --- Reward-per-unit-staked increase functions. Called by Liquity core contracts ---
 
-    function increaseF_ETH(uint _ETHFee) external override {
+    function increaseF_Collateral(uint _CollateralFee) external override {
         _requireCallerIsTroveManager();
-        uint ETHFeePerLQTYStaked;
+        uint CollateralFeePerLQTYStaked;
      
-        if (totalLQTYStaked > 0) {ETHFeePerLQTYStaked = _ETHFee.mul(DECIMAL_PRECISION).div(totalLQTYStaked);}
+        if (totalLQTYStaked > 0) {CollateralFeePerLQTYStaked = _CollateralFee.mul(DECIMAL_PRECISION).div(totalLQTYStaked);}
 
-        F_ETH = F_ETH.add(ETHFeePerLQTYStaked); 
-        emit F_ETHUpdated(F_ETH);
+        F_Collateral = F_Collateral.add(CollateralFeePerLQTYStaked); 
+        emit F_CollateralUpdated(F_Collateral);
     }
 
-    function increaseF_LUSD(uint _LUSDFee) external override {
+    function increaseF_Debt(uint _DebtFee) external override {
         _requireCallerIsBorrowerOperations();
-        uint LUSDFeePerLQTYStaked;    
-        if (totalLQTYStaked > 0) {LUSDFeePerLQTYStaked = _LUSDFee.mul(DECIMAL_PRECISION).div(totalLQTYStaked);}
-        F_LUSD = F_LUSD.add(LUSDFeePerLQTYStaked);
-        emit F_LUSDUpdated(F_LUSD);
+        uint DebtFeePerLQTYStaked;    
+        if (totalLQTYStaked > 0) {DebtFeePerLQTYStaked = _DebtFee.mul(DECIMAL_PRECISION).div(totalLQTYStaked);}
+        F_Debt = F_Debt.add(DebtFeePerLQTYStaked);
+        emit F_DebtUpdated(F_Debt);
     }
 
     // --- Pending reward functions ---
 
-    function getPendingETHGain(address _user) external view override returns (uint) {
-        return _getPendingETHGain(_user);
+    function getPendingCollateralGain(address _user) external view override returns (uint) {
+        return _getPendingCollateralGain(_user);
     }
 
-    function _getPendingETHGain(address _user) internal view returns (uint) {
-        uint F_ETH_Snapshot = snapshots[_user].F_ETH_Snapshot;
-        uint ETHGain = stakes[_user].mul(F_ETH.sub(F_ETH_Snapshot)).div(DECIMAL_PRECISION);
-        return ETHGain;
+    function _getPendingCollateralGain(address _user) internal view returns (uint) {
+        uint F_Collateral_Snapshot = snapshots[_user].F_Collateral_Snapshot;
+        uint CollateralGain = stakes[_user].mul(F_Collateral.sub(F_Collateral_Snapshot)).div(DECIMAL_PRECISION);
+        return CollateralGain;
     }
 
-    function getPendingLUSDGain(address _user) external view override returns (uint) {
-        return _getPendingLUSDGain(_user);
+    function getPendingDebtGain(address _user) external view override returns (uint) {
+        return _getPendingDebtGain(_user);
     }
 
-    function _getPendingLUSDGain(address _user) internal view returns (uint) {
-        uint F_LUSD_Snapshot = snapshots[_user].F_LUSD_Snapshot;
-        uint LUSDGain = stakes[_user].mul(F_LUSD.sub(F_LUSD_Snapshot)).div(DECIMAL_PRECISION);
-        return LUSDGain;
+    function _getPendingDebtGain(address _user) internal view returns (uint) {
+        uint F_Debt_Snapshot = snapshots[_user].F_Debt_Snapshot;
+        uint DebtGain = stakes[_user].mul(F_Debt.sub(F_Debt_Snapshot)).div(DECIMAL_PRECISION);
+        return DebtGain;
     }
 
     // --- Internal helper functions ---
 
     function _updateUserSnapshots(address _user) internal {
-        snapshots[_user].F_ETH_Snapshot = F_ETH;
-        snapshots[_user].F_LUSD_Snapshot = F_LUSD;
-        emit StakerSnapshotsUpdated(_user, F_ETH, F_LUSD);
+        snapshots[_user].F_Collateral_Snapshot = F_Collateral;
+        snapshots[_user].F_Debt_Snapshot = F_Debt;
+        emit StakerSnapshotsUpdated(_user, F_Collateral, F_Debt);
     }
 
-    function _sendCollateralGainToUser(uint ETHGain) internal {
-        emit CollateralSent(msg.sender, ETHGain);
-        require(1 < 0, "asdf _sendCollateralGainToUser!");
-        (bool success, ) = msg.sender.call{value: ETHGain}("");
-        require(success, "LQTYStaking: Failed to send accumulated ETHGain");
+    function _sendCollateralGainToUser(uint CollateralGain) internal {
+        emit CollateralSent(msg.sender, CollateralGain);
+        
+        collateralToken.safeIncreaseAllowance(address(this), CollateralGain);
+        collateralToken.safeTransferFrom(address(this), msg.sender, CollateralGain);        
+        // require(success, "LQTYStaking: Failed to send accumulated CollateralGain");
     }
 
     // --- 'require' functions ---
@@ -241,6 +250,7 @@ contract LQTYStaking is ILQTYStaking, Ownable, CheckContract, BaseMath {
     }
 
     receive() external payable {
+        require(1<0, "in LQTYStaking payable!");
         _requireCallerIsActivePool();
     }
 }

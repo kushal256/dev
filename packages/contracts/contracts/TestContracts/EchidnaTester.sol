@@ -9,7 +9,7 @@ import "../DefaultPool.sol";
 import "../StabilityPool.sol";
 import "../GasPool.sol";
 import "../CollSurplusPool.sol";
-import "../LUSDToken.sol";
+import "../DebtToken.sol";
 import "./PriceFeedTestnet.sol";
 import "../SortedTroves.sol";
 import "./EchidnaProxy.sol";
@@ -28,7 +28,7 @@ contract EchidnaTester {
     uint constant private INITIAL_BALANCE = 1e24;
     uint private MCR;
     uint private CCR;
-    uint private LUSD_GAS_COMPENSATION;
+    uint private DEBT_GAS_COMPENSATION;
 
     TroveManager public troveManager;
     BorrowerOperations public borrowerOperations;
@@ -37,7 +37,7 @@ contract EchidnaTester {
     StabilityPool public stabilityPool;
     GasPool public gasPool;
     CollSurplusPool public collSurplusPool;
-    LUSDToken public lusdToken;
+    DebtToken public lusdToken;
     PriceFeedTestnet priceFeedTestnet;
     SortedTroves sortedTroves;
     ERC20 public collateralToken;
@@ -53,7 +53,7 @@ contract EchidnaTester {
         defaultPool = new DefaultPool();
         stabilityPool = new StabilityPool();
         gasPool = new GasPool();
-        lusdToken = new LUSDToken(
+        lusdToken = new DebtToken(
             address(troveManager),
             address(stabilityPool),
             address(borrowerOperations)
@@ -100,7 +100,7 @@ contract EchidnaTester {
 
         MCR = borrowerOperations.MCR();
         CCR = borrowerOperations.CCR();
-        LUSD_GAS_COMPENSATION = borrowerOperations.LUSD_GAS_COMPENSATION();
+        DEBT_GAS_COMPENSATION = borrowerOperations.DEBT_GAS_COMPENSATION();
         require(MCR > 0);
         require(CCR > 0);
 
@@ -142,7 +142,7 @@ contract EchidnaTester {
     function getAdjustedETH(uint actorBalance, uint _ETH, uint ratio) internal view returns (uint) {
         uint price = priceFeedTestnet.getPrice();
         require(price > 0);
-        uint minETH = ratio.mul(LUSD_GAS_COMPENSATION).div(price);
+        uint minETH = ratio.mul(DEBT_GAS_COMPENSATION).div(price);
         require(actorBalance > minETH);
         uint ETH = minETH + _ETH % (actorBalance - minETH);
         return ETH;
@@ -151,11 +151,11 @@ contract EchidnaTester {
     function getAdjustedLUSD(uint ETH, uint _LUSDAmount, uint ratio) internal view returns (uint) {
         uint price = priceFeedTestnet.getPrice();
         uint LUSDAmount = _LUSDAmount;
-        uint compositeDebt = LUSDAmount.add(LUSD_GAS_COMPENSATION);
+        uint compositeDebt = LUSDAmount.add(DEBT_GAS_COMPENSATION);
         uint ICR = LiquityMath._computeCR(ETH, compositeDebt, price);
         if (ICR < ratio) {
             compositeDebt = ETH.mul(price).div(ratio);
-            LUSDAmount = compositeDebt.sub(LUSD_GAS_COMPENSATION);
+            LUSDAmount = compositeDebt.sub(DEBT_GAS_COMPENSATION);
         }
         return LUSDAmount;
     }
@@ -339,7 +339,7 @@ contract EchidnaTester {
             //else return false;
 
             // Minimum debt (gas compensation)
-            if (troveManager.getTroveDebt(currentTrove) < LUSD_GAS_COMPENSATION) {
+            if (troveManager.getTroveDebt(currentTrove) < DEBT_GAS_COMPENSATION) {
                 return false;
             }
             // Uncomment to check that the condition is meaningful
@@ -417,7 +417,7 @@ contract EchidnaTester {
             return false;
         }
 
-        uint stabilityPoolBalance = stabilityPool.getTotalLUSDDeposits();
+        uint stabilityPoolBalance = stabilityPool.getTotalDebtDeposits();
         address currentTrove = sortedTroves.getFirst();
         uint trovesBalance;
         while (currentTrove != address(0)) {

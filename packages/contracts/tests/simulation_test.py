@@ -121,7 +121,7 @@ def contracts():
     contracts.collSurplusPool = CollSurplusPool.deploy({ 'from': accounts[0] })
     contracts.borrowerOperations = BorrowerOperationsTester.deploy({ 'from': accounts[0] })
     contracts.hintHelpers = HintHelpers.deploy({ 'from': accounts[0] })
-    contracts.lusdToken = LUSDToken.deploy(
+    contracts.lusdToken = DebtToken.deploy(
         contracts.troveManager.address,
         contracts.stabilityPool.address,
         contracts.borrowerOperations.address,
@@ -189,7 +189,7 @@ def _test_test(contracts):
 * LQTY pool return determined
 """
 def test_run_simulation(add_accounts, contracts, print_expectations):
-    LUSD_GAS_COMPENSATION = contracts.troveManager.LUSD_GAS_COMPENSATION() / 1e18
+    DEBT_GAS_COMPENSATION = contracts.troveManager.DEBT_GAS_COMPENSATION() / 1e18
     MIN_NET_DEBT = contracts.troveManager.MIN_NET_DEBT() / 1e18
 
     contracts.priceFeedTestnet.setPrice(floatToWei(price_ether[0]), { 'from': accounts[0] })
