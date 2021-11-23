@@ -80,7 +80,7 @@ Visit [liquity.org](https://www.liquity.org) to find out more and join the discu
   - [LQTY Staking Functions  `LQTYStaking.sol`](#lqty-staking-functions--lqtystakingsol)
   - [Lockup Contract Factory `LockupContractFactory.sol`](#lockup-contract-factory-lockupcontractfactorysol)
   - [Lockup contract - `LockupContract.sol`](#lockup-contract---lockupcontractsol)
-  - [LUSD token `LUSDToken.sol` and LQTY token `LQTYToken.sol`](#lusd-token-lusdtokensol-and-lqty-token-lqtytokensol)
+  - [LUSD token `DebtToken.sol` and LQTY token `LQTYToken.sol`](#lusd-token-lusdtokensol-and-lqty-token-lqtytokensol)
 - [Supplying Hints to Trove operations](#supplying-hints-to-trove-operations)
   - [Hints for `redeemCollateral`](#hints-for-redeemcollateral)
     - [First redemption hint](#first-redemption-hint)
@@ -373,7 +373,7 @@ The three main contracts - `BorrowerOperations.sol`, `TroveManager.sol` and `Sta
 
 `StabilityPool.sol` - contains functionality for Stability Pool operations: making deposits, and withdrawing compounded deposits and accumulated ETH and LQTY gains. Holds the LUSD Stability Pool deposits, and the ETH gains for depositors, from liquidations.
 
-`LUSDToken.sol` - the stablecoin token contract, which implements the ERC20 fungible token standard in conjunction with EIP-2612 and a mechanism that blocks (accidental) transfers to addresses like the StabilityPool and address(0) that are not supposed to receive funds through direct transfers. The contract mints, burns and transfers LUSD tokens.
+`DebtToken.sol` - the stablecoin token contract, which implements the ERC20 fungible token standard in conjunction with EIP-2612 and a mechanism that blocks (accidental) transfers to addresses like the StabilityPool and address(0) that are not supposed to receive funds through direct transfers. The contract mints, burns and transfers LUSD tokens.
 
 `SortedTroves.sol` - a doubly linked list that stores addresses of Trove owners, sorted by their individual collateralization ratio (ICR). It inserts and re-inserts Troves at the correct position, based on their ICR.
 
@@ -761,9 +761,9 @@ All data structures with the ‘public’ visibility specifier are ‘gettable�
 
 `getTroveOwnersCount()`: get the number of active Troves in the system.
 
-`getPendingETHReward(address _borrower)`: get the pending ETH reward from liquidation redistribution events, for the given Trove.
+`getPendingCollateralReward(address _borrower)`: get the pending ETH reward from liquidation redistribution events, for the given Trove.
 
-`getPendingLUSDDebtReward(address _borrower)`: get the pending Trove debt "reward" (i.e. the amount of extra debt assigned to the Trove) from liquidation redistribution events.
+`getPendingDebtReward(address _borrower)`: get the pending Trove debt "reward" (i.e. the amount of extra debt assigned to the Trove) from liquidation redistribution events.
 
 `getEntireDebtAndColl(address _borrower)`: returns a Trove’s entire debt and collateral, which respectively include any pending debt rewards and ETH rewards from prior redistributions.
 
@@ -797,13 +797,13 @@ The number of Troves to consider for redemption can be capped by passing a non-z
 
 `registerFrontEnd(uint _kickbackRate)`: Registers an address as a front end and sets their chosen kickback rate in range `[0,1]`.
 
-`getDepositorETHGain(address _depositor)`: returns the accumulated ETH gain for a given Stability Pool depositor
+`getDepositorCollateralGain(address _depositor)`: returns the accumulated ETH gain for a given Stability Pool depositor
 
 `getDepositorLQTYGain(address _depositor)`: returns the accumulated LQTY gain for a given Stability Pool depositor
 
 `getFrontEndLQTYGain(address _frontEnd)`: returns the accumulated LQTY gain for a given front end
 
-`getCompoundedLUSDDeposit(address _depositor)`: returns the remaining deposit amount for a given Stability Pool depositor
+`getCompoundedDebtDeposit(address _depositor)`: returns the remaining deposit amount for a given Stability Pool depositor
 
 `getCompoundedFrontEndStake(address _frontEnd)`: returns the remaining front end stake for a given front end
 
@@ -821,7 +821,7 @@ The number of Troves to consider for redemption can be capped by passing a non-z
 
 `withdrawLQTY()`: When the current time is later than the `unlockTime` and the caller is the beneficiary, it transfers their LQTY to them.
 
-### LUSD token `LUSDToken.sol` and LQTY token `LQTYToken.sol`
+### LUSD token `DebtToken.sol` and LQTY token `LQTYToken.sol`
 
 Standard ERC20 and EIP2612 (`permit()` ) functionality.
 
@@ -881,7 +881,7 @@ Hints allow cheaper Trove operations for the user, at the expense of a slightly 
   const ETHColl = toBN(toWei('5')) // borrower wants to lock 5 ETH collateral
 
   // Call deployed TroveManager contract to read the liquidation reserve and latest borrowing fee
-  const liquidationReserve = await troveManager.LUSD_GAS_COMPENSATION()
+  const liquidationReserve = await troveManager.DEBT_GAS_COMPENSATION()
   const expectedFee = await troveManager.getBorrowingFeeWithDecay(LUSDAmount)
   
   // Total debt of the new trove = LUSD amount drawn, plus fee, plus the liquidation reserve
@@ -1283,7 +1283,7 @@ The decay parameter is tuned such that the fee changes by a factor of 0.99 per h
 
 LQTY holders may `stake` and `unstake` their LQTY in the `LQTYStaking.sol` contract. 
 
-When a fee event occurs, the fee in LUSD or ETH is sent to the staking contract, and a reward-per-unit-staked sum (`F_ETH`, or `F_LUSD`) is incremented. A LQTY stake earns a share of the fee equal to its share of the total LQTY staked, at the instant the fee occurred.
+When a fee event occurs, the fee in LUSD or ETH is sent to the staking contract, and a reward-per-unit-staked sum (`F_ETH`, or `F_Debt`) is incremented. A LQTY stake earns a share of the fee equal to its share of the total LQTY staked, at the instant the fee occurred.
 
 This staking formula and implementation follows the basic [“Batog” pull-based reward distribution](http://batog.info/papers/scalable-reward-distribution.pdf).
 

@@ -72,7 +72,7 @@
   },
   {
     "inputs": [],
-    "name": "DECIMAL_PRECISION",
+    "name": "DEBT_GAS_COMPENSATION",
     "outputs": [
       {
         "internalType": "uint256",
@@ -85,7 +85,7 @@
   },
   {
     "inputs": [],
-    "name": "LUSD_GAS_COMPENSATION",
+    "name": "DECIMAL_PRECISION",
     "outputs": [
       {
         "internalType": "uint256",

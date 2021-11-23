@@ -23,7 +23,7 @@ contract('Gas cost tests', async accounts => {
   const multisig = accounts[1000]
 
   let priceFeed
-  let lusdToken
+  let debtToken
 
   let sortedTroves
   let troveManager
@@ -40,7 +40,7 @@ contract('Gas cost tests', async accounts => {
     const LQTYContracts = await deploymentHelper.deployLQTYContracts(bountyAddress, lpRewardsAddress, multisig)
 
     priceFeed = contracts.priceFeedTestnet
-    lusdToken = contracts.lusdToken
+    debtToken = contracts.debtToken
     sortedTroves = contracts.sortedTroves
     troveManager = contracts.troveManager
     activePool = contracts.activePool
@@ -491,7 +491,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //1 acct opens Trove with 1 ether and withdraw 100 LUSD
@@ -531,7 +531,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -554,7 +554,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //2 acct opens Trove with 1 ether and withdraw 100 LUSD
@@ -591,7 +591,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -615,7 +615,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //3 accts open Trove with 1 ether and withdraw 100 LUSD
@@ -652,7 +652,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -675,7 +675,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //5 accts open Trove with 1 ether and withdraw 100 LUSD
@@ -712,7 +712,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -736,7 +736,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //10 accts open Trove with 1 ether and withdraw 100 LUSD
@@ -773,7 +773,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -796,7 +796,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //30 accts open Trove with 1 ether and withdraw 100 LUSD
@@ -833,7 +833,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -857,7 +857,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //30 accts open Trove with 1 ether and withdraw 100 LUSD
@@ -894,7 +894,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -917,7 +917,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //40 accts open Trove with 1 ether and withdraw 100 LUSD
@@ -954,7 +954,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -977,7 +977,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     //45 accts open Trove with 1 ether and withdraw 100 LUSD
@@ -1014,7 +1014,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1059,7 +1059,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28),ZERO_ADDRESS,  { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1089,7 +1089,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1132,7 +1132,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS,  { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1162,7 +1162,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1206,7 +1206,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1236,7 +1236,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1279,7 +1279,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1309,7 +1309,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1352,7 +1352,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1382,7 +1382,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1425,7 +1425,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1455,7 +1455,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1498,7 +1498,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1528,7 +1528,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1571,7 +1571,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1601,7 +1601,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 
@@ -1644,7 +1644,7 @@ contract('Gas cost tests', async accounts => {
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
     assert.equal(LUSDinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
@@ -1674,7 +1674,7 @@ contract('Gas cost tests', async accounts => {
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinSP_After = await stabilityPool.getTotalDebtDeposits()
     assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
     assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
 

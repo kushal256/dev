@@ -16,7 +16,7 @@ Using previously deployed collSurplusPool contract at address 0x3D32e8b97Ed58813
 Using previously deployed borrowerOperations contract at address 0x24179CD81c9e782A4096035f7eC97fB8B783e007
 Using previously deployed hintHelpers contract at address 0xE84251b93D9524E0d2e621Ba7dc7cb3579F997C0
 Using previously deployed tellorCaller contract at address 0xAd430500ECDa11E38C9bCB08a702274b94641112
-Using previously deployed lusdToken contract at address 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0
+Using previously deployed debtToken contract at address 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0
 Contract priceFeed already verified
 Contract sortedTroves already verified
 Contract troveManager already verified
@@ -28,10 +28,10 @@ Contract collSurplusPool already verified
 Contract borrowerOperations already verified
 Contract hintHelpers already verified
 Contract tellorCaller already verified
-Contract lusdToken already verified
+Contract debtToken already verified
 Contract objects addresses:
 priceFeed: 0x4c517D4e2C851CA76d7eC94B805269Df0f2201De
-lusdToken: 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0
+debtToken: 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0
 sortedTroves: 0x8FdD3fbFEb32b28fb73555518f8b361bCeA741A6
 troveManager: 0xA39739EF8b0231DbFA0DcdA07d7e29faAbCf4bb2
 activePool: 0xDf9Eb223bAFBE5c5271415C75aeCD68C21fE3D7F
@@ -579,8 +579,8 @@ TroveManager state variables:
 Total trove stakes: 188801.710169118875210030
 Snapshot of total trove stakes before last liq. : 137204.600258289651261017
 Snapshot of total trove collateral before last liq. : 137204.600258289651261017
-L_ETH: .000000000000000000
-L_LUSDDebt: .000000000000000000
+L_collateral: .000000000000000000
+L_debt: .000000000000000000
 StabilityPool state variables:
 Product P: .992747893314368378
 Current epoch: .000000000000000000
@@ -588,7 +588,7 @@ Current scale: .000000000000000000
 Sum S, at current epoch and scale: 3755627158167.383944157323204956
 Sum G, at current epoch and scale: 350441180152445098375.480031416426025963
 LQTYStaking state variables:
-F_LUSD: 587.935561712874486912
+F_Debt: 587.935561712874486912
 F_ETH: .000000000000000000
 CommunityIssuance state variables:
 Total LQTY issued to depositors / front ends: 101542.338617240448000000

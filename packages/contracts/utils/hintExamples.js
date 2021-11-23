@@ -34,7 +34,7 @@ async function main() {
   const ETHColl = toBN(toWei('5')) // borrower wants to lock 5 ETH collateral
 
   // Call deployed TroveManager contract to read the liquidation reserve and latest borrowing fee
-  const liquidationReserve = await troveManager.LUSD_GAS_COMPENSATION()
+  const liquidationReserve = await troveManager.DEBT_GAS_COMPENSATION()
   const expectedFee = await troveManager.getBorrowingFeeWithDecay(LUSDAmount)
   
   // Total debt of the new trove = LUSD amount drawn, plus fee, plus the liquidation reserve

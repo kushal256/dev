@@ -135,8 +135,8 @@ class BorrowerOperationsProxy extends Proxy {
     return this.proxyFunction('getCompositeDebt', params)
   }
 
-  async LUSD_GAS_COMPENSATION(...params) {
-    return this.proxyFunction('LUSD_GAS_COMPENSATION', params)
+  async DEBT_GAS_COMPENSATION(...params) {
+    return this.proxyFunction('DEBT_GAS_COMPENSATION', params)
   }
 
   async MIN_NET_DEBT(...params) {
@@ -195,12 +195,12 @@ class TroveManagerProxy extends Proxy {
     return this.proxyFunction('totalStakes', [])
   }
 
-  async getPendingETHReward(...params) {
-    return this.proxyFunction('getPendingETHReward', params)
+  async getPendingCollateralReward(...params) {
+    return this.proxyFunction('getPendingCollateralReward', params)
   }
 
-  async getPendingLUSDDebtReward(...params) {
-    return this.proxyFunction('getPendingLUSDDebtReward', params)
+  async getPendingDebtReward(...params) {
+    return this.proxyFunction('getPendingDebtReward', params)
   }
 
   async liquidate(user) {
@@ -227,12 +227,12 @@ class TroveManagerProxy extends Proxy {
     return this.proxyFunction('baseRate', [])
   }
 
-  async L_ETH() {
-    return this.proxyFunction('L_ETH', [])
+  async L_collateral() {
+    return this.proxyFunction('L_collateral', [])
   }
 
-  async L_LUSDDebt() {
-    return this.proxyFunction('L_LUSDDebt', [])
+  async L_debt() {
+    return this.proxyFunction('L_debt', [])
   }
 
   async rewardSnapshots(user) {
@@ -285,16 +285,16 @@ class StabilityPoolProxy extends Proxy {
     return this.forwardFunction(params, 'provideToSP(uint256,address)')
   }
 
-  async getCompoundedLUSDDeposit(user) {
-    return this.proxyFunctionWithUser('getCompoundedLUSDDeposit', user)
+  async getCompoundedDebtDeposit(user) {
+    return this.proxyFunctionWithUser('getCompoundedDebtDeposit', user)
   }
 
   async deposits(user) {
     return this.proxyFunctionWithUser('deposits', user)
   }
 
-  async getDepositorETHGain(user) {
-    return this.proxyFunctionWithUser('getDepositorETHGain', user)
+  async getDepositorCollateralGain(user) {
+    return this.proxyFunctionWithUser('getDepositorCollateralGain', user)
   }
 }
 
@@ -394,8 +394,8 @@ class LQTYStakingProxy extends Proxy {
     return this.proxyFunctionWithUser('stakes', user)
   }
 
-  async F_LUSD(user) {
-    return this.proxyFunctionWithUser('F_LUSD', user)
+  async F_Debt(user) {
+    return this.proxyFunctionWithUser('F_Debt', user)
   }
 }
 

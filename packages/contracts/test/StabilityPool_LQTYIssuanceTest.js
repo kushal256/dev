@@ -8,7 +8,7 @@ const toBN = th.toBN
 const getDifference = th.getDifference
 
 const TroveManagerTester = artifacts.require("TroveManagerTester")
-const LUSDToken = artifacts.require("LUSDToken")
+const DebtToken = artifacts.require("DebtToken")
 const ERC20Mock = artifacts.require("./ERC20Mock.sol")
 
 contract('StabilityPool - LQTY Rewards', async accounts => {
@@ -26,7 +26,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
   let contracts
 
   let priceFeed
-  let lusdToken
+  let debtToken
   let stabilityPool
   let sortedTroves
   let troveManager
@@ -61,7 +61,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       ERC20Mock.setAsDeployed(collateralToken)
       contracts = await deploymentHelper.deployLiquityCore(collateralToken);
       contracts.troveManager = await TroveManagerTester.new()
-      contracts.lusdToken = await LUSDToken.new(
+      contracts.debtToken = await DebtToken.new(
         contracts.troveManager.address,
         contracts.stabilityPool.address,
         contracts.borrowerOperations.address
@@ -69,7 +69,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       const LQTYContracts = await deploymentHelper.deployLQTYTesterContractsHardhat(bountyAddress, lpRewardsAddress, multisig)
 
       priceFeed = contracts.priceFeedTestnet
-      lusdToken = contracts.lusdToken
+      debtToken = contracts.debtToken
       stabilityPool = contracts.stabilityPool
       sortedTroves = contracts.sortedTroves
       troveManager = contracts.troveManager
@@ -152,7 +152,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       assert.equal(B_pendingLQTYGain, '0')
 
       // Check depositor B has a pending ETH gain
-      const B_pendingETHGain = await stabilityPool.getDepositorETHGain(B)
+      const B_pendingETHGain = await stabilityPool.getDepositorCollateralGain(B)
       assert.isTrue(B_pendingETHGain.gt(toBN('0')))
     })
 
@@ -400,7 +400,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       // Year 1 passes
       await th.fastForwardTime(await getDuration(timeValues.SECONDS_IN_ONE_YEAR), web3.currentProvider)
 
-      assert.equal(await stabilityPool.getTotalLUSDDeposits(), dec(60000, 18))
+      assert.equal(await stabilityPool.getTotalDebtDeposits(), dec(60000, 18))
 
       // Price Drops, defaulter1 liquidated. Stability Pool size drops by 50%
       await priceFeed.setPrice(dec(100, 18))
@@ -409,7 +409,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       assert.isFalse(await sortedTroves.contains(defaulter_1))
 
       // Confirm SP dropped from 60k to 30k
-      assert.isAtMost(getDifference(await stabilityPool.getTotalLUSDDeposits(), dec(30000, 18)), 1000)
+      assert.isAtMost(getDifference(await stabilityPool.getTotalDebtDeposits(), dec(30000, 18)), 1000)
 
       // Expected gains for each depositor after 1 year (50% total issued)
       const A_expectedLQTYGain_Y1 = communityLQTYSupply
@@ -1083,13 +1083,13 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       // Month 1 passes
       await th.fastForwardTime(await getDuration(timeValues.SECONDS_IN_ONE_MONTH), web3.currentProvider)
 
-      assert.equal(await stabilityPool.getTotalLUSDDeposits(), dec(100000, 18)) // total 100k
+      assert.equal(await stabilityPool.getTotalDebtDeposits(), dec(100000, 18)) // total 100k
 
       // LIQUIDATION 1
       await troveManager.liquidate(defaulter_1)
       assert.isFalse(await sortedTroves.contains(defaulter_1))
 
-      th.assertIsApproximatelyEqual(await stabilityPool.getTotalLUSDDeposits(), dec(50000, 18))  // 50k
+      th.assertIsApproximatelyEqual(await stabilityPool.getTotalDebtDeposits(), dec(50000, 18))  // 50k
 
       // --- CHECK GAINS AFTER L1 ---
 
@@ -1138,7 +1138,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       // E deposits 30k via F1
       await stabilityPool.provideToSP(dec(30000, 18), frontEnd_1, { from: E })
 
-      th.assertIsApproximatelyEqual(await stabilityPool.getTotalLUSDDeposits(), dec(80000, 18))
+      th.assertIsApproximatelyEqual(await stabilityPool.getTotalDebtDeposits(), dec(80000, 18))
 
       // Month 2 passes
       await th.fastForwardTime(timeValues.SECONDS_IN_ONE_MONTH, web3.currentProvider)
@@ -1147,7 +1147,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       await troveManager.liquidate(defaulter_2)
       assert.isFalse(await sortedTroves.contains(defaulter_2))
 
-      th.assertIsApproximatelyEqual(await stabilityPool.getTotalLUSDDeposits(), dec(60000, 18))
+      th.assertIsApproximatelyEqual(await stabilityPool.getTotalDebtDeposits(), dec(60000, 18))
 
       const startTime = await communityIssuanceTester.deploymentTime()
       const currentTime = await th.getLatestBlockTimestamp(web3)
@@ -1214,7 +1214,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       // B tops up 40k via F2
       await stabilityPool.provideToSP(dec(40000, 18), frontEnd_2, { from: B })
 
-      th.assertIsApproximatelyEqual(await stabilityPool.getTotalLUSDDeposits(), dec(100000, 18))
+      th.assertIsApproximatelyEqual(await stabilityPool.getTotalDebtDeposits(), dec(100000, 18))
 
       // Month 3 passes
       await th.fastForwardTime(timeValues.SECONDS_IN_ONE_MONTH, web3.currentProvider)
@@ -1223,7 +1223,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       await troveManager.liquidate(defaulter_3)
       assert.isFalse(await sortedTroves.contains(defaulter_3))
 
-      th.assertIsApproximatelyEqual(await stabilityPool.getTotalLUSDDeposits(), dec(90000, 18))
+      th.assertIsApproximatelyEqual(await stabilityPool.getTotalDebtDeposits(), dec(90000, 18))
 
       // --- CHECK GAINS AFTER L3 ---
 
@@ -1296,16 +1296,16 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       assert.isAtMost(getDifference(F2_LQTYBalance_After_M3, F2_expectedLQTYGain_M2.add(F2_expectedLQTYGain_M1)), 1e15)
 
       // Expect deposit C now to be 10125 LUSD
-      const C_compoundedLUSDDeposit = await stabilityPool.getCompoundedLUSDDeposit(C)
+      const C_compoundedLUSDDeposit = await stabilityPool.getCompoundedDebtDeposit(C)
       assert.isAtMost(getDifference(C_compoundedLUSDDeposit, dec(10125, 18)), 1000)
 
       // --- C withdraws ---
 
-      th.assertIsApproximatelyEqual(await stabilityPool.getTotalLUSDDeposits(), dec(90000, 18))
+      th.assertIsApproximatelyEqual(await stabilityPool.getTotalDebtDeposits(), dec(90000, 18))
 
       await stabilityPool.withdrawFromSP(dec(10000, 18), { from: C })
 
-      th.assertIsApproximatelyEqual(await stabilityPool.getTotalLUSDDeposits(), dec(80000, 18))
+      th.assertIsApproximatelyEqual(await stabilityPool.getTotalDebtDeposits(), dec(80000, 18))
 
       // Month 4 passes
       await th.fastForwardTime(timeValues.SECONDS_IN_ONE_MONTH, web3.currentProvider)
@@ -1313,7 +1313,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       // All depositors fully withdraw
       for (depositor of [A, B, C, D, E]) {
         await stabilityPool.withdrawFromSP(dec(100000, 18), { from: depositor })
-        const compoundedLUSDDeposit = await stabilityPool.getCompoundedLUSDDeposit(depositor)
+        const compoundedLUSDDeposit = await stabilityPool.getCompoundedDebtDeposit(depositor)
         assert.equal(compoundedLUSDDeposit, '0')
       }
 

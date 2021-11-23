@@ -51,5 +51,5 @@ export function handleRedemption(event: Redemption): void {
 }
 
 export function handleLTermsUpdated(event: LTermsUpdated): void {
-  updateTotalRedistributed(event.params._L_ETH, event.params._L_LUSDDebt);
+  updateTotalRedistributed(event.params._L_collateral, event.params._L_debt);
 }

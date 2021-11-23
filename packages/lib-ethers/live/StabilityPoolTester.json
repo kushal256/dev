@@ -426,7 +426,7 @@
           "type": "uint256"
         }
       ],
-      "name": "StabilityPoolLUSDBalanceUpdated",
+      "name": "StabilityPoolDebtBalanceUpdated",
       "type": "event"
     },
     {
@@ -502,7 +502,7 @@
     },
     {
       "inputs": [],
-      "name": "LUSD_GAS_COMPENSATION",
+      "name": "DEBT_GAS_COMPENSATION",
       "outputs": [
         {
           "internalType": "uint256",
@@ -902,7 +902,7 @@
           "type": "address"
         }
       ],
-      "name": "getCompoundedLUSDDeposit",
+      "name": "getCompoundedDebtDeposit",
       "outputs": [
         {
           "internalType": "uint256",
@@ -921,7 +921,7 @@
           "type": "address"
         }
       ],
-      "name": "getDepositorETHGain",
+      "name": "getDepositorCollateralGain",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1011,7 +1011,7 @@
     },
     {
       "inputs": [],
-      "name": "getTotalLUSDDeposits",
+      "name": "getTotalDebtDeposits",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1076,10 +1076,10 @@
     },
     {
       "inputs": [],
-      "name": "lusdToken",
+      "name": "debtToken",
       "outputs": [
         {
-          "internalType": "contract ILUSDToken",
+          "internalType": "contract DebtToken",
           "name": "",
           "type": "address"
         }

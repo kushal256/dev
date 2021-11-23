@@ -466,10 +466,10 @@
     },
     {
       "inputs": [],
-      "name": "lusdToken",
+      "name": "debtToken",
       "outputs": [
         {
-          "internalType": "contract LUSDToken",
+          "internalType": "contract DebtToken",
           "name": "",
           "type": "address"
         }

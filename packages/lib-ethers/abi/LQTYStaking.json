@@ -50,6 +50,19 @@
       {
         "indexed": false,
         "internalType": "address",
+        "name": "_collateralTokenAddress",
+        "type": "address"
+      }
+    ],
+    "name": "CollateralTokenAddressChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
         "name": "_debtTokenAddress",
         "type": "address"
       }
@@ -63,11 +76,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_F_ETH",
+        "name": "_F_Collateral",
         "type": "uint256"
       }
     ],
-    "name": "F_ETHUpdated",
+    "name": "F_CollateralUpdated",
     "type": "event"
   },
   {
@@ -76,11 +89,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_F_LUSD",
+        "name": "_F_Debt",
         "type": "uint256"
       }
     ],
-    "name": "F_LUSDUpdated",
+    "name": "F_DebtUpdated",
     "type": "event"
   },
   {
@@ -146,13 +159,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_F_ETH",
+        "name": "_F_Collateral",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_F_LUSD",
+        "name": "_F_Debt",
         "type": "uint256"
       }
     ],
@@ -171,13 +184,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "LUSDGain",
+        "name": "DebtGain",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "ETHGain",
+        "name": "CollateralGain",
         "type": "uint256"
       }
     ],
@@ -225,7 +238,7 @@
   },
   {
     "inputs": [],
-    "name": "F_ETH",
+    "name": "F_Collateral",
     "outputs": [
       {
         "internalType": "uint256",
@@ -238,7 +251,7 @@
   },
   {
     "inputs": [],
-    "name": "F_LUSD",
+    "name": "F_Debt",
     "outputs": [
       {
         "internalType": "uint256",
@@ -289,6 +302,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "debtToken",
+    "outputs": [
+      {
+        "internalType": "contract IDebtToken",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -296,7 +322,7 @@
         "type": "address"
       }
     ],
-    "name": "getPendingETHGain",
+    "name": "getPendingCollateralGain",
     "outputs": [
       {
         "internalType": "uint256",
@@ -315,7 +341,7 @@
         "type": "address"
       }
     ],
-    "name": "getPendingLUSDGain",
+    "name": "getPendingDebtGain",
     "outputs": [
       {
         "internalType": "uint256",
@@ -330,11 +356,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_ETHFee",
+        "name": "_CollateralFee",
         "type": "uint256"
       }
     ],
-    "name": "increaseF_ETH",
+    "name": "increaseF_Collateral",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -343,11 +369,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_LUSDFee",
+        "name": "_DebtFee",
         "type": "uint256"
       }
     ],
-    "name": "increaseF_LUSD",
+    "name": "increaseF_Debt",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -371,19 +397,6 @@
     "outputs": [
       {
         "internalType": "contract ILQTYToken",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lusdToken",
-    "outputs": [
-      {
-        "internalType": "contract ILUSDToken",
         "name": "",
         "type": "address"
       }
@@ -430,6 +443,11 @@
         "internalType": "address",
         "name": "_activePoolAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_collateralTokenAddress",
+        "type": "address"
       }
     ],
     "name": "setAddresses",
@@ -449,12 +467,12 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "F_ETH_Snapshot",
+        "name": "F_Collateral_Snapshot",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "F_LUSD_Snapshot",
+        "name": "F_Debt_Snapshot",
         "type": "uint256"
       }
     ],

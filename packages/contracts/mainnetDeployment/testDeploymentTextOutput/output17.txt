@@ -15,11 +15,11 @@ Using previously deployed collSurplusPool contract at address 0x4428EF2Edc5f091e
 Using previously deployed borrowerOperations contract at address 0x4E4E2eC25B1F591bb591d42A944eCc1CB9C79d8A
 Using previously deployed hintHelpers contract at address 0xAB1b14AfAE47054ca29A23858A7850E859aE6E31
 Using previously deployed tellorCaller contract at address 0x093FA46A3FC715B65E9A6d37ACD92d99F48B81F6
-Using previously deployed lusdToken contract at address 0xaa052d8b915c9311e5EA234dd24105d6208087A5
+Using previously deployed debtToken contract at address 0xaa052d8b915c9311e5EA234dd24105d6208087A5
 No Etherscan Url defined, skipping verification
 Contract objects addresses:
 priceFeed: 0x891d882fDACd2cB8DAeA5289f6019676E797EE5F
-lusdToken: 0xaa052d8b915c9311e5EA234dd24105d6208087A5
+debtToken: 0xaa052d8b915c9311e5EA234dd24105d6208087A5
 sortedTroves: 0xb8493cD0E7135462502DF048deeFc9b650fa789F
 troveManager: 0x111Bf64dA957C55601C6D0f9DB2Eb1aef4dDEE23
 activePool: 0x741d21A9dd5dcc14cc5cd84cD91fd74638AFA313
@@ -79,7 +79,7 @@ deployer stake: 3.000000000000000000
 deployer's trove status: 1
 deployer's LUSD balance: 2288.674452917999958289
 LUSD-ETH Pair token 0: 0xaa05...87A5,
-      LUSDToken contract addr: 0xaa05...87A5
+      DebtToken contract addr: 0xaa05...87A5
 LUSD-ETH Pair token 1: 0xC02a...6Cc2,
       WETH ERC20 contract addr: 0xc02a...6cc2
 LUSD-ETH Pair's LUSD reserves before provision: 40.036378355965833891

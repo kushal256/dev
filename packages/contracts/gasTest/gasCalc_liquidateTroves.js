@@ -23,7 +23,7 @@ contract('Gas cost tests', async accounts => {
   const multisig = accounts[1000]
 
   let priceFeed
-  let lusdToken
+  let debtToken
   let sortedTroves
   let troveManager
   let activePool
@@ -39,7 +39,7 @@ contract('Gas cost tests', async accounts => {
     const LQTYContracts = await deploymentHelper.deployLQTYContracts(bountyAddress, lpRewardsAddress, multisig)
 
     priceFeed = contracts.priceFeedTestnet
-    lusdToken = contracts.lusdToken
+    debtToken = contracts.debtToken
     sortedTroves = contracts.sortedTroves
     troveManager = contracts.troveManager
     activePool = contracts.activePool
@@ -958,7 +958,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1007,7 +1007,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999], ZERO_ADDRESS,{ from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1056,7 +1056,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1105,7 +1105,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1154,7 +1154,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1203,7 +1203,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1252,7 +1252,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1301,7 +1301,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1351,7 +1351,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1400,7 +1400,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1607,7 +1607,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1655,7 +1655,7 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
-    assert.equal((await stabilityPool.getTotalLUSDDeposits()), dec(1, 27))
+    assert.equal((await stabilityPool.getTotalDebtDeposits()), dec(1, 27))
 
     // Price drops, defaulters' ICR fall below MCR
     await priceFeed.setPrice(dec(100, 18))

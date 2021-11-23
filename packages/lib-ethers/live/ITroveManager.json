@@ -113,13 +113,13 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_L_ETH",
+          "name": "_L_collateral",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_L_LUSDDebt",
+          "name": "_L_debt",
           "type": "uint256"
         }
       ],
@@ -341,13 +341,13 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_L_ETH",
+          "name": "_L_collateral",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_L_LUSDDebt",
+          "name": "_L_debt",
           "type": "uint256"
         }
       ],
@@ -633,12 +633,12 @@
         },
         {
           "internalType": "uint256",
-          "name": "pendingLUSDDebtReward",
+          "name": "pendingDebtReward",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
-          "name": "pendingETHReward",
+          "name": "pendingCollateralReward",
           "type": "uint256"
         }
       ],
@@ -672,7 +672,7 @@
           "type": "address"
         }
       ],
-      "name": "getPendingETHReward",
+      "name": "getPendingCollateralReward",
       "outputs": [
         {
           "internalType": "uint256",
@@ -691,7 +691,7 @@
           "type": "address"
         }
       ],
-      "name": "getPendingLUSDDebtReward",
+      "name": "getPendingDebtReward",
       "outputs": [
         {
           "internalType": "uint256",
@@ -995,10 +995,10 @@
     },
     {
       "inputs": [],
-      "name": "lusdToken",
+      "name": "debtToken",
       "outputs": [
         {
-          "internalType": "contract ILUSDToken",
+          "internalType": "contract DebtToken",
           "name": "",
           "type": "address"
         }

@@ -283,7 +283,7 @@
   },
   {
     "inputs": [],
-    "name": "DECIMAL_PRECISION",
+    "name": "DEBT_GAS_COMPENSATION",
     "outputs": [
       {
         "internalType": "uint256",
@@ -296,7 +296,7 @@
   },
   {
     "inputs": [],
-    "name": "LUSD_GAS_COMPENSATION",
+    "name": "DECIMAL_PRECISION",
     "outputs": [
       {
         "internalType": "uint256",
@@ -467,6 +467,19 @@
   },
   {
     "inputs": [],
+    "name": "debtToken",
+    "outputs": [
+      {
+        "internalType": "contract IDebtToken",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "defaultPool",
     "outputs": [
       {
@@ -563,19 +576,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "lusdToken",
-    "outputs": [
-      {
-        "internalType": "contract ILUSDToken",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -607,6 +607,11 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_collateralAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "_maxFeePercentage",
         "type": "uint256"
       },
@@ -624,11 +629,6 @@
         "internalType": "address",
         "name": "_lowerHint",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_collateralAmount",
-        "type": "uint256"
       }
     ],
     "name": "openTrove",

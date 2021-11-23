@@ -483,10 +483,10 @@ class TestHelper {
     // console.log(`account: ${account}`)
     const rawColl = (await contracts.troveManager.Troves(account))[1]
     const rawDebt = (await contracts.troveManager.Troves(account))[0]
-    const pendingETHReward = await contracts.troveManager.getPendingETHReward(account)
-    const pendingLUSDDebtReward = await contracts.troveManager.getPendingLUSDDebtReward(account)
-    const entireColl = rawColl.add(pendingETHReward)
-    const entireDebt = rawDebt.add(pendingLUSDDebtReward)
+    const pendingCollateralReward = await contracts.troveManager.getPendingCollateralReward(account)
+    const pendingDebtReward = await contracts.troveManager.getPendingDebtReward(account)
+    const entireColl = rawColl.add(pendingCollateralReward)
+    const entireDebt = rawDebt.add(pendingDebtReward)
 
     return { entireColl, entireDebt }
   }
@@ -1071,7 +1071,7 @@ class TestHelper {
       let {entireColl, entireDebt } = await this.getEntireCollAndDebt(contracts, account)
       console.log(`entireColl: ${entireColl}`)
       console.log(`entireDebt: ${entireDebt}`)
-      const ETHGain = await contracts.stabilityPool.getDepositorETHGain(account)
+      const ETHGain = await contracts.stabilityPool.getDepositorCollateralGain(account)
       const newColl = entireColl.add(ETHGain)
       const {upperHint, lowerHint} = await this.getBorrowerOpsListHint(contracts, newColl, entireDebt)
 

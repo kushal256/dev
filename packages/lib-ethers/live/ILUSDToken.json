@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "ILUSDToken",
-  "sourceName": "contracts/Interfaces/ILUSDToken.sol",
+  "contractName": "DebtToken",
+  "sourceName": "contracts/Interfaces/IDebtToken.sol",
   "abi": [
     {
       "anonymous": false,
@@ -57,7 +57,7 @@
           "type": "uint256"
         }
       ],
-      "name": "LUSDTokenBalanceUpdated",
+      "name": "DebtTokenBalanceUpdated",
       "type": "event"
     },
     {

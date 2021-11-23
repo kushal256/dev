@@ -23,7 +23,7 @@ def logGlobalState(contracts):
     total_coll = (activePoolColl + defaultPoolColl).to("ether")
     print('Total Debt      ', total_debt)
     print('Total Coll      ', total_coll)
-    SP_LUSD = contracts.stabilityPool.getTotalLUSDDeposits().to("ether")
+    SP_LUSD = contracts.stabilityPool.getTotalDebtDeposits().to("ether")
     SP_ETH = contracts.stabilityPool.getETH().to("ether")
     print('SP LUSD         ', SP_LUSD)
     print('SP ETH          ', SP_ETH)

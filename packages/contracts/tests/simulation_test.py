@@ -26,7 +26,7 @@ def setAddresses(contracts):
         contracts.gasPool.address,
         contracts.collSurplusPool.address,
         contracts.priceFeedTestnet.address,
-        contracts.lusdToken.address,
+        contracts.debtToken.address,
         contracts.sortedTroves.address,
         contracts.lqtyToken.address,
         contracts.lqtyStaking.address,
@@ -42,7 +42,7 @@ def setAddresses(contracts):
         contracts.collSurplusPool.address,
         contracts.priceFeedTestnet.address,
         contracts.sortedTroves.address,
-        contracts.lusdToken.address,
+        contracts.debtToken.address,
         contracts.lqtyStaking.address,
         { 'from': accounts[0] }
     )
@@ -51,7 +51,7 @@ def setAddresses(contracts):
         contracts.borrowerOperations.address,
         contracts.troveManager.address,
         contracts.activePool.address,
-        contracts.lusdToken.address,
+        contracts.debtToken.address,
         contracts.sortedTroves.address,
         contracts.priceFeedTestnet.address,
         contracts.communityIssuance.address,
@@ -88,7 +88,7 @@ def setAddresses(contracts):
     # LQTY
     contracts.lqtyStaking.setAddresses(
         contracts.lqtyToken.address,
-        contracts.lusdToken.address,
+        contracts.debtToken.address,
         contracts.troveManager.address,
         contracts.borrowerOperations.address,
         contracts.activePool.address,
@@ -121,7 +121,7 @@ def contracts():
     contracts.collSurplusPool = CollSurplusPool.deploy({ 'from': accounts[0] })
     contracts.borrowerOperations = BorrowerOperationsTester.deploy({ 'from': accounts[0] })
     contracts.hintHelpers = HintHelpers.deploy({ 'from': accounts[0] })
-    contracts.lusdToken = LUSDToken.deploy(
+    contracts.debtToken = DebtToken.deploy(
         contracts.troveManager.address,
         contracts.stabilityPool.address,
         contracts.borrowerOperations.address,
@@ -189,7 +189,7 @@ def _test_test(contracts):
 * LQTY pool return determined
 """
 def test_run_simulation(add_accounts, contracts, print_expectations):
-    LUSD_GAS_COMPENSATION = contracts.troveManager.LUSD_GAS_COMPENSATION() / 1e18
+    DEBT_GAS_COMPENSATION = contracts.troveManager.DEBT_GAS_COMPENSATION() / 1e18
     MIN_NET_DEBT = contracts.troveManager.MIN_NET_DEBT() / 1e18
 
     contracts.priceFeedTestnet.setPrice(floatToWei(price_ether[0]), { 'from': accounts[0] })

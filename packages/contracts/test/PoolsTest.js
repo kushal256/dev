@@ -30,8 +30,8 @@ contract('StabilityPool', async accounts => {
     assert.equal(recordedETHBalance, 0)
   })
 
-  it('getTotalLUSDDeposits(): gets the recorded LUSD balance', async () => {
-    const recordedETHBalance = await stabilityPool.getTotalLUSDDeposits()
+  it('getTotalDebtDeposits(): gets the recorded LUSD balance', async () => {
+    const recordedETHBalance = await stabilityPool.getTotalDebtDeposits()
     assert.equal(recordedETHBalance, 0)
   })
 })

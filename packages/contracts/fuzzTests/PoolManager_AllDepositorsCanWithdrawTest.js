@@ -23,7 +23,7 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
   const lpRewardsAddress = accounts[999]
 
   let priceFeed
-  let lusdToken
+  let debtToken
   let troveManager
   let stabilityPool
   let sortedTroves
@@ -50,9 +50,9 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
     const ICRPercent = ICR.slice(0, ICR.length - 16)
 
     console.log(`SP address: ${stabilityPool.address}`)
-    const LUSDinPoolBefore = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinPoolBefore = await stabilityPool.getTotalDebtDeposits()
     const liquidatedTx = await troveManager.liquidate(randomDefaulter, { from: accounts[0] })
-    const LUSDinPoolAfter = await stabilityPool.getTotalLUSDDeposits()
+    const LUSDinPoolAfter = await stabilityPool.getTotalDebtDeposits()
 
     assert.isTrue(liquidatedTx.receipt.status)
 
@@ -69,7 +69,7 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
     const randomIndex = Math.floor(Math.random() * (depositorAccounts.length))
     const randomDepositor = depositorAccounts[randomIndex]
 
-    const userBalance = (await lusdToken.balanceOf(randomDepositor))
+    const userBalance = (await debtToken.balanceOf(randomDepositor))
     const maxLUSDDeposit = userBalance.div(toBN(dec(1, 18)))
 
     const randomLUSDAmount = th.randAmountInWei(1, maxLUSDDeposit)
@@ -148,7 +148,7 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
       const lowestTrove = await sortedTroves.getLast()
       const lastTroveDebt = (await troveManager.getEntireDebtAndColl(trove))[0]
       await borrowerOperations.adjustTrove(0, 0 , lastTroveDebt, true, whale, {from: whale})
-      await lusdToken.transfer(lowestTrove, lowestTroveDebt, {from: whale})
+      await debtToken.transfer(lowestTrove, lowestTroveDebt, {from: whale})
       await borrowerOperations.closeTrove({from: lowestTrove})
     }
 
@@ -173,18 +173,18 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
 
     for (depositor of currentDepositors) {
       const initialDeposit = (await stabilityPool.deposits(depositor))[0]
-      const finalDeposit = await stabilityPool.getCompoundedLUSDDeposit(depositor)
-      const ETHGain = await stabilityPool.getDepositorETHGain(depositor)
+      const finalDeposit = await stabilityPool.getCompoundedDebtDeposit(depositor)
+      const ETHGain = await stabilityPool.getDepositorCollateralGain(depositor)
       const ETHinSP = (await stabilityPool.getETH()).toString()
-      const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+      const LUSDinSP = (await stabilityPool.getTotalDebtDeposits()).toString()
 
       // Attempt to withdraw
       const withdrawalTx = await stabilityPool.withdrawFromSP(dec(1, 36), { from: depositor })
 
       const ETHinSPAfter = (await stabilityPool.getETH()).toString()
-      const LUSDinSPAfter = (await stabilityPool.getTotalLUSDDeposits()).toString()
-      const LUSDBalanceSPAfter = (await lusdToken.balanceOf(stabilityPool.address))
-      const depositAfter = await stabilityPool.getCompoundedLUSDDeposit(depositor)
+      const LUSDinSPAfter = (await stabilityPool.getTotalDebtDeposits()).toString()
+      const LUSDBalanceSPAfter = (await debtToken.balanceOf(stabilityPool.address))
+      const depositAfter = await stabilityPool.getCompoundedDebtDeposit(depositor)
 
       console.log(`--Before withdrawal--
                     withdrawer addr: ${th.squeezeAddr(depositor)}
@@ -219,7 +219,7 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
 
       stabilityPool = contracts.stabilityPool
       priceFeed = contracts.priceFeedTestnet
-      lusdToken = contracts.lusdToken
+      debtToken = contracts.debtToken
       stabilityPool = contracts.stabilityPool
       troveManager = contracts.troveManager
       borrowerOperations = contracts.borrowerOperations
@@ -294,12 +294,12 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
 
       await skyrocketPriceAndCheckAllTrovesSafe()
 
-      const totalLUSDDepositsBeforeWithdrawals = await stabilityPool.getTotalLUSDDeposits()
+      const totalLUSDDepositsBeforeWithdrawals = await stabilityPool.getTotalDebtDeposits()
       const totalETHRewardsBeforeWithdrawals = await stabilityPool.getETH()
 
       await attemptWithdrawAllDeposits(currentDepositors)
 
-      const totalLUSDDepositsAfterWithdrawals = await stabilityPool.getTotalLUSDDeposits()
+      const totalLUSDDepositsAfterWithdrawals = await stabilityPool.getTotalDebtDeposits()
       const totalETHRewardsAfterWithdrawals = await stabilityPool.getETH()
 
       console.log(`Total LUSD deposits before any withdrawals: ${totalLUSDDepositsBeforeWithdrawals}`)
@@ -366,12 +366,12 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
 
       await skyrocketPriceAndCheckAllTrovesSafe()
 
-      const totalLUSDDepositsBeforeWithdrawals = await stabilityPool.getTotalLUSDDeposits()
+      const totalLUSDDepositsBeforeWithdrawals = await stabilityPool.getTotalDebtDeposits()
       const totalETHRewardsBeforeWithdrawals = await stabilityPool.getETH()
 
       await attemptWithdrawAllDeposits(currentDepositors)
 
-      const totalLUSDDepositsAfterWithdrawals = await stabilityPool.getTotalLUSDDeposits()
+      const totalLUSDDepositsAfterWithdrawals = await stabilityPool.getTotalDebtDeposits()
       const totalETHRewardsAfterWithdrawals = await stabilityPool.getETH()
 
       console.log(`Total LUSD deposits before any withdrawals: ${totalLUSDDepositsBeforeWithdrawals}`)
@@ -438,12 +438,12 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
 
       await skyrocketPriceAndCheckAllTrovesSafe()
 
-      const totalLUSDDepositsBeforeWithdrawals = await stabilityPool.getTotalLUSDDeposits()
+      const totalLUSDDepositsBeforeWithdrawals = await stabilityPool.getTotalDebtDeposits()
       const totalETHRewardsBeforeWithdrawals = await stabilityPool.getETH()
 
       await attemptWithdrawAllDeposits(currentDepositors)
 
-      const totalLUSDDepositsAfterWithdrawals = await stabilityPool.getTotalLUSDDeposits()
+      const totalLUSDDepositsAfterWithdrawals = await stabilityPool.getTotalDebtDeposits()
       const totalETHRewardsAfterWithdrawals = await stabilityPool.getETH()
 
       console.log(`Total LUSD deposits before any withdrawals: ${totalLUSDDepositsBeforeWithdrawals}`)
@@ -511,12 +511,12 @@ contract("PoolManager - random liquidations/deposits, then check all depositors 
 
       await skyrocketPriceAndCheckAllTrovesSafe()
 
-      const totalLUSDDepositsBeforeWithdrawals = await stabilityPool.getTotalLUSDDeposits()
+      const totalLUSDDepositsBeforeWithdrawals = await stabilityPool.getTotalDebtDeposits()
       const totalETHRewardsBeforeWithdrawals = await stabilityPool.getETH()
 
       await attemptWithdrawAllDeposits(currentDepositors)
 
-      const totalLUSDDepositsAfterWithdrawals = await stabilityPool.getTotalLUSDDeposits()
+      const totalLUSDDepositsAfterWithdrawals = await stabilityPool.getTotalDebtDeposits()
       const totalETHRewardsAfterWithdrawals = await stabilityPool.getETH()
 
       console.log(`Total LUSD deposits before any withdrawals: ${totalLUSDDepositsBeforeWithdrawals}`)

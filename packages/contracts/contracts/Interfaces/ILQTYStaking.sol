@@ -13,12 +13,12 @@ interface ILQTYStaking {
     event ActivePoolAddressSet(address _activePoolAddress);
 
     event StakeChanged(address indexed staker, uint newStake);
-    event StakingGainsWithdrawn(address indexed staker, uint LUSDGain, uint ETHGain);
-    event F_ETHUpdated(uint _F_ETH);
-    event F_LUSDUpdated(uint _F_LUSD);
+    event StakingGainsWithdrawn(address indexed staker, uint DebtGain, uint CollateralGain);
+    event F_CollateralUpdated(uint _F_Collateral);
+    event F_DebtUpdated(uint _F_Debt);
     event TotalLQTYStakedUpdated(uint _totalLQTYStaked);
     event CollateralSent(address _account, uint _amount);
-    event StakerSnapshotsUpdated(address _staker, uint _F_ETH, uint _F_LUSD);
+    event StakerSnapshotsUpdated(address _staker, uint _F_Collateral, uint _F_Debt);
 
     // --- Functions ---
 
@@ -28,18 +28,19 @@ interface ILQTYStaking {
         address _debtTokenAddress,
         address _troveManagerAddress, 
         address _borrowerOperationsAddress,
-        address _activePoolAddress
+        address _activePoolAddress,
+        address _collateralTokenAddress
     )  external;
 
     function stake(uint _LQTYamount) external;
 
     function unstake(uint _LQTYamount) external;
 
-    function increaseF_ETH(uint _ETHFee) external; 
+    function increaseF_Collateral(uint _CollateralFee) external; 
 
-    function increaseF_LUSD(uint _LQTYFee) external;  
+    function increaseF_Debt(uint _LQTYFee) external;  
 
-    function getPendingETHGain(address _user) external view returns (uint);
+    function getPendingCollateralGain(address _user) external view returns (uint);
 
-    function getPendingLUSDGain(address _user) external view returns (uint);
+    function getPendingDebtGain(address _user) external view returns (uint);
 }

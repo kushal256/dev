@@ -67,11 +67,11 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_F_LUSD",
+          "name": "_F_Debt",
           "type": "uint256"
         }
       ],
-      "name": "F_LUSDUpdated",
+      "name": "F_DebtUpdated",
       "type": "event"
     },
     {
@@ -156,7 +156,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_F_LUSD",
+          "name": "_F_Debt",
           "type": "uint256"
         }
       ],
@@ -242,7 +242,7 @@
     },
     {
       "inputs": [],
-      "name": "F_LUSD",
+      "name": "F_Debt",
       "outputs": [
         {
           "internalType": "uint256",
@@ -351,7 +351,7 @@
           "type": "uint256"
         }
       ],
-      "name": "increaseF_LUSD",
+      "name": "increaseF_Debt",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -384,10 +384,10 @@
     },
     {
       "inputs": [],
-      "name": "lusdToken",
+      "name": "debtToken",
       "outputs": [
         {
-          "internalType": "contract ILUSDToken",
+          "internalType": "contract DebtToken",
           "name": "",
           "type": "address"
         }
@@ -465,7 +465,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "F_LUSD_Snapshot",
+          "name": "F_Debt_Snapshot",
           "type": "uint256"
         }
       ],

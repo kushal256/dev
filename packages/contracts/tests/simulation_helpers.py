@@ -18,7 +18,7 @@ n_sim = year
 # number of liquidations for each call to `liquidateTroves`
 NUM_LIQUIDATIONS = 10
 
-LUSD_GAS_COMPENSATION = 200.0
+DEBT_GAS_COMPENSATION = 200.0
 MIN_NET_DEBT = 1800.0
 MAX_FEE = Wei(1e18)
 
@@ -366,7 +366,7 @@ def pending_liquidations(contracts, price_ether_current):
     if not is_recovery_mode(contracts, price_ether_current):
         return False
 
-    stability_pool_balance = contracts.stabilityPool.getTotalLUSDDeposits()
+    stability_pool_balance = contracts.stabilityPool.getTotalDebtDeposits()
     trove = last_trove
     for i in range(NUM_LIQUIDATIONS):
         debt = contracts.troveManager.getEntireDebtAndColl(trove)[0]
@@ -408,7 +408,7 @@ def liquidate_troves(accounts, contracts, active_accounts, inactive_accounts, pr
     if len(active_accounts) == 0:
         return [0, 0]
 
-    stability_pool_previous = contracts.stabilityPool.getTotalLUSDDeposits() / 1e18
+    stability_pool_previous = contracts.stabilityPool.getTotalDebtDeposits() / 1e18
     stability_pool_eth_previous = contracts.stabilityPool.getETH() / 1e18
 
     while pending_liquidations(contracts, price_ether_current):
@@ -418,7 +418,7 @@ def liquidate_troves(accounts, contracts, active_accounts, inactive_accounts, pr
             remove_accounts_from_events(accounts, active_accounts, inactive_accounts, tx.events['TroveLiquidated'], '_borrower')
         except:
             print(f"TM: {contracts.troveManager.address}")
-            stability_pool_balance = contracts.stabilityPool.getTotalLUSDDeposits()
+            stability_pool_balance = contracts.stabilityPool.getTotalDebtDeposits()
             print(f"stability_pool_balance: {stability_pool_balance / 1e18}")
             trove = last_trove
             for i in range(NUM_LIQUIDATIONS):
@@ -430,7 +430,7 @@ def liquidate_troves(accounts, contracts, active_accounts, inactive_accounts, pr
                 trove = contracts.sortedTroves.getPrev(trove)
                 ICR = contracts.troveManager.getCurrentICR(trove, Wei(price_ether_current * 1e18))
                 print(f"ICR: {ICR}")
-    stability_pool_current = contracts.stabilityPool.getTotalLUSDDeposits() / 1e18
+    stability_pool_current = contracts.stabilityPool.getTotalDebtDeposits() / 1e18
     stability_pool_eth_current = contracts.stabilityPool.getETH() / 1e18
 
     debt_liquidated = stability_pool_current - stability_pool_previous
@@ -446,7 +446,7 @@ def liquidate_troves(accounts, contracts, active_accounts, inactive_accounts, pr
     return [ether_liquidated, return_stability]
 
 def calculate_stability_return(contracts, price_LUSD, data, index):
-    stability_pool_previous = contracts.stabilityPool.getTotalLUSDDeposits() / 1e18
+    stability_pool_previous = contracts.stabilityPool.getTotalDebtDeposits() / 1e18
     if index == 0:
         return_stability = initial_return
     elif stability_pool_previous == 0:
@@ -511,19 +511,19 @@ def close_troves(accounts, contracts, active_accounts, inactive_accounts, price_
 """Adjust Troves"""
 
 def transfer_from_to(contracts, from_account, to_account, amount):
-    balance = contracts.lusdToken.balanceOf(from_account)
+    balance = contracts.debtToken.balanceOf(from_account)
     transfer_amount = min(balance, amount)
     if transfer_amount == 0:
         return amount
     if from_account == to_account:
         return amount
-    contracts.lusdToken.transfer(to_account, transfer_amount, { 'from': from_account })
+    contracts.debtToken.transfer(to_account, transfer_amount, { 'from': from_account })
     pending = amount - transfer_amount
 
     return pending
 
 def get_lusd_to_repay(accounts, contracts, active_accounts, inactive_accounts, account, debt):
-    lusdBalance = contracts.lusdToken.balanceOf(account)
+    lusdBalance = contracts.debtToken.balanceOf(account)
     if debt > lusdBalance:
         pending = debt - lusdBalance
         # first try to withdraw from SP
@@ -531,7 +531,7 @@ def get_lusd_to_repay(accounts, contracts, active_accounts, inactive_accounts, a
         if initial_deposit > 0:
             contracts.stabilityPool.withdrawFromSP(pending, { 'from': account, 'gas_limit': 8000000, 'allow_revert': True })
             # it can only withdraw up to the deposit, so we check the balance again
-            lusdBalance = contracts.lusdToken.balanceOf(account)
+            lusdBalance = contracts.debtToken.balanceOf(account)
             pending = debt - lusdBalance
         # try with whale
         pending = transfer_from_to(contracts, accounts[0], account, pending)
@@ -653,7 +653,7 @@ def open_trove(accounts, contracts, active_accounts, inactive_accounts, supply_t
     #hints = get_hints_from_ICR(accounts, active_accounts, CR_ratio)
     hints = get_hints_from_amounts(accounts, contracts, active_accounts, quantity_ether, supply_trove, price_ether_current)
     coll = floatToWei(quantity_ether)
-    debtChange = floatToWei(supply_trove) + LUSD_GAS_COMPENSATION
+    debtChange = floatToWei(supply_trove) + DEBT_GAS_COMPENSATION
     lusd = get_lusd_amount_from_net_debt(contracts, floatToWei(supply_trove))
     if isNewTCRAboveCCR(contracts, coll, True, debtChange, True, floatToWei(price_ether_current)):
         contracts.borrowerOperations.openTrove(MAX_FEE, lusd, hints[0], hints[1],
@@ -710,8 +710,8 @@ Stability Pool
 """
 
 def stability_update(accounts, contracts, active_accounts, return_stability, index):
-    supply = contracts.lusdToken.totalSupply() / 1e18
-    stability_pool_previous = contracts.stabilityPool.getTotalLUSDDeposits() / 1e18
+    supply = contracts.debtToken.totalSupply() / 1e18
+    stability_pool_previous = contracts.stabilityPool.getTotalDebtDeposits() / 1e18
 
     np.random.seed(27+3*index)
     shock_stability = np.random.normal(0,sd_stability)
@@ -732,14 +732,14 @@ def stability_update(accounts, contracts, active_accounts, return_stability, ind
         i = 0
         while remaining > 0 and i < len(active_accounts):
           account = index2address(accounts, active_accounts, i)
-          balance = contracts.lusdToken.balanceOf(account) / 1e18
+          balance = contracts.debtToken.balanceOf(account) / 1e18
           deposit = min(balance, remaining)
           if deposit > 0:
               contracts.stabilityPool.provideToSP(floatToWei(deposit), ZERO_ADDRESS, { 'from': account, 'gas_limit': 8000000, 'allow_revert': True })
               remaining = remaining - deposit
           i = i + 1
     else:
-        current_deposit = contracts.stabilityPool.getCompoundedLUSDDeposit(accounts[0])
+        current_deposit = contracts.stabilityPool.getCompoundedDebtDeposit(accounts[0])
         if current_deposit > 0:
             new_withdraw = min(floatToWei(stability_pool_previous - stability_pool), current_deposit)
             contracts.stabilityPool.withdrawFromSP(new_withdraw, { 'from': accounts[0] })
@@ -835,7 +835,7 @@ sd_redemption = 0.001
 redemption_start = 0.8
 
 def redeem_trove(accounts, contracts, i, price_ether_current):
-    lusd_balance = contracts.lusdToken.balanceOf(accounts[i])
+    lusd_balance = contracts.debtToken.balanceOf(accounts[i])
     [firstRedemptionHint, partialRedemptionHintNICR, truncatedLUSDamount] = contracts.hintHelpers.getRedemptionHints(lusd_balance, price_ether_current, 70)
     if truncatedLUSDamount == Wei(0):
         return None
@@ -856,7 +856,7 @@ def redeem_trove(accounts, contracts, i, price_ether_current):
     except:
         print(f"\n   Redemption failed! ")
         print(f"Trove Manager: {contracts.troveManager.address}")
-        print(f"LUSD Token:    {contracts.lusdToken.address}")
+        print(f"LUSD Token:    {contracts.debtToken.address}")
         print(f"i: {i}")
         print(f"account: {accounts[i]}")
         print(f"LUSD bal: {lusd_balance / 1e18}")
@@ -879,12 +879,12 @@ def redeem_trove(accounts, contracts, i, price_ether_current):
 
 def price_stabilizer(accounts, contracts, active_accounts, inactive_accounts, price_ether_current, price_LUSD, index):
 
-    stability_pool = contracts.stabilityPool.getTotalLUSDDeposits() / 1e18
+    stability_pool = contracts.stabilityPool.getTotalDebtDeposits() / 1e18
     redemption_pool = 0
     redemption_fee = 0
     issuance_LUSD_stabilizer = 0
 
-    supply = contracts.lusdToken.totalSupply() / 1e18
+    supply = contracts.debtToken.totalSupply() / 1e18
     #Liquidity Pool
     liquidity_pool = supply - stability_pool
 
@@ -939,7 +939,7 @@ def price_stabilizer(accounts, contracts, active_accounts, inactive_accounts, pr
         i = 0
         while remaining > 0 and i < len(active_accounts):
           account = index2address(accounts, active_accounts, i)
-          balance = contracts.lusdToken.balanceOf(account) / 1e18
+          balance = contracts.debtToken.balanceOf(account) / 1e18
           redemption = min(balance, remaining)
           if redemption > 0:
               tx = redeem_trove(accounts, contracts, 0, price_ether_current)
