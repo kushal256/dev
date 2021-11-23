@@ -2750,9 +2750,9 @@ contract('TroveManager', async accounts => {
       await collateralToken.mint(acct, dec(1000, 18));
       await collateralToken.approveInternal(acct, borrowerOperations.address, dec(1000, 18));
     }
-    await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(10000, 18)), A, A, dec(1000, 18), { from: A })
-    await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(20000, 18)), B, B, dec(1000, 18), { from: B })
-    await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(30000, 18)), C, C, dec(1000, 18), { from: C })
+    await borrowerOperations.openTrove(dec(1000, 18), th._100pct, await getOpenTroveLUSDAmount(dec(10000, 18)), A, A, { from: A })
+    await borrowerOperations.openTrove(dec(1000, 18), th._100pct, await getOpenTroveLUSDAmount(dec(20000, 18)), B, B, { from: B })
+    await borrowerOperations.openTrove(dec(1000, 18), th._100pct, await getOpenTroveLUSDAmount(dec(30000, 18)), C, C, { from: C })
 
     // A and C send all their tokens to B
     await lusdToken.transfer(B, await lusdToken.balanceOf(A), {from: A})
@@ -2782,9 +2782,9 @@ contract('TroveManager', async accounts => {
       await collateralToken.mint(acct, dec(1000, 18));
       await collateralToken.approveInternal(acct, borrowerOperations.address, dec(1000, 18));
     }
-    await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(6000, 18)), A, A, dec(1000, 18), { from: A })
-    await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(20000, 18)), B, B, dec(1000, 18), { from: B })
-    await borrowerOperations.openTrove(th._100pct, await getOpenTroveLUSDAmount(dec(30000, 18)), C, C, dec(1000, 18), { from: C })
+    await borrowerOperations.openTrove(dec(1000, 18), th._100pct, await getOpenTroveLUSDAmount(dec(6000, 18)), A, A, { from: A })
+    await borrowerOperations.openTrove(dec(1000, 18), th._100pct, await getOpenTroveLUSDAmount(dec(20000, 18)), B, B, { from: B })
+    await borrowerOperations.openTrove(dec(1000, 18), th._100pct, await getOpenTroveLUSDAmount(dec(30000, 18)), C, C, { from: C })
 
     // A and C send all their tokens to B
     await lusdToken.transfer(B, await lusdToken.balanceOf(A), {from: A})
@@ -4135,9 +4135,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(D_balanceAfter.eq(D_balanceBefore))
 
     // D is not closed, so cannot open trove
-    console.log("before revert");
-    await assertRevert(borrowerOperations.openTrove(th._100pct, 0, ZERO_ADDRESS, ZERO_ADDRESS, dec(10, 18), { from: D }), 'BorrowerOps: Trove is active')
-    console.log("after revert");
+    await assertRevert(borrowerOperations.openTrove(dec(10, 18), th._100pct, 0, ZERO_ADDRESS, ZERO_ADDRESS, { from: D }), 'BorrowerOps: Trove is active')
 
     return {
       A_netDebt, A_coll,
@@ -4263,8 +4261,7 @@ contract('TroveManager', async accounts => {
     th.assertIsApproximatelyEqual(C_balanceAfter, C_balanceBefore.add(C_surplus))
   })
 
-  //failing
-  it('redeemCollateral(): reverts if fee eats up all returned collateral', async () => {
+  it.only('redeemCollateral(): reverts if fee eats up all returned collateral', async () => {
     // --- SETUP ---
     const { lusdAmount } = await openTrove({ ICR: toBN(dec(200, 16)), extraLUSDAmount: dec(1, 24), extraParams: { from: alice } })
     await openTrove({ ICR: toBN(dec(150, 16)), extraParams: { from: bob } })
@@ -4301,8 +4298,8 @@ contract('TroveManager', async accounts => {
       await openTrove({ ICR: toBN(dec(150, 16)), extraParams: { from: bob } })
       await collateralToken.mint(alice, lusdAmount.mul(mv._1e18BN).div(price));
       await collateralToken.approveInternal(alice, borrowerOperations.address, lusdAmount.mul(mv._1e18BN).div(price));
-      // TODO: fix adjustTrove
-      await borrowerOperations.adjustTrove(th._100pct, 0, lusdAmount, true, alice, alice, { from: alice })
+      // TODO: reverts for ICR < MCR
+      await borrowerOperations.adjustTrove(0, th._100pct, 0, lusdAmount, true, alice, alice, { from: alice })
     }
 
     const {
