@@ -101,8 +101,15 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool {
 
     function decreaseDebt(uint _amount) external override {
         _requireCallerIsTroveManager();
+
         Debt = Debt.sub(_amount);
         emit DefaultPoolDebtUpdated(Debt);
+    }
+
+    function addCollateral(uint _amount) external override {
+        _requireCallerIsActivePool();
+        Collateral = Collateral.add(_amount);
+        emit DefaultPoolCollateralUpdated(Collateral);
     }
 
     // --- 'require' functions ---
