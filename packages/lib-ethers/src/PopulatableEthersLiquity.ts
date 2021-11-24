@@ -439,11 +439,11 @@ export class PopulatedEthersRedemption
       ({ logs }) =>
         troveManager
           .extractEvents(logs, "Redemption")
-          .map(({ args: { _ETHSent, _ETHFee, _actualLUSDAmount, _attemptedLUSDAmount } }) => ({
-            attemptedLUSDAmount: decimalify(_attemptedLUSDAmount),
-            actualLUSDAmount: decimalify(_actualLUSDAmount),
-            collateralTaken: decimalify(_ETHSent),
-            fee: decimalify(_ETHFee)
+          .map(({ args: { _collateralSent, _collateralFee, _actualDebtAmount, _attemptedDebtAmount } }) => ({
+            attemptedLUSDAmount: decimalify(_attemptedDebtAmount),
+            actualLUSDAmount: decimalify(_actualDebtAmount),
+            collateralTaken: decimalify(_collateralSent),
+            fee: decimalify(_collateralFee)
           }))[0]
     );
 
@@ -579,10 +579,10 @@ export class PopulatableEthersLiquity
           .extractEvents(logs, "Liquidation")
           .map(
             ({
-              args: { _LUSDGasCompensation, _collGasCompensation, _liquidatedColl, _liquidatedDebt }
+              args: { _debtGasCompensation, _collGasCompensation, _liquidatedColl, _liquidatedDebt }
             }) => ({
               collateralGasCompensation: decimalify(_collGasCompensation),
-              lusdGasCompensation: decimalify(_LUSDGasCompensation),
+              lusdGasCompensation: decimalify(_debtGasCompensation),
               totalLiquidated: new Trove(decimalify(_liquidatedColl), decimalify(_liquidatedDebt))
             })
           );
@@ -977,12 +977,13 @@ export class PopulatableEthersLiquity
     );
 
     const txParams = (borrowLUSD?: Decimal): Parameters<typeof borrowerOperations.adjustTrove> => [
+      (depositCollateral ?? Decimal.ZERO).hex,
       maxBorrowingRate.hex,
       (withdrawCollateral ?? Decimal.ZERO).hex,
       (borrowLUSD ?? repayLUSD ?? Decimal.ZERO).hex,
       !!borrowLUSD,
       ...hints,
-      { value: depositCollateral?.hex, ...overrides }
+      { ...overrides }
     ];
 
     let gasHeadroom: number | undefined;
