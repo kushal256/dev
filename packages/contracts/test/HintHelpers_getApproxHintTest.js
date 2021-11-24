@@ -9,6 +9,7 @@ let latestRandomSeed = 31337
 
 const TroveManagerTester = artifacts.require("TroveManagerTester")
 const DebtToken = artifacts.require("DebtToken")
+const ERC20Mock = artifacts.require("./ERC20Mock.sol")
 
 contract('HintHelpers', async accounts => {
  
@@ -21,6 +22,7 @@ contract('HintHelpers', async accounts => {
   let borrowerOperations
   let hintHelpers
   let priceFeed
+  let collateralToken
 
   let contracts
 
@@ -72,7 +74,9 @@ contract('HintHelpers', async accounts => {
   }
 
   before(async () => {
-    contracts = await deploymentHelper.deployLiquityCore()
+    collateralToken = await ERC20Mock.new("Test Collateral Token", "TEST", owner, 0);
+    ERC20Mock.setAsDeployed(collateralToken)
+    contracts = await deploymentHelper.deployLiquityCore(collateralToken);
     contracts.troveManager = await TroveManagerTester.new()
     contracts.debtToken = await DebtToken.new(
       contracts.troveManager.address,
