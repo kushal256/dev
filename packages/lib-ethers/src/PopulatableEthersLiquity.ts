@@ -605,7 +605,7 @@ export class PopulatableEthersLiquity
       .map(({ args: { _newDeposit } }) => decimalify(_newDeposit));
 
     const [[collateralGain, lusdLoss]] = stabilityPool
-      .extractEvents(logs, "ETHGainWithdrawn")
+      .extractEvents(logs, "CollateralGainWithdrawn")
       .map(({ args: { _ETH, _LUSDLoss } }) => [decimalify(_ETH), decimalify(_LUSDLoss)]);
 
     const [lqtyReward] = stabilityPool

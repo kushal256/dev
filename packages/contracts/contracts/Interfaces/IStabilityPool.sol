@@ -64,7 +64,7 @@ interface IStabilityPool {
     event UserDepositChanged(address indexed _depositor, uint _newDeposit);
     event FrontEndStakeChanged(address indexed _frontEnd, uint _newFrontEndStake, address _depositor);
 
-    event ETHGainWithdrawn(address indexed _depositor, uint _ETH, uint _LUSDLoss);
+    event CollateralGainWithdrawn(address indexed _depositor, uint _ETH, uint _LUSDLoss);
     event LQTYPaidToDepositor(address indexed _depositor, uint _LQTY);
     event LQTYPaidToFrontEnd(address indexed _frontEnd, uint _LQTY);
     event CollateralSent(address _to, uint _amount);
