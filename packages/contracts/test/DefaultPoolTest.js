@@ -1,6 +1,7 @@
 const testHelpers = require("../utils/testHelpers.js")
 const DefaultPool = artifacts.require("./DefaultPool.sol")
 const NonPayable = artifacts.require('NonPayable.sol')
+const ERC20Mock = artifacts.require("./ERC20Mock.sol")
 
 const th = testHelpers.TestHelper
 const dec = th.dec
@@ -10,6 +11,7 @@ contract('DefaultPool', async accounts => {
   let nonPayable
   let mockActivePool
   let mockTroveManager
+  let collateralToken
 
   let [owner] = accounts
 
@@ -18,10 +20,11 @@ contract('DefaultPool', async accounts => {
     nonPayable = await NonPayable.new()
     mockTroveManager = await NonPayable.new()
     mockActivePool = await NonPayable.new()
-    await defaultPool.setAddresses(mockTroveManager.address, mockActivePool.address)
+    collateralToken = await ERC20Mock.new("Test Collateral Token", "TEST", owner, 0);
+    await defaultPool.setAddresses(mockTroveManager.address, mockActivePool.address, collateralToken.address)
   })
 
-  it('sendCollateralToActivePool(): fails if receiver cannot receive ETH', async () => {
+  it.skip('sendCollateralToActivePool(): fails if receiver cannot receive ETH', async () => {
     const amount = dec(1, 'ether')
 
     // start pool with `amount`
