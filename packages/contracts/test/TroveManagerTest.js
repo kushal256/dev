@@ -3416,7 +3416,7 @@ contract('TroveManager', async accounts => {
       assert.isFalse(redemptionTx.receipt.status)
     } catch (error) {
       assert.include(error.message, "revert")
-      assert.include(error.message, "Requested redemption amount must be <= user's LUSD token balance")
+      assert.include(error.message, "Requested redemption amount must be <= user's debt token balance")
     }
 
     // Erin tries to redeem 401 LUSD
@@ -3442,7 +3442,7 @@ contract('TroveManager', async accounts => {
       assert.isFalse(redemptionTx.receipt.status)
     } catch (error) {
       assert.include(error.message, "revert")
-      assert.include(error.message, "Requested redemption amount must be <= user's LUSD token balance")
+      assert.include(error.message, "Requested redemption amount must be <= user's debt token balance")
     }
 
     // Erin tries to redeem 239482309 LUSD
@@ -3468,7 +3468,7 @@ contract('TroveManager', async accounts => {
       assert.isFalse(redemptionTx.receipt.status)
     } catch (error) {
       assert.include(error.message, "revert")
-      assert.include(error.message, "Requested redemption amount must be <= user's LUSD token balance")
+      assert.include(error.message, "Requested redemption amount must be <= user's debt token balance")
     }
 
     // Erin tries to redeem 2^256 - 1 LUSD
@@ -3496,7 +3496,7 @@ contract('TroveManager', async accounts => {
       assert.isFalse(redemptionTx.receipt.status)
     } catch (error) {
       assert.include(error.message, "revert")
-      assert.include(error.message, "Requested redemption amount must be <= user's LUSD token balance")
+      assert.include(error.message, "Requested redemption amount must be <= user's debt token balance")
     }
   })
 
@@ -3877,8 +3877,8 @@ contract('TroveManager', async accounts => {
     assert.equal(await troveManager.baseRate(), '0')
 
     // Check LQTY Staking ETH-fees-per-LQTY-staked before is zero
-    const F_ETH_Before = await lqtyStaking.F_ETH()
-    assert.equal(F_ETH_Before, '0')
+    const F_Collateral_Before = await lqtyStaking.F_Collateral()
+    assert.equal(F_Collateral_Before, '0')
 
     const A_balanceBefore = await debtToken.balanceOf(A)
 
@@ -3893,8 +3893,8 @@ contract('TroveManager', async accounts => {
     assert.isTrue(baseRate_1.gt(toBN('0')))
 
     // Check LQTY Staking ETH-fees-per-LQTY-staked after is non-zero
-    const F_ETH_After = await lqtyStaking.F_ETH()
-    assert.isTrue(F_ETH_After.gt('0'))
+    const F_Collateral_After = await lqtyStaking.F_Collateral()
+    assert.isTrue(F_Collateral_After.gt('0'))
   })
 
   it("redeemCollateral(): a redemption made at a non-zero base rate send a non-zero ETHFee to LQTY staking contract", async () => {
@@ -3968,7 +3968,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(baseRate_1.gt(toBN('0')))
 
     // Check LQTY Staking ETH-fees-per-LQTY-staked before is zero
-    const F_ETH_Before = await lqtyStaking.F_ETH()
+    const F_Collateral_Before = await lqtyStaking.F_Collateral()
 
     // B redeems 10 LUSD
     await th.redeemCollateral(B, contracts, dec(10, 18))
@@ -3976,10 +3976,10 @@ contract('TroveManager', async accounts => {
     // Check B's balance has decreased by 10 LUSD
     assert.equal(await debtToken.balanceOf(B), B_balanceBefore.sub(toBN(dec(10, 18))).toString())
 
-    const F_ETH_After = await lqtyStaking.F_ETH()
+    const F_Collateral_After = await lqtyStaking.F_Collateral()
 
     // check LQTY Staking balance has increased
-    assert.isTrue(F_ETH_After.gt(F_ETH_Before))
+    assert.isTrue(F_Collateral_After.gt(F_Collateral_Before))
   })
 
   it("redeemCollateral(): a redemption sends the ETH remainder (ETHDrawn - ETHFee) to the redeemer", async () => {
