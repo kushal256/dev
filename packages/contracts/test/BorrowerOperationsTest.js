@@ -4319,7 +4319,7 @@ contract('BorrowerOperations', async accounts => {
     })
 
     if (!withProxy) {
-      it('closeTrove(): fails if owner cannot receive ETH', async () => {
+      it.skip('closeTrove(): fails if owner cannot receive ETH', async () => {
         const nonPayable = await NonPayable.new()
 
         // we need 2 troves to be able to close 1 and have 1 remaining in the system
