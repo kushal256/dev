@@ -4296,10 +4296,12 @@ contract('TroveManager', async accounts => {
       )
 
       await openTrove({ ICR: toBN(dec(150, 16)), extraParams: { from: bob } })
-      await collateralToken.mint(alice, lusdAmount.mul(mv._1e18BN).div(price));
-      await collateralToken.approveInternal(alice, borrowerOperations.address, lusdAmount.mul(mv._1e18BN).div(price));
-      // TODO: reverts for ICR < MCR
-      await borrowerOperations.adjustTrove(0, th._100pct, 0, lusdAmount, true, alice, alice, { from: alice })
+
+      let amount = lusdAmount.mul(mv._1e18BN).div(price);
+      await collateralToken.mint(alice, amount);  
+      await collateralToken.approveInternal(alice, borrowerOperations.address, amount);
+      await collateralToken.mint(borrowerOperations.address, amount);  
+      await borrowerOperations.adjustTrove(amount, th._100pct, 0, lusdAmount, true, alice, alice, { from: alice })      
     }
 
     const {
