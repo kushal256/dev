@@ -5,6 +5,7 @@ const SortedTroves = artifacts.require("SortedTroves")
 const SortedTrovesTester = artifacts.require("SortedTrovesTester")
 const TroveManagerTester = artifacts.require("TroveManagerTester")
 const DebtToken = artifacts.require("DebtToken")
+const ERC20Mock = artifacts.require("./ERC20Mock.sol")
 
 const th = testHelpers.TestHelper
 const dec = th.dec
@@ -48,6 +49,7 @@ contract('SortedTroves', async accounts => {
   let troveManager
   let borrowerOperations
   let debtToken
+  let collateralToken
 
   const [bountyAddress, lpRewardsAddress, multisig] = accounts.slice(997, 1000)
 
@@ -58,7 +60,9 @@ contract('SortedTroves', async accounts => {
 
   describe('SortedTroves', () => {
     beforeEach(async () => {
-      contracts = await deploymentHelper.deployLiquityCore()
+      collateralToken = await ERC20Mock.new("Test Collateral Token", "TEST", owner, 0);
+      ERC20Mock.setAsDeployed(collateralToken)
+      contracts = await deploymentHelper.deployLiquityCore(collateralToken);
       contracts.troveManager = await TroveManagerTester.new()
       contracts.debtToken = await DebtToken.new(
         contracts.troveManager.address,
@@ -76,7 +80,6 @@ contract('SortedTroves', async accounts => {
       await deploymentHelper.connectLQTYContracts(LQTYContracts)
       await deploymentHelper.connectCoreContracts(contracts, LQTYContracts)
       await deploymentHelper.connectLQTYContractsToCore(LQTYContracts, contracts)
-      await th.depositCollateral(contracts)
     })
 
     it('contains(): returns true for addresses that have opened troves', async () => {
