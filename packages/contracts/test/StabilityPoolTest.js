@@ -1791,9 +1791,9 @@ contract('StabilityPool', async accounts => {
       await openTrove({ extraLUSDAmount: toBN(dec(100000, 18)), ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
 
       // 1 defaulter opens trove
-      await collateralToken.mint(defaulter_1, dec(1, 18));
-      await collateralToken.approveInternal(defaulter_1, borrowerOperations.address, dec(1, 18))
-      await borrowerOperations.openTrove(dec(1, 18), th._100pct, await getOpenTroveLUSDAmount(dec(10000, 18)), defaulter_1, defaulter_1, { from: defaulter_1 })
+      await collateralToken.mint(defaulter_1, dec(100, 'ether'));
+      await collateralToken.approveInternal(defaulter_1, borrowerOperations.address, dec(100, 'ether'))
+      await borrowerOperations.openTrove(dec(100, 'ether'), th._100pct, await getOpenTroveLUSDAmount(dec(10000, 18)), defaulter_1, defaulter_1, { from: defaulter_1 })
 
       const defaulterDebt = (await troveManager.getEntireDebtAndColl(defaulter_1))[0]
 
