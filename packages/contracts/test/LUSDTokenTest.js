@@ -7,6 +7,7 @@ const { toUtf8Bytes } = require('@ethersproject/strings');
 const { pack } = require('@ethersproject/solidity');
 const { hexlify } = require("@ethersproject/bytes");
 const { ecsign } = require('ethereumjs-util');
+const ERC20Mock = artifacts.require("./ERC20Mock.sol")
 
 const { toBN, assertRevert, assertAssert, dec, ZERO_ADDRESS } = testHelpers.TestHelper
 
@@ -59,14 +60,18 @@ contract('DebtToken', async accounts => {
   let stabilityPool
   let troveManager
   let borrowerOperations
+  let collateralToken
 
   let tokenName
   let tokenVersion
 
   const testCorpus = ({ withProxy = false }) => {
     beforeEach(async () => {
+      collateralToken = await ERC20Mock.new("Test Collateral Token", "TEST", owner, 0);
+      ERC20Mock.setAsDeployed(collateralToken)
 
       const contracts = await deploymentHelper.deployTesterContractsHardhat()
+      contracts.collateralToken = collateralToken
 
 
       const LQTYContracts = await deploymentHelper.deployLQTYContracts(bountyAddress, lpRewardsAddress, multisig)
