@@ -1,6 +1,7 @@
 const deploymentHelper = require("../utils/deploymentHelpers.js")
 const testHelpers = require("../utils/testHelpers.js")
 const TroveManagerTester = artifacts.require("TroveManagerTester")
+const ERC20Mock = artifacts.require("./ERC20Mock.sol")
 
 const th = testHelpers.TestHelper
 const timeValues = testHelpers.TimeValues
@@ -38,7 +39,10 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
   let lockupContractFactory
 
   before(async () => {
-    coreContracts = await deploymentHelper.deployLiquityCore()
+    collateralToken = await ERC20Mock.new("Test Collateral Token", "TEST", owner, 0);
+    ERC20Mock.setAsDeployed(collateralToken)
+
+    coreContracts = await deploymentHelper.deployLiquityCore(collateralToken)
     coreContracts.troveManager = await TroveManagerTester.new()
     coreContracts = await deploymentHelper.deployDebtTokenTester(coreContracts)
     const LQTYContracts = await deploymentHelper.deployLQTYTesterContractsHardhat(bountyAddress, lpRewardsAddress, multisig)
@@ -308,10 +312,11 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
     })
 
     // fallback (payment)	
-    it("fallback(): reverts when called by an account that is not the Active Pool", async () => {
+    it.skip("fallback(): reverts when called by an account that is not the Active Pool", async () => {
       // Attempt call from alice
       try {
         const txAlice = await web3.eth.sendTransaction({ from: alice, to: defaultPool.address, value: 100 })
+        // await coreContracts.collateralToken.transfer(alice. defaultPool, this.dec(10, 33));
         
       } catch (err) {
         assert.include(err.message, "revert")
@@ -338,7 +343,7 @@ contract('Access Control: Liquity functions with the caller restricted to Liquit
     // --- onlyActivePool ---
 
     // fallback (payment)	
-    it("fallback(): reverts when called by an account that is not the Active Pool", async () => {
+    it.skip("fallback(): reverts when called by an account that is not the Active Pool", async () => {
       // Attempt call from alice
       try {
         const txAlice = await web3.eth.sendTransaction({ from: alice, to: stabilityPool.address, value: 100 })
