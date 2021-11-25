@@ -55,7 +55,7 @@
     "prepare:lib-react": "yarn workspace @liquity/lib-react prepare",
     "prepare:lib-subgraph": "yarn workspace @liquity/lib-subgraph prepare",
     "prepare:providers": "yarn workspace @liquity/providers prepare",
-    "prepare:subgraph": "yarn workspace @liquity/subgraph prepare",
+    "prepare:subgraph": "echo skipping yarn workspace @liquity/subgraph prepare",
     "prepare:docs": "run-s docs",
     "rebuild": "run-s prepare build",
     "release": "run-s release:*",

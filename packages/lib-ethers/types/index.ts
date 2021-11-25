@@ -707,14 +707,13 @@ export interface StabilityPool
   readonly filters: {
     ActivePoolAddressChanged(_newActivePoolAddress?: null): EventFilter;
     BorrowerOperationsAddressChanged(_newBorrowerOperationsAddress?: null): EventFilter;
-    CollateralGainWithdrawn(_depositor?: string | null, _ETH?: null, _DebtLoss?: null): EventFilter;
+    CollateralGainWithdrawn(_depositor?: string | null, _Collateral?: null, _DebtLoss?: null): EventFilter;
     CollateralSent(_to?: null, _amount?: null): EventFilter;
     CollateralTokenAddressChanged(_newCollateralTokenAddress?: null): EventFilter;
     CommunityIssuanceAddressChanged(_newCommunityIssuanceAddress?: null): EventFilter;
     DebtTokenAddressChanged(_newDebtTokenAddress?: null): EventFilter;
     DefaultPoolAddressChanged(_newDefaultPoolAddress?: null): EventFilter;
     DepositSnapshotUpdated(_depositor?: string | null, _P?: null, _S?: null, _G?: null): EventFilter;
-    CollateralGainWithdrawn(_depositor?: string | null, _ETH?: null, _LUSDLoss?: null): EventFilter;
     EpochUpdated(_currentEpoch?: null): EventFilter;
     FrontEndRegistered(_frontEnd?: string | null, _kickbackRate?: null): EventFilter;
     FrontEndSnapshotUpdated(_frontEnd?: string | null, _P?: null, _G?: null): EventFilter;
@@ -736,14 +735,13 @@ export interface StabilityPool
   };
   extractEvents(logs: Log[], name: "ActivePoolAddressChanged"): _TypedLogDescription<{ _newActivePoolAddress: string }>[];
   extractEvents(logs: Log[], name: "BorrowerOperationsAddressChanged"): _TypedLogDescription<{ _newBorrowerOperationsAddress: string }>[];
-  extractEvents(logs: Log[], name: "CollateralGainWithdrawn"): _TypedLogDescription<{ _depositor: string; _ETH: BigNumber; _DebtLoss: BigNumber }>[];
+  extractEvents(logs: Log[], name: "CollateralGainWithdrawn"): _TypedLogDescription<{ _depositor: string; _Collateral: BigNumber; _DebtLoss: BigNumber }>[];
   extractEvents(logs: Log[], name: "CollateralSent"): _TypedLogDescription<{ _to: string; _amount: BigNumber }>[];
   extractEvents(logs: Log[], name: "CollateralTokenAddressChanged"): _TypedLogDescription<{ _newCollateralTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "CommunityIssuanceAddressChanged"): _TypedLogDescription<{ _newCommunityIssuanceAddress: string }>[];
   extractEvents(logs: Log[], name: "DebtTokenAddressChanged"): _TypedLogDescription<{ _newDebtTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "DefaultPoolAddressChanged"): _TypedLogDescription<{ _newDefaultPoolAddress: string }>[];
   extractEvents(logs: Log[], name: "DepositSnapshotUpdated"): _TypedLogDescription<{ _depositor: string; _P: BigNumber; _S: BigNumber; _G: BigNumber }>[];
-  extractEvents(logs: Log[], name: "CollateralGainWithdrawn"): _TypedLogDescription<{ _depositor: string; _ETH: BigNumber; _LUSDLoss: BigNumber }>[];
   extractEvents(logs: Log[], name: "EpochUpdated"): _TypedLogDescription<{ _currentEpoch: BigNumber }>[];
   extractEvents(logs: Log[], name: "FrontEndRegistered"): _TypedLogDescription<{ _frontEnd: string; _kickbackRate: BigNumber }>[];
   extractEvents(logs: Log[], name: "FrontEndSnapshotUpdated"): _TypedLogDescription<{ _frontEnd: string; _P: BigNumber; _G: BigNumber }>[];

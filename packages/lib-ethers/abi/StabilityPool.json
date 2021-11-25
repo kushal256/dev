@@ -37,7 +37,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_ETH",
+        "name": "_Collateral",
         "type": "uint256"
       },
       {
@@ -150,31 +150,6 @@
       }
     ],
     "name": "DepositSnapshotUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_depositor",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_ETH",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_LUSDLoss",
-        "type": "uint256"
-      }
-    ],
-    "name": "CollateralGainWithdrawn",
     "type": "event"
   },
   {

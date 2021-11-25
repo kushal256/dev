@@ -849,7 +849,7 @@ export class PopulatableEthersLiquity
       borrowLUSD.hex,
       ...hints,
       depositCollateral.hex,
-      { value: depositCollateral.hex, ...overrides }
+      { ...overrides }
     ];
 
     let gasHeadroom: number | undefined;

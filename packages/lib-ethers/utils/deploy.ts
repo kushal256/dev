@@ -57,7 +57,7 @@ const deployContracts = async (
   getContractFactory: (name: string, signer: Signer) => Promise<ContractFactory>,
   priceFeedIsTestnet = true,
   overrides?: Overrides
-): Promise<[addresses: Omit<_LiquityContractAddresses, "uniToken">, startBlock: number]> => {
+): Promise<[addresses: Omit<_LiquityContractAddresses, "uniToken" | "collToken">, startBlock: number]> => {
   const [activePoolAddress, startBlock] = await deployContractAndGetBlockNumber(
     deployer,
     getContractFactory,
@@ -172,7 +172,8 @@ const connectContracts = async (
     stabilityPool,
     gasPool,
     unipool,
-    uniToken
+    uniToken,
+    collToken
   }: _LiquityContracts,
   deployer: Signer,
   overrides?: Overrides
@@ -218,6 +219,7 @@ const connectContracts = async (
         sortedTroves.address,
         debtToken.address,
         lqtyStaking.address,
+        collToken.address,
         { ...overrides, nonce }
       ),
 
@@ -230,6 +232,7 @@ const connectContracts = async (
         sortedTroves.address,
         priceFeed.address,
         communityIssuance.address,
+        collToken.address,
         { ...overrides, nonce }
       ),
 
@@ -239,11 +242,12 @@ const connectContracts = async (
         troveManager.address,
         stabilityPool.address,
         defaultPool.address,
+        collToken.address,
         { ...overrides, nonce }
       ),
 
     nonce =>
-      defaultPool.setAddresses(troveManager.address, activePool.address, {
+      defaultPool.setAddresses(troveManager.address, activePool.address, collToken.address, {
         ...overrides,
         nonce
       }),
@@ -253,6 +257,7 @@ const connectContracts = async (
         borrowerOperations.address,
         troveManager.address,
         activePool.address,
+        collToken.address,
         { ...overrides, nonce }
       ),
 
@@ -269,6 +274,7 @@ const connectContracts = async (
         troveManager.address,
         borrowerOperations.address,
         activePool.address,
+        collToken.address,
         { ...overrides, nonce }
       ),
 
@@ -313,6 +319,22 @@ const deployMockUniToken = (
     { ...overrides }
   );
 
+const deployMockCollToken = (
+  deployer: Signer,
+  getContractFactory: (name: string, signer: Signer) => Promise<ContractFactory>,
+  overrides?: Overrides
+) =>
+  deployContract(
+    deployer,
+    getContractFactory,
+    "ERC20Mock",
+    "CollateralToken",
+    "COLL",
+    Wallet.createRandom().address, // initialAccount
+    0, // initialBalance
+    { ...overrides }
+  );
+
 export const deployAndSetupContracts = async (
   deployer: Signer,
   getContractFactory: (name: string, signer: Signer) => Promise<ContractFactory>,
@@ -348,7 +370,11 @@ export const deployAndSetupContracts = async (
 
           uniToken: await (wethAddress
             ? createUniswapV2Pair(deployer, wethAddress, addresses.debtToken, overrides)
-            : deployMockUniToken(deployer, getContractFactory, overrides))
+            : deployMockUniToken(deployer, getContractFactory, overrides)),
+
+          collToken: await (wethAddress
+            ? wethAddress
+            : deployMockCollToken(deployer, getContractFactory, overrides))
         }
       })
     ))
