@@ -166,6 +166,23 @@ export interface CollateralGainTransferDetails extends StabilityPoolGainsWithdra
  * @public
  */
 export interface TransactableLiquity {
+
+  /**
+   * Allow Liquity to use the collateral token.
+   * {@link @liquity/lib-base#TransactableLiquity.stakeUniTokens | staking}.
+   *
+   * @param allowance - Maximum amount of collateral tokens that will be transferrable to liquidity
+   *                    (`2^256 - 1` by default).
+   *
+   * @remarks
+   * Must be performed before calling
+   * {@link @liquity/lib-base#TransactableLiquity.openTrove}.
+   *
+   * @throws
+   * Throws {@link TransactionFailedError} in case of transaction failure.
+   */
+  approveCollateral(allowance?: Decimalish): Promise<void>;
+
   /**
    * Open a new Trove by depositing collateral and borrowing LUSD.
    *

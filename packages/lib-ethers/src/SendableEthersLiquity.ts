@@ -41,6 +41,14 @@ export class SendableEthersLiquity
     this._populate = populatable;
   }
 
+  /** {@inheritDoc @liquity/lib-base#SendableLiquity.approveCollateral} */
+  approveCollateral(
+    allowance?: Decimalish,
+    overrides?: EthersTransactionOverrides
+  ): Promise<SentEthersLiquityTransaction<void>> {
+    return this._populate.approveCollateral(allowance, overrides).then(sendTransaction);
+  }
+
   /** {@inheritDoc @liquity/lib-base#SendableLiquity.openTrove} */
   async openTrove(
     params: TroveCreationParams<Decimalish>,

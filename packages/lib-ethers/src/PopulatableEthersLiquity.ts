@@ -809,6 +809,24 @@ export class PopulatableEthersLiquity
     ];
   }
 
+  /** {@inheritdoc @liquity/lib-base#PopulatableLiquity.approveCollateral} */
+  async approveCollateral(
+    allowance?: Decimalish,
+    overrides?: EthersTransactionOverrides
+  ): Promise<PopulatedEthersLiquityTransaction<void>> {
+    const { collToken, borrowerOperations } = _getContracts(this._readable.connection);
+
+    return this._wrapSimpleTransaction(
+      await collToken.estimateAndPopulate.approve(
+        { ...overrides },
+        id,
+        borrowerOperations.address,
+        Decimal.from(allowance ?? Decimal.INFINITY).hex
+      )
+    );
+  }
+  // TODO
+
   /** {@inheritDoc @liquity/lib-base#PopulatableLiquity.openTrove} */
   async openTrove(
     params: TroveCreationParams<Decimalish>,
@@ -845,10 +863,10 @@ export class PopulatableEthersLiquity
     );
 
     const txParams = (borrowLUSD: Decimal): Parameters<typeof borrowerOperations.openTrove> => [
+      depositCollateral.hex,
       maxBorrowingRate.hex,
       borrowLUSD.hex,
       ...hints,
-      depositCollateral.hex,
       { ...overrides }
     ];
 

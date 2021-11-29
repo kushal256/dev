@@ -24,6 +24,7 @@ export declare class PopulatableEthersLiquity implements PopulatableLiquity<Ethe
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
 |  [adjustTrove(params, maxBorrowingRateOrOptionalParams, overrides)](./lib-ethers.populatableethersliquity.adjusttrove.md) |  | Adjust existing Trove by changing its collateral, debt, or both. |
+|  [approveCollateral(allowance, overrides)](./lib-ethers.populatableethersliquity.approvecollateral.md) |  | Allow Liquity to use the collateral token. [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->. |
 |  [approveUniTokens(allowance, overrides)](./lib-ethers.populatableethersliquity.approveunitokens.md) |  | Allow the liquidity mining contract to use Uniswap ETH/LUSD LP tokens for [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->. |
 |  [borrowLUSD(amount, maxBorrowingRate, overrides)](./lib-ethers.populatableethersliquity.borrowlusd.md) |  | Adjust existing Trove by borrowing more LUSD. |
 |  [claimCollateralSurplus(overrides)](./lib-ethers.populatableethersliquity.claimcollateralsurplus.md) |  | Claim leftover collateral after a liquidation or redemption. |
