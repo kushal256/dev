@@ -4,6 +4,7 @@ import { Signer } from "@ethersproject/abstract-signer";
 import { Decimal } from "@liquity/lib-base";
 
 import devOrNull from "../deployments/dev.json";
+import rinkeby from "../deployments/rinkeby.json";
 
 import { numberify, panic } from "./_utils";
 import { EthersProvider, EthersSigner } from "./types";
@@ -22,6 +23,7 @@ const dev = devOrNull as _LiquityDeploymentJSON | null;
 const deployments: {
   [chainId: number]: _LiquityDeploymentJSON | undefined;
 } = {
+  [rinkeby.chainId]: rinkeby,
   ...(dev !== null ? { [dev.chainId]: dev } : {})
 };
 
