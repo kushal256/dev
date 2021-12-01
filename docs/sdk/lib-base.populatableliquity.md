@@ -24,6 +24,7 @@ Implemented by [PopulatableEthersLiquity](./lib-ethers.populatableethersliquity.
 |  Method | Description |
 |  --- | --- |
 |  [adjustTrove(params, maxBorrowingRate)](./lib-base.populatableliquity.adjusttrove.md) | Adjust existing Trove by changing its collateral, debt, or both. |
+|  [approveCollateral(allowance)](./lib-base.populatableliquity.approvecollateral.md) | Allow Liquity to use the collateral token. [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->. |
 |  [approveUniTokens(allowance)](./lib-base.populatableliquity.approveunitokens.md) | Allow the liquidity mining contract to use Uniswap ETH/LUSD LP tokens for [staking](./lib-base.transactableliquity.stakeunitokens.md)<!-- -->. |
 |  [borrowLUSD(amount, maxBorrowingRate)](./lib-base.populatableliquity.borrowlusd.md) | Adjust existing Trove by borrowing more LUSD. |
 |  [claimCollateralSurplus()](./lib-base.populatableliquity.claimcollateralsurplus.md) | Claim leftover collateral after a liquidation or redemption. |

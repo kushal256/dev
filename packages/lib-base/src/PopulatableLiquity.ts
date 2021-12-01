@@ -110,6 +110,11 @@ export type _PopulatableFrom<T, P> = {
 export interface PopulatableLiquity<R = unknown, S = unknown, P = unknown>
   extends _PopulatableFrom<SendableLiquity<R, S>, P> {
   // Methods re-declared for documentation purposes
+  
+  /** {@inheritDoc TransactableLiquity.approveCollateral} */
+  approveCollateral(
+    allowance?: Decimalish
+  ): Promise<PopulatedLiquityTransaction<P, SentLiquityTransaction<S, LiquityReceipt<R, void>>>>;
 
   /** {@inheritDoc TransactableLiquity.openTrove} */
   openTrove(

@@ -230,7 +230,6 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     // Send ETH as collateral to a trove
     function addColl(uint _amount, address _upperHint, address _lowerHint) external override {
-        collateralToken.safeTransferFrom(msg.sender, address(this), _amount);
         _adjustTrove(_amount, msg.sender, 0, 0, false, _upperHint, _lowerHint, 0);
     }
 
@@ -453,6 +452,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         }
 
         if (_isCollIncrease) {
+            collateralToken.safeTransferFrom(_borrower, address(this), _collChange);
             _activePoolAddColl(_activePool, _collChange);
         } else {
             _activePool.sendCollateral(_borrower, _collChange);
@@ -465,7 +465,6 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         // console.log("_amount:\t\t", _amount);
         // console.log("balanceOf this: ", collateralToken.balanceOf(address(this)));
         // console.log("balanceOf _activePool: ", collateralToken.balanceOf(address(_activePool)));
-        
         
         collateralToken.safeTransfer(address(_activePool), _amount);
         // (bool success, ) = address(_activePool).call{value: _amount}("");

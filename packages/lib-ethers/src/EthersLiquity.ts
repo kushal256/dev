@@ -313,6 +313,17 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
   }
 
   /**
+   * {@inheritDoc @liquity/lib-base#TransactableLiquity.approveCollateral}
+   *
+   * @throws
+   * Throws {@link EthersTransactionFailedError} in case of transaction failure.
+   * Throws {@link EthersTransactionCancelledError} if the transaction is cancelled or replaced.
+   */
+  approveCollateral(allowance?: Decimalish, overrides?: EthersTransactionOverrides): Promise<void> {
+    return this.send.approveCollateral(allowance, overrides).then(waitForSuccess);
+  }
+
+  /**
    * {@inheritDoc @liquity/lib-base#TransactableLiquity.openTrove}
    *
    * @throws

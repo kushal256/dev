@@ -5,6 +5,7 @@ import { AddressZero } from "@ethersproject/constants";
 import { BigNumber } from "@ethersproject/bignumber";
 import { Signer } from "@ethersproject/abstract-signer";
 import { ethers, network, deployLiquity } from "hardhat";
+import erc20MockAbi from "../abi/ERC20Mock.json";
 
 import {
   Decimal,
@@ -23,7 +24,7 @@ import {
   LUSD_MINIMUM_NET_DEBT
 } from "@liquity/lib-base";
 
-import { HintHelpers } from "../types";
+import { ERC20Mock, HintHelpers } from "../types";
 
 import {
   PopulatableEthersLiquity,
@@ -95,6 +96,7 @@ describe("EthersLiquity", () => {
   let otherUsers: Signer[];
 
   let deployment: _LiquityDeploymentJSON;
+  let collateralToken: ERC20Mock;
 
   let deployerLiquity: EthersLiquity;
   let liquity: EthersLiquity;
@@ -103,17 +105,16 @@ describe("EthersLiquity", () => {
   const connectUsers = (users: Signer[]) =>
     Promise.all(users.map(user => connectToDeployment(deployment, user)));
 
-  const openTroves = (users: Signer[], params: TroveCreationParams<Decimalish>[]) =>
-    params
-      .map((params, i) => () =>
-        Promise.all([
-          connectToDeployment(deployment, users[i]),
-          sendTo(users[i], params.depositCollateral).then(tx => tx.wait())
-        ]).then(async ([liquity]) => {
-          await liquity.openTrove(params);
-        })
-      )
-      .reduce((a, b) => a.then(b), Promise.resolve());
+  const openTroves = async (users: Signer[], params: TroveCreationParams<Decimalish>[]) => {
+    for (let i in params) {
+      let p = params[i];
+      let conn = await connectToDeployment(deployment, users[i]);
+      await sendTo(users[i], p.depositCollateral);
+      await collateralToken.mint(await users[i].getAddress(), Decimal.from(p.depositCollateral).hex);
+      await conn.approveCollateral(p.depositCollateral);
+      await conn.openTrove(p);
+    }
+  }
 
   const sendTo = (user: Signer, value: Decimalish, nonce?: number) =>
     funder.sendTransaction({
@@ -134,11 +135,15 @@ describe("EthersLiquity", () => {
     [deployer, funder, user, ...otherUsers] = await ethers.getSigners();
     deployment = await deployLiquity(deployer);
 
+    collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
+
     liquity = await connectToDeployment(deployment, user);
     expect(liquity).to.be.an.instanceOf(EthersLiquity);
   });
 
   // Always setup same initial balance for user
+  // This used to have implications for assertions, but now this is just 
+  // to ensure everyone can pay for gas
   beforeEach(async () => {
     const targetBalance = BigNumber.from(STARTING_BALANCE.hex);
 
@@ -285,6 +290,8 @@ describe("EthersLiquity", () => {
     const withSomeBorrowing = { depositCollateral: 50, borrowLUSD: LUSD_MINIMUM_NET_DEBT.add(100) };
 
     it("should create a Trove with some borrowing", async () => {
+      await collateralToken.mint(await user.getAddress(), Decimal.from(withSomeBorrowing.depositCollateral).hex);
+      await liquity.approveCollateral(withSomeBorrowing.depositCollateral);
       const { newTrove, fee } = await liquity.openTrove(withSomeBorrowing);
       expect(newTrove).to.deep.equal(Trove.create(withSomeBorrowing));
       expect(`${fee}`).to.equal(`${MINIMUM_BORROWING_RATE.mul(withSomeBorrowing.borrowLUSD)}`);
@@ -317,6 +324,9 @@ describe("EthersLiquity", () => {
     const depositMoreCollateral = { depositCollateral: 1 };
 
     it("should deposit more collateral", async () => {
+      await collateralToken.mint(await user.getAddress(), Decimal.from(depositMoreCollateral.depositCollateral).hex);
+      let balance = await collateralToken.balanceOf(await user.getAddress());
+      await liquity.approveCollateral(depositMoreCollateral.depositCollateral);
       const { newTrove } = await liquity.depositCollateral(depositMoreCollateral.depositCollateral);
       expect(newTrove).to.deep.equal(
         Trove.create(withSomeBorrowing)
@@ -329,6 +339,7 @@ describe("EthersLiquity", () => {
     const repayAndWithdraw = { repayLUSD: 60, withdrawCollateral: 0.5 };
 
     it("should repay some debt and withdraw some collateral at the same time", async () => {
+      const collBalanceBefore = await collateralToken.balanceOf(await user.getAddress());
       const {
         rawReceipt,
         details: { newTrove }
@@ -342,17 +353,17 @@ describe("EthersLiquity", () => {
           .adjust(repayAndWithdraw)
       );
 
-      const ethBalance = await user.getBalance();
-      const expectedBalance = BigNumber.from(STARTING_BALANCE.add(0.5).hex).sub(
-        getGasCost(rawReceipt)
-      );
-
-      expect(`${ethBalance}`).to.equal(`${expectedBalance}`);
+      const collBalance = await collateralToken.balanceOf(await user.getAddress());
+      const expectedBalance = BigNumber.from(collBalanceBefore.add(Decimal.from(0.5).bigNumber));
+      expect(`${collBalance}`).to.equal(`${expectedBalance}`);
     });
 
     const borrowAndDeposit = { borrowLUSD: 60, depositCollateral: 0.5 };
 
     it("should borrow more and deposit some collateral at the same time", async () => {
+      await collateralToken.mint(await user.getAddress(), Decimal.from(borrowAndDeposit.depositCollateral).hex);
+      const userBalanceBefore = await collateralToken.balanceOf(await user.getAddress());
+      await liquity.approveCollateral(borrowAndDeposit.depositCollateral);
       const {
         rawReceipt,
         details: { newTrove, fee }
@@ -369,12 +380,9 @@ describe("EthersLiquity", () => {
 
       expect(`${fee}`).to.equal(`${MINIMUM_BORROWING_RATE.mul(borrowAndDeposit.borrowLUSD)}`);
 
-      const ethBalance = await user.getBalance();
-      const expectedBalance = BigNumber.from(STARTING_BALANCE.sub(0.5).hex).sub(
-        getGasCost(rawReceipt)
-      );
-
-      expect(`${ethBalance}`).to.equal(`${expectedBalance}`);
+      const collBalance = await collateralToken.balanceOf(await user.getAddress());
+      const expectedBalance = userBalanceBefore.sub(Decimal.from(borrowAndDeposit.depositCollateral).bigNumber);
+      expect(`${collBalance}`).to.equal(`${expectedBalance}`);
     });
 
     it("should close the Trove with some LUSD from another user", async () => {
@@ -385,9 +393,12 @@ describe("EthersLiquity", () => {
 
       let funderTrove = Trove.create({ depositCollateral: 1, borrowLUSD: lusdShortage });
       funderTrove = funderTrove.setDebt(Decimal.max(funderTrove.debt, LUSD_MINIMUM_DEBT));
-      funderTrove = funderTrove.setCollateral(funderTrove.debt.mulDiv(1.51, price));
+      const funderCollateral = funderTrove.debt.mulDiv(1.51, price);
+      funderTrove = funderTrove.setCollateral(funderCollateral);
 
+      await collateralToken.mint(await funder.getAddress(), funderCollateral.hex);
       const funderLiquity = await connectToDeployment(deployment, funder);
+      await funderLiquity.approveCollateral(funderCollateral);
       await funderLiquity.openTrove(Trove.recreate(funderTrove));
       await funderLiquity.sendLUSD(await user.getAddress(), lusdShortage);
 
@@ -438,12 +449,12 @@ describe("EthersLiquity", () => {
     it("other user's deposit should be tagged with the frontend's address", async () => {
       const frontendTag = await user.getAddress();
 
-      await funder.sendTransaction({
-        to: otherUsers[0].getAddress(),
-        value: Decimal.from(20.1).hex
-      });
+      // give enough to pay for gas
+      await funder.sendTransaction({ to: otherUsers[0].getAddress(), value: Decimal.from(0.1).hex });
+      await collateralToken.mint(await otherUsers[0].getAddress(), Decimal.from(20).hex);
 
       const otherLiquity = await connectToDeployment(deployment, otherUsers[0], frontendTag);
+      await otherLiquity.approveCollateral(20);
       await otherLiquity.openTrove({ depositCollateral: 20, borrowLUSD: LUSD_MINIMUM_DEBT });
 
       await otherLiquity.depositLUSDInStabilityPool(LUSD_MINIMUM_DEBT);
@@ -456,6 +467,7 @@ describe("EthersLiquity", () => {
   describe("StabilityPool", () => {
     before(async () => {
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
 
       [deployerLiquity, liquity, ...otherLiquities] = await connectUsers([
         deployer,
@@ -477,6 +489,8 @@ describe("EthersLiquity", () => {
     const smallStabilityDeposit = Decimal.from(10);
 
     it("should make a small stability deposit", async () => {
+      await collateralToken.mint(await user.getAddress(),initialTroveOfDepositor.collateral.bigNumber);
+      await liquity.approveCollateral(initialTroveOfDepositor.collateral);
       const { newTrove } = await liquity.openTrove(Trove.recreate(initialTroveOfDepositor));
       expect(newTrove).to.deep.equal(initialTroveOfDepositor);
 
@@ -500,6 +514,8 @@ describe("EthersLiquity", () => {
     });
 
     it("other user should make a Trove with very low ICR", async () => {
+      await collateralToken.mint(await otherUsers[0].getAddress(), troveWithVeryLowICR.collateral.hex);
+      await otherLiquities[0].approveCollateral(troveWithVeryLowICR.collateral);
       const { newTrove } = await otherLiquities[0].openTrove(Trove.recreate(troveWithVeryLowICR));
 
       const price = await liquity.getPrice();
@@ -613,6 +629,7 @@ describe("EthersLiquity", () => {
       before(async () => {
         // Deploy new instances of the contracts, for a clean slate
         deployment = await deployLiquity(deployer);
+        collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
 
         const otherUsersSubset = otherUsers.slice(0, 5);
         [deployerLiquity, liquity, ...otherLiquities] = await connectUsers([
@@ -627,6 +644,8 @@ describe("EthersLiquity", () => {
         await deployerLiquity.setPrice(price);
 
         // Use this account to print LUSD
+        await collateralToken.mint(await user.getAddress(), Decimal.from(50).hex);
+        await liquity.approveCollateral(50);
         await liquity.openTrove({ depositCollateral: 50, borrowLUSD: 5000 });
 
         // otherLiquities[0-2] will be independent stability depositors
@@ -635,7 +654,11 @@ describe("EthersLiquity", () => {
         await liquity.sendLUSD(await otherUsers[2].getAddress(), 1000);
 
         // otherLiquities[3-4] will be Trove owners whose Troves get liquidated
+        await collateralToken.mint(await otherUsers[3].getAddress(), Decimal.from(21).hex);
+        await otherLiquities[3].approveCollateral(21);
         await otherLiquities[3].openTrove({ depositCollateral: 21, borrowLUSD: 2900 });
+        await collateralToken.mint(await otherUsers[4].getAddress(), Decimal.from(21).hex);
+        await otherLiquities[4].approveCollateral(21);
         await otherLiquities[4].openTrove({ depositCollateral: 21, borrowLUSD: 2900 });
 
         await otherLiquities[0].depositLUSDInStabilityPool(3000);
@@ -687,6 +710,7 @@ describe("EthersLiquity", () => {
 
       // Deploy new instances of the contracts, for a clean slate
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
 
       const otherUsersSubset = otherUsers.slice(0, 3);
       [deployerLiquity, liquity, ...otherLiquities] = await connectUsers([
@@ -699,9 +723,20 @@ describe("EthersLiquity", () => {
     });
 
     it("should fail to redeem during the bootstrap phase", async () => {
+      await collateralToken.mint(await user.getAddress(), Decimal.from(troveCreations[0].depositCollateral).hex);
+      await liquity.approveCollateral(troveCreations[0].depositCollateral);
       await liquity.openTrove(troveCreations[0]);
+
+      await collateralToken.mint(await otherUsers[0].getAddress(), Decimal.from(troveCreations[1].depositCollateral).hex);
+      await otherLiquities[0].approveCollateral(troveCreations[1].depositCollateral);
       await otherLiquities[0].openTrove(troveCreations[1]);
+
+      await collateralToken.mint(await otherUsers[1].getAddress(), Decimal.from(troveCreations[2].depositCollateral).hex);
+      await otherLiquities[1].approveCollateral(troveCreations[2].depositCollateral);
       await otherLiquities[1].openTrove(troveCreations[2]);
+
+      await collateralToken.mint(await otherUsers[2].getAddress(), Decimal.from(troveCreations[3].depositCollateral).hex);
+      await otherLiquities[2].approveCollateral(troveCreations[3].depositCollateral);
       await otherLiquities[2].openTrove(troveCreations[3]);
 
       await expect(liquity.redeemLUSD(4326.5)).to.eventually.be.rejected;
@@ -736,13 +771,11 @@ describe("EthersLiquity", () => {
       const { rawReceipt, details } = await waitForSuccess(liquity.send.redeemLUSD(someLUSD));
       expect(details).to.deep.equal(expectedDetails);
 
-      const balance = Decimal.fromBigNumberString(`${await user.getBalance()}`);
-      const gasCost = Decimal.fromBigNumberString(`${getGasCost(rawReceipt)}`);
+      const balance = Decimal.fromBigNumberString(`${await collateralToken.balanceOf(await user.getAddress())}`);
 
       expect(`${balance}`).to.equal(
-        `${STARTING_BALANCE.add(expectedDetails.collateralTaken)
-          .sub(expectedDetails.fee)
-          .sub(gasCost)}`
+        `${expectedDetails.collateralTaken
+          .sub(expectedDetails.fee)}`
       );
 
       expect(`${await liquity.getLUSDBalance()}`).to.equal("273.5");
@@ -760,8 +793,8 @@ describe("EthersLiquity", () => {
     });
 
     it("should claim the collateral surplus after redemption", async () => {
-      const balanceBefore1 = await provider.getBalance(otherUsers[1].getAddress());
-      const balanceBefore2 = await provider.getBalance(otherUsers[2].getAddress());
+      const balanceBefore1 = await collateralToken.balanceOf(await otherUsers[1].getAddress());
+      const balanceBefore2 = await collateralToken.balanceOf(await otherUsers[2].getAddress());
 
       expect(`${await otherLiquities[0].getCollateralSurplusBalance()}`).to.equal("0");
 
@@ -785,15 +818,15 @@ describe("EthersLiquity", () => {
       expect(`${await otherLiquities[1].getCollateralSurplusBalance()}`).to.equal("0");
       expect(`${await otherLiquities[2].getCollateralSurplusBalance()}`).to.equal("0");
 
-      const balanceAfter1 = await otherUsers[1].getBalance();
-      const balanceAfter2 = await otherUsers[2].getBalance();
+      const balanceAfter1 = await collateralToken.balanceOf(await otherUsers[1].getAddress());
+      const balanceAfter2 = await collateralToken.balanceOf(await otherUsers[2].getAddress());
 
       expect(`${balanceAfter1}`).to.equal(
-        `${balanceBefore1.add(surplus1.hex).sub(getGasCost(receipt1))}`
+        `${balanceBefore1.add(surplus1.hex)}`
       );
 
       expect(`${balanceAfter2}`).to.equal(
-        `${balanceBefore2.add(surplus2.hex).sub(getGasCost(receipt2))}`
+        `${balanceBefore2.add(surplus2.hex)}`
       );
     });
 
@@ -826,6 +859,7 @@ describe("EthersLiquity", () => {
     beforeEach(async () => {
       // Deploy new instances of the contracts, for a clean slate
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
 
       const otherUsersSubset = otherUsers.slice(0, 3);
       [deployerLiquity, liquity, ...otherLiquities] = await connectUsers([
@@ -836,9 +870,20 @@ describe("EthersLiquity", () => {
 
       await sendToEach(otherUsersSubset, 20.1);
 
+      await collateralToken.mint(await user.getAddress(), Decimal.from(99).hex);
+      await liquity.approveCollateral(99);
       await liquity.openTrove({ depositCollateral: 99, borrowLUSD: 5000 });
+
+      await collateralToken.mint(await otherUsers[0].getAddress(), Decimal.from(troveCreationParams.depositCollateral).hex);
+      await otherLiquities[0].approveCollateral(troveCreationParams.depositCollateral);
       await otherLiquities[0].openTrove(troveCreationParams);
+
+      await collateralToken.mint(await otherUsers[1].getAddress(), Decimal.from(troveCreationParams.depositCollateral).hex);
+      await otherLiquities[1].approveCollateral(troveCreationParams.depositCollateral);
       await otherLiquities[1].openTrove(troveCreationParams);
+
+      await collateralToken.mint(await otherUsers[2].getAddress(), Decimal.from(troveCreationParams.depositCollateral).hex);
+      await otherLiquities[2].approveCollateral(troveCreationParams.depositCollateral);
       await otherLiquities[2].openTrove(troveCreationParams);
 
       await increaseTime(60 * 60 * 24 * 15);
@@ -905,6 +950,7 @@ describe("EthersLiquity", () => {
 
       // Deploy new instances of the contracts, for a clean slate
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
       const otherUsersSubset = otherUsers.slice(0, _redeemMaxIterations);
       expect(otherUsersSubset).to.have.length(_redeemMaxIterations);
 
@@ -917,7 +963,12 @@ describe("EthersLiquity", () => {
       await deployerLiquity.setPrice(massivePrice);
       await sendToEach(otherUsersSubset, collateralPerTrove);
 
+      for (const otherUser of otherUsersSubset) {
+        await collateralToken.mint(await otherUser.getAddress(), Decimal.from(collateralPerTrove).hex);
+      }
+
       for (const otherLiquity of otherLiquities) {
+        await otherLiquity.approveCollateral(collateralPerTrove);
         await otherLiquity.openTrove({
           depositCollateral: collateralPerTrove,
           borrowLUSD: amountToBorrowPerTrove
@@ -928,6 +979,8 @@ describe("EthersLiquity", () => {
     });
 
     it("should redeem using the maximum iterations and almost all gas", async () => {
+      await collateralToken.mint(await user.getAddress(), Decimal.from(amountToDeposit).hex);
+      await liquity.approveCollateral(amountToDeposit);
       await liquity.openTrove({
         depositCollateral: amountToDeposit,
         borrowLUSD: amountToRedeem
@@ -945,6 +998,7 @@ describe("EthersLiquity", () => {
   describe("Liquidity mining", () => {
     before(async () => {
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
       [deployerLiquity, liquity] = await connectUsers([deployer, user]);
     });
 
@@ -1047,6 +1101,7 @@ describe("EthersLiquity", () => {
 
     before(async () => {
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
       eightOtherUsers = otherUsers.slice(0, 8);
       liquity = await connectToDeployment(deployment, user);
 
@@ -1068,6 +1123,8 @@ describe("EthersLiquity", () => {
 
     // Test 1
     it("should not use extra gas when a Trove's position doesn't change", async () => {
+      await collateralToken.mint(await user.getAddress(), Decimal.from(30).hex);
+      await liquity.approveCollateral(30);
       const { newTrove: initialTrove } = await liquity.openTrove({
         depositCollateral: 30,
         borrowLUSD: 2400
@@ -1075,13 +1132,14 @@ describe("EthersLiquity", () => {
 
       // Maintain the same ICR / position in the list
       const targetTrove = initialTrove.multiply(1.1);
+      const adjustment = initialTrove.adjustTo(targetTrove)
 
-      const { rawReceipt } = await waitForSuccess(
-        liquity.send.adjustTrove(initialTrove.adjustTo(targetTrove))
-      );
+      await collateralToken.mint(await user.getAddress(), (adjustment.depositCollateral as Decimal).hex)
+      await liquity.approveCollateral(adjustment.depositCollateral);
+      const { rawReceipt } = await waitForSuccess(liquity.send.adjustTrove(adjustment));
 
       const gasUsed = rawReceipt.gasUsed.toNumber();
-      expect(gasUsed).to.be.at.most(250000);
+      expect(gasUsed).to.be.at.most(270000);
     });
 
     // Test 2
@@ -1102,7 +1160,7 @@ describe("EthersLiquity", () => {
       const { rawReceipt } = await waitForSuccess(tx.send());
 
       const gasUsed = rawReceipt.gasUsed.toNumber();
-      expect(gasUsed).to.be.at.most(310000);
+      expect(gasUsed).to.be.at.most(316000);
     });
 
     // Test 3
@@ -1123,7 +1181,7 @@ describe("EthersLiquity", () => {
       );
 
       const gasUsed = rawReceipt.gasUsed.toNumber();
-      expect(gasUsed).to.be.at.most(240000);
+      expect(gasUsed).to.be.at.most(245000);
     });
   });
 
@@ -1140,6 +1198,7 @@ describe("EthersLiquity", () => {
       }
 
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
 
       [rudeUser, ...fiveOtherUsers] = otherUsers.slice(0, 6);
 
@@ -1162,6 +1221,8 @@ describe("EthersLiquity", () => {
     });
 
     it("should include enough gas for updating lastFeeOperationTime", async () => {
+      await collateralToken.mint(await user.getAddress(), Decimal.from(20).hex);
+      await liquity.approveCollateral(20);
       await liquity.openTrove({ depositCollateral: 20, borrowLUSD: 2090 });
 
       // We just updated lastFeeOperationTime, so this won't anticipate having to update that
@@ -1175,7 +1236,7 @@ describe("EthersLiquity", () => {
       // Required gas has just went up.
       const newGasEstimate = await provider.estimateGas(tx.rawPopulatedTransaction);
       const gasIncrease = newGasEstimate.sub(originalGasEstimate).toNumber();
-      expect(gasIncrease).to.be.within(5000, 10000);
+      expect(gasIncrease).to.be.within(4500, 10000);
 
       // This will now have to update lastFeeOperationTime
       await waitForSuccess(tx.send());
@@ -1195,6 +1256,8 @@ describe("EthersLiquity", () => {
       const adjustment = trove.adjustTo(newTrove);
       expect(adjustment.borrowLUSD).to.be.undefined;
 
+      await collateralToken.mint(await user.getAddress(), (adjustment.depositCollateral as Decimal).hex)
+      await liquity.approveCollateral(adjustment.depositCollateral);
       const tx = await liquity.populate.adjustTrove(adjustment);
       const originalGasEstimate = await provider.estimateGas(tx.rawPopulatedTransaction);
 
@@ -1253,12 +1316,15 @@ describe("EthersLiquity", () => {
       }
 
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
       [deployerLiquity, liquity] = await connectUsers([deployer, user]);
     });
 
     it("should include enough gas for issuing LQTY", async function () {
       this.timeout("1m");
 
+      await collateralToken.mint(await user.getAddress(), Decimal.from(40).hex);
+      await liquity.approveCollateral(40);
       await liquity.openTrove({ depositCollateral: 40, borrowLUSD: 4000 });
       await liquity.depositLUSDInStabilityPool(19);
 
@@ -1289,6 +1355,8 @@ describe("EthersLiquity", () => {
 
       const creation = Trove.recreate(new Trove(Decimal.from(11.1), Decimal.from(2000.1)));
 
+      await collateralToken.mint(await deployer.getAddress(), creation.depositCollateral.hex);
+      await deployerLiquity.approveCollateral(creation.depositCollateral);
       await deployerLiquity.openTrove(creation);
       await deployerLiquity.depositLUSDInStabilityPool(creation.borrowLUSD);
       await deployerLiquity.setPrice(198);
@@ -1321,6 +1389,7 @@ describe("EthersLiquity", () => {
       this.timeout("1m");
 
       deployment = await deployLiquity(deployer);
+      collateralToken = new ethers.Contract(deployment.addresses.collToken, erc20MockAbi, deployer) as unknown as ERC20Mock;
       const [redeemedUser, ...someMoreUsers] = otherUsers.slice(0, 21);
       [liquity, ...otherLiquities] = await connectUsers([user, ...someMoreUsers]);
 
@@ -1373,12 +1442,15 @@ describe("EthersLiquity", () => {
 
       const borrowingRate = await liquity.getFees().then(fees => fees.borrowingRate());
 
+      const trove = Trove.recreate(bottomTrove, borrowingRate);
+      await collateralToken.mint(await user.getAddress(), trove.depositCollateral.hex);
+      await liquity.approveCollateral(trove.depositCollateral);
       for (const [borrowingFeeDecayToleranceMinutes, roughGasHeadroom] of [
         [10, 128000],
         [20, 242000],
         [30, 322000]
       ]) {
-        const tx = await liquity.populate.openTrove(Trove.recreate(bottomTrove, borrowingRate), {
+        const tx = await liquity.populate.openTrove(trove, {
           borrowingFeeDecayToleranceMinutes
         });
 
@@ -1395,11 +1467,11 @@ describe("EthersLiquity", () => {
       });
 
       const borrowingRate = await liquity.getFees().then(fees => fees.borrowingRate());
+      const trove = Trove.recreate(bottomTrove.multiply(2), borrowingRate);
 
-      const tx = await liquity.populate.openTrove(
-        Trove.recreate(bottomTrove.multiply(2), borrowingRate),
-        { borrowingFeeDecayToleranceMinutes: 60 }
-      );
+      await collateralToken.mint(await user.getAddress(), trove.depositCollateral.hex);
+      await liquity.approveCollateral(trove.depositCollateral);
+      const tx = await liquity.populate.openTrove(trove, { borrowingFeeDecayToleranceMinutes: 60 });
 
       await increaseTime(60 * 60);
       await waitForSuccess(tx.send());
