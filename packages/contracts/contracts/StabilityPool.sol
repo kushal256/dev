@@ -473,7 +473,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         emit StabilityPoolCollateralUpdated(ETH);
         emit CollateralSent(msg.sender, depositorETHGain);
 
-        collateralToken.safeTransfer(address(borrowerOperations), depositorETHGain);
+        collateralToken.safeApprove(address(borrowerOperations), depositorETHGain);
         borrowerOperations.moveETHGainToTrove(depositorETHGain, msg.sender, _upperHint, _lowerHint);
     }
 
