@@ -25,9 +25,9 @@ async function main() {
 
   console.log("balance", balance.toString());
 
-  await argo.approveCollateral(100);
-  let trove = await argo.openTrove({depositCollateral: 100, borrowLUSD: 10000})
-  console.log(trove);
+  // await argo.approveCollateral(100);
+  // let trove = await argo.openTrove({depositCollateral: 100, borrowLUSD: 10000})
+  // console.log(trove);
 }
 
 if (require.main === module) {

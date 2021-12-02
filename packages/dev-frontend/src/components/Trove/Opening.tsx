@@ -14,8 +14,9 @@ import { useStableTroveChange } from "../../hooks/useStableTroveChange";
 import { ActionDescription } from "../ActionDescription";
 import { useMyTransactionState } from "../Transaction";
 import { TroveAction } from "./TroveAction";
+import { TroveApproval } from "./TroveApproval";
 import { useTroveView } from "./context/TroveViewContext";
-import { COIN } from "../../strings";
+import { COLL, COIN } from "../../strings";
 import { Icon } from "../Icon";
 import { InfoIcon } from "../InfoIcon";
 import { LoadingOverlay } from "../LoadingOverlay";
@@ -28,22 +29,22 @@ import {
 } from "./validation/validateTroveChange";
 
 const selector = (state: LiquityStoreState) => {
-  const { fees, price, accountBalance } = state;
+  const { fees, price, collTokenBalance, collTokenAllowance } = state;
   return {
     fees,
     price,
-    accountBalance,
+    collTokenBalance,
+    collTokenAllowance,
     validationContext: selectForTroveChangeValidation(state)
   };
 };
 
 const EMPTY_TROVE = new Trove(Decimal.ZERO, Decimal.ZERO);
 const TRANSACTION_ID = "trove-creation";
-const GAS_ROOM_ETH = Decimal.from(0.1);
 
 export const Opening: React.FC = () => {
   const { dispatchEvent } = useTroveView();
-  const { fees, price, accountBalance, validationContext } = useLiquitySelector(selector);
+  const { fees, price, collTokenBalance, collTokenAllowance, validationContext } = useLiquitySelector(selector);
   const borrowingRate = fees.borrowingRate();
   const editingState = useState<string>();
 
@@ -57,9 +58,7 @@ export const Opening: React.FC = () => {
   const totalDebt = borrowAmount.add(LUSD_LIQUIDATION_RESERVE).add(fee);
   const isDirty = !collateral.isZero || !borrowAmount.isZero;
   const trove = isDirty ? new Trove(collateral, totalDebt) : EMPTY_TROVE;
-  const maxCollateral = accountBalance.gt(GAS_ROOM_ETH)
-    ? accountBalance.sub(GAS_ROOM_ETH)
-    : Decimal.ZERO;
+  const maxCollateral = collTokenBalance;
   const collateralMaxedOut = collateral.eq(maxCollateral);
   const collateralRatio =
     !collateral.isZero && !borrowAmount.isZero ? trove.collateralRatio(price) : undefined;
@@ -113,7 +112,7 @@ export const Opening: React.FC = () => {
           maxAmount={maxCollateral.toString()}
           maxedOut={collateralMaxedOut}
           editingState={editingState}
-          unit="ETH"
+          unit={COLL}
           editedAmount={collateral.toString(4)}
           setEditedAmount={(amount: string) => setCollateral(Decimal.from(amount))}
         />
@@ -191,17 +190,18 @@ export const Opening: React.FC = () => {
 
         {description ?? (
           <ActionDescription>
-            Start by entering the amount of ETH you'd like to deposit as collateral.
+            Start by entering the amount of {COLL} you'd like to deposit as collateral.
           </ActionDescription>
         )}
 
+        { collateral <= collTokenAllowance ?? (
         <ExpensiveTroveChangeWarning
           troveChange={stableTroveChange}
           maxBorrowingRate={maxBorrowingRate}
           borrowingFeeDecayToleranceMinutes={60}
           gasEstimationState={gasEstimationState}
           setGasEstimationState={setGasEstimationState}
-        />
+        />)}
 
         <Flex variant="layout.actions">
           <Button variant="cancel" onClick={handleCancelPressed}>
@@ -213,6 +213,13 @@ export const Opening: React.FC = () => {
               <Spinner size="24px" sx={{ color: "background" }} />
             </Button>
           ) : stableTroveChange ? (
+            collateral > collTokenAllowance ?
+            (<TroveApproval 
+                transactionId={TRANSACTION_ID}
+                amount={stableTroveChange.params.depositCollateral as Decimal}>
+                  Approve
+              </TroveApproval>)
+            :(
             <TroveAction
               transactionId={TRANSACTION_ID}
               change={stableTroveChange}
@@ -221,7 +228,7 @@ export const Opening: React.FC = () => {
             >
               Confirm
             </TroveAction>
-          ) : (
+          )) : (
             <Button disabled>Confirm</Button>
           )}
         </Flex>

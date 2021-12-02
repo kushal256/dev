@@ -13,7 +13,7 @@ import {
   TroveCreationParams
 } from "@liquity/lib-base";
 
-import { COIN } from "../../../strings";
+import { COLL, COIN } from "../../../strings";
 
 import { ActionDescription, Amount } from "../../ActionDescription";
 import { ErrorDescription } from "../../ErrorDescription";
@@ -29,7 +29,7 @@ const TroveChangeDescription: React.FC<TroveAdjustmentDescriptionParams> = ({ pa
   <ActionDescription>
     {params.depositCollateral && params.borrowLUSD ? (
       <>
-        You will deposit <Amount>{params.depositCollateral.prettify()} ETH</Amount> and receive{" "}
+        You will deposit <Amount>{params.depositCollateral.prettify()} {COLL}</Amount> and receive{" "}
         <Amount>
           {params.borrowLUSD.prettify()} {COIN}
         </Amount>
@@ -40,29 +40,29 @@ const TroveChangeDescription: React.FC<TroveAdjustmentDescriptionParams> = ({ pa
         <Amount>
           {params.repayLUSD.prettify()} {COIN}
         </Amount>{" "}
-        and receive <Amount>{params.withdrawCollateral.prettify()} ETH</Amount>
+        and receive <Amount>{params.withdrawCollateral.prettify()} {COLL}</Amount>
       </>
     ) : params.depositCollateral && params.repayLUSD ? (
       <>
-        You will deposit <Amount>{params.depositCollateral.prettify()} ETH</Amount> and pay{" "}
+        You will deposit <Amount>{params.depositCollateral.prettify()} {COLL}</Amount> and pay{" "}
         <Amount>
           {params.repayLUSD.prettify()} {COIN}
         </Amount>
       </>
     ) : params.borrowLUSD && params.withdrawCollateral ? (
       <>
-        You will receive <Amount>{params.withdrawCollateral.prettify()} ETH</Amount> and{" "}
+        You will receive <Amount>{params.withdrawCollateral.prettify()} {COLL}</Amount> and{" "}
         <Amount>
           {params.borrowLUSD.prettify()} {COIN}
         </Amount>
       </>
     ) : params.depositCollateral ? (
       <>
-        You will deposit <Amount>{params.depositCollateral.prettify()} ETH</Amount>
+        You will deposit <Amount>{params.depositCollateral.prettify()} {COLL}</Amount>
       </>
     ) : params.withdrawCollateral ? (
       <>
-        You will receive <Amount>{params.withdrawCollateral.prettify()} ETH</Amount>
+        You will receive <Amount>{params.withdrawCollateral.prettify()} {COLL}</Amount>
       </>
     ) : params.borrowLUSD ? (
       <>
@@ -86,10 +86,10 @@ const TroveChangeDescription: React.FC<TroveAdjustmentDescriptionParams> = ({ pa
 export const selectForTroveChangeValidation = ({
   price,
   total,
-  accountBalance,
+  collTokenBalance,
   lusdBalance,
   numberOfTroves
-}: LiquityStoreState) => ({ price, total, accountBalance, lusdBalance, numberOfTroves });
+}: LiquityStoreState) => ({ price, total, collTokenBalance, lusdBalance, numberOfTroves });
 
 type TroveChangeValidationSelectedState = ReturnType<typeof selectForTroveChangeValidation>;
 
@@ -167,7 +167,7 @@ const validateTroveCreation = (
     resultingTrove,
     recoveryMode,
     wouldTriggerRecoveryMode,
-    accountBalance,
+    collTokenBalance,
     price
   }: TroveChangeValidationContext
 ): JSX.Element | null => {
@@ -211,11 +211,11 @@ const validateTroveCreation = (
     }
   }
 
-  if (depositCollateral.gt(accountBalance)) {
+  if (depositCollateral.gt(collTokenBalance)) {
     return (
       <ErrorDescription>
         The amount you're trying to deposit exceeds your balance by{" "}
-        <Amount>{depositCollateral.sub(accountBalance).prettify()} ETH</Amount>.
+        <Amount>{depositCollateral.sub(collTokenBalance).prettify()} {COLL}</Amount>.
       </ErrorDescription>
     );
   }
@@ -231,7 +231,7 @@ const validateTroveAdjustment = (
     recoveryMode,
     wouldTriggerRecoveryMode,
     price,
-    accountBalance,
+    collTokenBalance,
     lusdBalance
   }: TroveChangeValidationContext
 ): JSX.Element | null => {
@@ -307,11 +307,11 @@ const validateTroveAdjustment = (
     }
   }
 
-  if (depositCollateral?.gt(accountBalance)) {
+  if (depositCollateral?.gt(collTokenBalance)) {
     return (
       <ErrorDescription>
         The amount you're trying to deposit exceeds your balance by{" "}
-        <Amount>{depositCollateral.sub(accountBalance).prettify()} ETH</Amount>.
+        <Amount>{depositCollateral.sub(collTokenBalance).prettify()} {COLL}</Amount>.
       </ErrorDescription>
     );
   }

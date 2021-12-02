@@ -159,6 +159,11 @@ export interface SendableLiquity<R = unknown, S = unknown>
     maxBorrowingRate?: Decimalish
   ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, TroveAdjustmentDetails>>>;
 
+  /** {@inheritDoc TransactableLiquity.approveCollateral} */
+  approveCollateral(
+    allowance?: Decimalish,
+  ): Promise<SentLiquityTransaction<S, LiquityReceipt<R, void>>>;
+
   /** {@inheritDoc TransactableLiquity.depositCollateral} */
   depositCollateral(
     amount: Decimalish

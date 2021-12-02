@@ -14,8 +14,9 @@ import { useStableTroveChange } from "../../hooks/useStableTroveChange";
 import { ActionDescription } from "../ActionDescription";
 import { useMyTransactionState } from "../Transaction";
 import { TroveAction } from "./TroveAction";
+import { TroveApproval } from "./TroveApproval";
 import { useTroveView } from "./context/TroveViewContext";
-import { COIN } from "../../strings";
+import { COIN, COLL } from "../../strings";
 import { Icon } from "../Icon";
 import { InfoIcon } from "../InfoIcon";
 import { LoadingOverlay } from "../LoadingOverlay";
@@ -28,18 +29,18 @@ import {
 } from "./validation/validateTroveChange";
 
 const selector = (state: LiquityStoreState) => {
-  const { trove, fees, price, accountBalance } = state;
+  const { trove, fees, price, collTokenBalance, collTokenAllowance } = state;
   return {
     trove,
     fees,
     price,
-    accountBalance,
+    collTokenBalance,
+    collTokenAllowance,
     validationContext: selectForTroveChangeValidation(state)
   };
 };
 
 const TRANSACTION_ID = "trove-adjustment";
-const GAS_ROOM_ETH = Decimal.from(0.1);
 
 const feeFrom = (original: Trove, edited: Trove, borrowingRate: Decimal): Decimal => {
   const change = original.whatChanged(edited, borrowingRate);
@@ -83,7 +84,7 @@ const applyUnsavedNetDebtChanges = (unsavedChanges: Difference, trove: Trove) =>
 
 export const Adjusting: React.FC = () => {
   const { dispatchEvent } = useTroveView();
-  const { trove, fees, price, accountBalance, validationContext } = useLiquitySelector(selector);
+  const { trove, fees, price, collTokenBalance, collTokenAllowance, validationContext } = useLiquitySelector(selector);
   const editingState = useState<string>();
   const previousTrove = useRef<Trove>(trove);
   const [collateral, setCollateral] = useState<Decimal>(trove.collateral);
@@ -124,6 +125,8 @@ export const Adjusting: React.FC = () => {
   const isDirty = !collateral.eq(trove.collateral) || !netDebt.eq(trove.netDebt);
   const isDebtIncrease = netDebt.gt(trove.netDebt);
   const debtIncreaseAmount = isDebtIncrease ? netDebt.sub(trove.netDebt) : Decimal.ZERO;
+  const isCollateralIncrease = collateral.gt(trove.collateral);
+  const collIncreaseAmount = isCollateralIncrease ? collateral.sub(trove.collateral) : Decimal.ZERO;
 
   const fee = isDebtIncrease
     ? feeFrom(trove, new Trove(trove.collateral, trove.debt.add(debtIncreaseAmount)), borrowingRate)
@@ -132,9 +135,7 @@ export const Adjusting: React.FC = () => {
   const maxBorrowingRate = borrowingRate.add(0.005);
   const updatedTrove = isDirty ? new Trove(collateral, totalDebt) : trove;
   const feePct = new Percent(borrowingRate);
-  const availableEth = accountBalance.gt(GAS_ROOM_ETH)
-    ? accountBalance.sub(GAS_ROOM_ETH)
-    : Decimal.ZERO;
+  const availableEth = collTokenBalance;
   const maxCollateral = trove.collateral.add(availableEth);
   const collateralMaxedOut = collateral.eq(maxCollateral);
   const collateralRatio =
@@ -178,7 +179,7 @@ export const Adjusting: React.FC = () => {
           maxAmount={maxCollateral.toString()}
           maxedOut={collateralMaxedOut}
           editingState={editingState}
-          unit="ETH"
+          unit={COLL}
           editedAmount={collateral.toString(4)}
           setEditedAmount={(amount: string) => setCollateral(Decimal.from(amount))}
         />
@@ -260,13 +261,14 @@ export const Adjusting: React.FC = () => {
           </ActionDescription>
         )}
 
+        { collIncreaseAmount <= collTokenAllowance ?? (
         <ExpensiveTroveChangeWarning
           troveChange={stableTroveChange}
           maxBorrowingRate={maxBorrowingRate}
           borrowingFeeDecayToleranceMinutes={60}
           gasEstimationState={gasEstimationState}
           setGasEstimationState={setGasEstimationState}
-        />
+        />)}
 
         <Flex variant="layout.actions">
           <Button variant="cancel" onClick={handleCancelPressed}>
@@ -274,7 +276,13 @@ export const Adjusting: React.FC = () => {
           </Button>
 
           {stableTroveChange ? (
-            <TroveAction
+            collIncreaseAmount > collTokenAllowance ?
+            (<TroveApproval
+                transactionId={TRANSACTION_ID}
+                amount={collIncreaseAmount}>
+               Approve 
+               </TroveApproval>)
+            :( <TroveAction
               transactionId={TRANSACTION_ID}
               change={stableTroveChange}
               maxBorrowingRate={maxBorrowingRate}
@@ -282,7 +290,7 @@ export const Adjusting: React.FC = () => {
             >
               Confirm
             </TroveAction>
-          ) : (
+          )) : (
             <Button disabled>Confirm</Button>
           )}
         </Flex>

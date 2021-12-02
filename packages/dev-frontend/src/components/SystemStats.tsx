@@ -5,22 +5,22 @@ import { Decimal, Percent, LiquityStoreState } from "@liquity/lib-base";
 import { useLiquitySelector } from "@liquity/lib-react";
 
 import { useLiquity } from "../hooks/LiquityContext";
-import { COIN, GT } from "../strings";
+import { COIN, COLL, GT } from "../strings";
 import { Statistic } from "./Statistic";
 
-const selectBalances = ({ accountBalance, lusdBalance, lqtyBalance }: LiquityStoreState) => ({
-  accountBalance,
+const selectBalances = ({ collTokenBalance, lusdBalance, lqtyBalance }: LiquityStoreState) => ({
+  collTokenBalance,
   lusdBalance,
   lqtyBalance
 });
 
 const Balances: React.FC = () => {
-  const { accountBalance, lusdBalance, lqtyBalance } = useLiquitySelector(selectBalances);
+  const { collTokenBalance, lusdBalance, lqtyBalance } = useLiquitySelector(selectBalances);
 
   return (
     <Box sx={{ mb: 3 }}>
       <Heading>My Account Balances</Heading>
-      <Statistic name="ETH"> {accountBalance.prettify(4)}</Statistic>
+      <Statistic name={COLL}> {collTokenBalance.prettify(4)}</Statistic>
       <Statistic name={COIN}> {lusdBalance.prettify()}</Statistic>
       <Statistic name={GT}>{lqtyBalance.prettify()}</Statistic>
     </Box>
@@ -101,9 +101,9 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
 
       <Statistic
         name="TVL"
-        tooltip="The Total Value Locked (TVL) is the total value of Ether locked as collateral in the system, given in ETH and USD."
+        tooltip={`The Total Value Locked (TVL) is the total value of {COLL} locked as collateral in the system, given in {COLL} and USD.`}
       >
-        {total.collateral.shorten()} <Text sx={{ fontSize: 1 }}>&nbsp;ETH</Text>
+        {total.collateral.shorten()} <Text sx={{ fontSize: 1 }}>&nbsp;{COLL}</Text>
         <Text sx={{ fontSize: 1 }}>
           &nbsp;(${Decimal.from(total.collateral.mul(price)).shorten()})
         </Text>
@@ -111,14 +111,13 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
       <Statistic name="Troves" tooltip="The total number of active Troves in the system.">
         {Decimal.from(numberOfTroves).prettify(0)}
       </Statistic>
-      <Statistic name="LUSD supply" tooltip="The total LUSD minted by the Liquity Protocol.">
+      <Statistic name={`${COIN} supply`} tooltip={`The total ${COIN} minted by the Liquity Protocol.`}>
         {total.debt.shorten()}
       </Statistic>
       {lusdInStabilityPoolPct && (
         <Statistic
-          name="LUSD in Stability Pool"
-          tooltip="The total LUSD currently held in the Stability Pool, expressed as an amount and a fraction of the LUSD supply.
-        "
+          name={`${COIN} in Stability Pool`}
+          tooltip={`The total ${COIN} currently held in the Stability Pool, expressed as an amount and a fraction of the ${COIN} supply.`}
         >
           {lusdInStabilityPool.shorten()}
           <Text sx={{ fontSize: 1 }}>&nbsp;({lusdInStabilityPoolPct.toString(1)})</Text>
@@ -132,7 +131,7 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
       </Statistic>
       <Statistic
         name="Total Collateral Ratio"
-        tooltip="The ratio of the Dollar value of the entire system collateral at the current ETH:USD price, to the entire system debt."
+        tooltip={`The ratio of the Dollar value of the entire system collateral at the current ${COLL}:USD price, to the entire system debt.`}
       >
         {totalCollateralRatioPct.prettify()}
       </Statistic>

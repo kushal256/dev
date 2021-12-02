@@ -5,7 +5,7 @@ import { LiquityStoreState } from "@liquity/lib-base";
 import { DisabledEditableRow } from "./Editor";
 import { useTroveView } from "./context/TroveViewContext";
 import { Icon } from "../Icon";
-import { COIN } from "../../strings";
+import { COIN, COLL } from "../../strings";
 import { CollateralRatio } from "./CollateralRatio";
 
 const select = ({ trove, price }: LiquityStoreState) => ({ trove, price });
@@ -31,7 +31,7 @@ export const ReadOnlyTrove: React.FC = () => {
             label="Collateral"
             inputId="trove-collateral"
             amount={trove.collateral.prettify(4)}
-            unit="ETH"
+            unit={COLL}
           />
 
           <DisabledEditableRow
