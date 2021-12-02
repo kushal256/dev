@@ -53,7 +53,7 @@
     "prepare:lib-base": "yarn workspace @liquity/lib-base prepare",
     "prepare:lib-ethers": "yarn workspace @liquity/lib-ethers prepare",
     "prepare:lib-react": "yarn workspace @liquity/lib-react prepare",
-    "prepare:lib-subgraph": "yarn workspace @liquity/lib-subgraph prepare",
+    "prepare:lib-subgraph": "echo yarn workspace @liquity/lib-subgraph prepare",
     "prepare:providers": "yarn workspace @liquity/providers prepare",
     "prepare:subgraph": "echo skipping yarn workspace @liquity/subgraph prepare",
     "prepare:docs": "run-s docs",

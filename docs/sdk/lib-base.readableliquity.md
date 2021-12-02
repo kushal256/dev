@@ -21,6 +21,8 @@ Implemented by [EthersLiquity](./lib-ethers.ethersliquity.md)<!-- -->.
 |  Method | Description |
 |  --- | --- |
 |  [getCollateralSurplusBalance(address)](./lib-base.readableliquity.getcollateralsurplusbalance.md) | Get the amount of leftover collateral available for withdrawal by an address. |
+|  [getCollTokenAllowance(address)](./lib-base.readableliquity.getcolltokenallowance.md) | Get the allows of the collateral tokens to the Liquity contracts for an address. |
+|  [getCollTokenBalance(address)](./lib-base.readableliquity.getcolltokenbalance.md) | Get the amount of the collateral token held by an address. |
 |  [getFees()](./lib-base.readableliquity.getfees.md) | Get a calculator for current fees. |
 |  [getFrontendStatus(address)](./lib-base.readableliquity.getfrontendstatus.md) | Check whether an address is registered as a Liquity frontend, and what its kickback rate is. |
 |  [getLiquidityMiningLQTYReward(address)](./lib-base.readableliquity.getliquiditymininglqtyreward.md) | Get the amount of LQTY earned by an address through mining liquidity. |

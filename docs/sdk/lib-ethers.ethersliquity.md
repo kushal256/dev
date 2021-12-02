@@ -40,6 +40,8 @@ The constructor for this class is marked as internal. Third-party code should no
 |  [depositLUSDInStabilityPool(amount, frontendTag, overrides)](./lib-ethers.ethersliquity.depositlusdinstabilitypool.md) |  | Make a new Stability Deposit, or top up existing one. |
 |  [exitLiquidityMining(overrides)](./lib-ethers.ethersliquity.exitliquiditymining.md) |  | Withdraw all staked LP tokens from liquidity mining and claim reward. |
 |  [getCollateralSurplusBalance(address, overrides)](./lib-ethers.ethersliquity.getcollateralsurplusbalance.md) |  | Get the amount of leftover collateral available for withdrawal by an address. |
+|  [getCollTokenAllowance(address, overrides)](./lib-ethers.ethersliquity.getcolltokenallowance.md) |  | Get the allows of the collateral tokens to the Liquity contracts for an address. |
+|  [getCollTokenBalance(address, overrides)](./lib-ethers.ethersliquity.getcolltokenbalance.md) |  | Get the amount of the collateral token held by an address. |
 |  [getFees(overrides)](./lib-ethers.ethersliquity.getfees.md) |  | Get a calculator for current fees. |
 |  [getFrontendStatus(address, overrides)](./lib-ethers.ethersliquity.getfrontendstatus.md) |  | Check whether an address is registered as a Liquity frontend, and what its kickback rate is. |
 |  [getLiquidityMiningLQTYReward(address, overrides)](./lib-ethers.ethersliquity.getliquiditymininglqtyreward.md) |  | Get the amount of LQTY earned by an address through mining liquidity. |

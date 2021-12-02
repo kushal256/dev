@@ -25,6 +25,12 @@ export interface LiquityStoreBaseState {
   /** User's native currency balance (e.g. Ether). */
   accountBalance: Decimal;
 
+  /** User's collateral token balance (e.g. Ether). */
+  collTokenBalance: Decimal;
+
+  /** The liquity contract's allows of user's collateral tokens */
+  collTokenAllowance: Decimal;
+
   /** User's LUSD token balance. */
   lusdBalance: Decimal;
 
@@ -350,6 +356,20 @@ export abstract class LiquityStore<T = unknown> {
         "accountBalance",
         baseState.accountBalance,
         baseStateUpdate.accountBalance
+      ),
+
+      collTokenBalance: this._updateIfChanged(
+        eq,
+        "collTokenBalance",
+        baseState.collTokenBalance,
+        baseStateUpdate.collTokenBalance
+      ),
+
+      collTokenAllowance: this._updateIfChanged(
+        eq,
+        "collTokenAllowance",
+        baseState.collTokenAllowance,
+        baseStateUpdate.collTokenAllowance
       ),
 
       lusdBalance: this._updateIfChanged(

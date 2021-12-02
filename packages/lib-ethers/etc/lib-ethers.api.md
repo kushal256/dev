@@ -131,6 +131,10 @@ export class EthersLiquity implements ReadableEthersLiquity, TransactableLiquity
     _getBlockTimestamp(blockTag?: BlockTag): Promise<number>;
     // (undocumented)
     getCollateralSurplusBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
+    // (undocumented)
+    getCollTokenAllowance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
+    // (undocumented)
+    getCollTokenBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // @internal (undocumented)
     _getDefaultPool(overrides?: EthersCallOverrides): Promise<Trove>;
     // (undocumented)
@@ -468,6 +472,10 @@ export class ReadableEthersLiquity implements ReadableLiquity {
     _getBlockTimestamp(blockTag?: BlockTag): Promise<number>;
     // (undocumented)
     getCollateralSurplusBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
+    // (undocumented)
+    getCollTokenAllowance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
+    // (undocumented)
+    getCollTokenBalance(address?: string, overrides?: EthersCallOverrides): Promise<Decimal>;
     // @internal (undocumented)
     _getDefaultPool(overrides?: EthersCallOverrides): Promise<Trove>;
     // (undocumented)

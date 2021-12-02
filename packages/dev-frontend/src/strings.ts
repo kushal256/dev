@@ -1,3 +1,4 @@
+export const COLL = "gOHM";
 export const COIN = "LUSD";
 export const GT = "LQTY";
 export const LP = "UNI LP";

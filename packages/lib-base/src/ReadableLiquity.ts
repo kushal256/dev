@@ -112,6 +112,20 @@ export interface ReadableLiquity {
   getLUSDInStabilityPool(): Promise<Decimal>;
 
   /**
+   * Get the amount of the collateral token held by an address.
+   *
+   * @param address - Address whose balance should be retrieved.
+   */
+  getCollTokenBalance(address?: string): Promise<Decimal>;
+
+  /**
+   * Get the allows of the collateral tokens to the Liquity contracts for an address.
+   *
+   * @param address - Address whose balance should be retrieved.
+   */
+  getCollTokenAllowance(address?: string): Promise<Decimal>;
+
+  /**
    * Get the amount of LUSD held by an address.
    *
    * @param address - Address whose balance should be retrieved.

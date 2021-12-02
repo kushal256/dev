@@ -10,6 +10,10 @@ export class _CachedReadableLiquity<T extends unknown[]> implements _ReadableLiq
     // (undocumented)
     getCollateralSurplusBalance(address?: string, ...extraParams: T): Promise<Decimal>;
     // (undocumented)
+    getCollTokenAllowance(address?: string, ...extraParams: T): Promise<Decimal>;
+    // (undocumented)
+    getCollTokenBalance(address?: string, ...extraParams: T): Promise<Decimal>;
+    // (undocumented)
     getFees(...extraParams: T): Promise<Fees>;
     // (undocumented)
     getFrontendStatus(address?: string, ...extraParams: T): Promise<FrontendStatus>;
@@ -260,6 +264,8 @@ export abstract class LiquityStore<T = unknown> {
 export interface LiquityStoreBaseState {
     accountBalance: Decimal;
     collateralSurplusBalance: Decimal;
+    collTokenAllowance: Decimal;
+    collTokenBalance: Decimal;
     // @internal (undocumented)
     _feesInNormalMode: Fees;
     frontend: FrontendStatus;
@@ -492,6 +498,8 @@ export interface PopulatedRedemption<P = unknown, S = unknown, R = unknown> exte
 // @public
 export interface ReadableLiquity {
     getCollateralSurplusBalance(address?: string): Promise<Decimal>;
+    getCollTokenAllowance(address?: string): Promise<Decimal>;
+    getCollTokenBalance(address?: string): Promise<Decimal>;
     getFees(): Promise<Fees>;
     getFrontendStatus(address?: string): Promise<FrontendStatus>;
     getLiquidityMiningLQTYReward(address?: string): Promise<Decimal>;

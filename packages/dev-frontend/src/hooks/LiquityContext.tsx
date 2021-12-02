@@ -46,6 +46,7 @@ export const LiquityProvider: React.FC<LiquityProviderProps> = ({
   const [config, setConfig] = useState<LiquityFrontendConfig>();
 
   const connection = useMemo(() => {
+    console.log(config, provider, account, chainId);
     if (config && provider && account && chainId) {
       try {
         return _connectByChainId(provider, provider.getSigner(account), chainId, {

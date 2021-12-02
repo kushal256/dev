@@ -119,6 +119,8 @@ export class BlockPolledLiquityStore extends LiquityStore<BlockPolledLiquityStor
       ...(userAddress
         ? {
             accountBalance: this._provider.getBalance(userAddress, blockTag).then(decimalify),
+            collTokenBalance: this._readable.getCollTokenBalance(userAddress, { blockTag }),
+            collTokenAllowance: this._readable.getCollTokenAllowance(userAddress, { blockTag }),
             lusdBalance: this._readable.getLUSDBalance(userAddress, { blockTag }),
             lqtyBalance: this._readable.getLQTYBalance(userAddress, { blockTag }),
             uniTokenBalance: this._readable.getUniTokenBalance(userAddress, { blockTag }),
@@ -139,6 +141,8 @@ export class BlockPolledLiquityStore extends LiquityStore<BlockPolledLiquityStor
           }
         : {
             accountBalance: Decimal.ZERO,
+            collTokenBalance: Decimal.ZERO,
+            collTokenAllowance: Decimal.ZERO,
             lusdBalance: Decimal.ZERO,
             lqtyBalance: Decimal.ZERO,
             uniTokenBalance: Decimal.ZERO,

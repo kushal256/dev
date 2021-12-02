@@ -115,6 +115,20 @@ export class _CachedReadableLiquity<T extends unknown[]>
     );
   }
 
+  async getCollTokenBalance(address?: string, ...extraParams: T): Promise<Decimal> {
+    return (
+      this._cache.getCollTokenBalance(address, ...extraParams) ??
+      this._readable.getCollTokenBalance(address, ...extraParams)
+    );
+  }
+
+  async getCollTokenAllowance(address?: string, ...extraParams: T): Promise<Decimal> {
+    return (
+      this._cache.getCollTokenAllowance(address, ...extraParams) ??
+      this._readable.getCollTokenAllowance(address, ...extraParams)
+    );
+  }
+
   async getLUSDBalance(address?: string, ...extraParams: T): Promise<Decimal> {
     return (
       this._cache.getLUSDBalance(address, ...extraParams) ??
