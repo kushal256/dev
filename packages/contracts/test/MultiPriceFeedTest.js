@@ -41,6 +41,36 @@ contract('PriceFeed', async accounts => {
       assert.equal(`${price}`, '23986842311112663398400');
   });
 
+  it("avoids rounding errors when index is large", async () => {
+      await ethUSDFeed.setPrice(toBN('4100682166650000000000'));
+      await ohmETHFeed.setPrice(toBN('141193844780215400'));
+      await gOHM.setIndex(dec(10000, 9));
+      await priceFeed.fetchPrice();
+      let price = await priceFeed.lastPrice();
+      // $5,789,910.81
+      assert.equal(`${price}`, '5789910813309143290203300');
+  });
+
+  it("minimizes rounding errors when eth price is large", async () => {
+      await ethUSDFeed.setPrice(toBN('41006821666500000000000000'));
+      await ohmETHFeed.setPrice(toBN('141193844780215400'));
+      await gOHM.setIndex(toBN('41428690506'));
+      await priceFeed.fetchPrice();
+      let price = await priceFeed.lastPrice();
+      // $239,868,423.11
+      assert.equal(`${price}`, '239868423111126633984000000');
+  });
+
+  it("minimizes rounding errors when OHM price is large", async () => {
+      await ethUSDFeed.setPrice(toBN('4100682166650000000000'));
+      await ohmETHFeed.setPrice(toBN('1411938447802154000000'));
+      await gOHM.setIndex(toBN('41428690506'));
+      await priceFeed.fetchPrice();
+      let price = await priceFeed.lastPrice();
+      // $239,868,423.14
+      assert.equal(`${price}`, '239868423141951461830708050');
+  });
+
   it("reverts if the ETH-USD price is zero", async () => {
       await ethUSDFeed.setPrice(toBN('0'));
       await ohmETHFeed.setPrice(toBN('141193844780215400'));
