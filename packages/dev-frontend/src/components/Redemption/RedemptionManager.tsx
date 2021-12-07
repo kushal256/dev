@@ -4,7 +4,7 @@ import { Button, Box, Flex, Card, Heading } from "theme-ui";
 import { Decimal, Percent, LiquityStoreState, MINIMUM_COLLATERAL_RATIO } from "@liquity/lib-base";
 import { useLiquitySelector } from "@liquity/lib-react";
 
-import { COIN } from "../../strings";
+import { COIN, COLL } from "../../strings";
 
 import { Icon } from "../Icon";
 import { LoadingOverlay } from "../LoadingOverlay";
@@ -78,7 +78,7 @@ export const RedemptionManager: React.FC = () => {
     : [
         true,
         <ActionDescription>
-          You will receive <Amount>{ethAmount.sub(ethFee).prettify(4)} ETH</Amount> in exchange for{" "}
+          You will receive <Amount>{ethAmount.sub(ethFee).prettify(4)} {COLL}</Amount> in exchange for{" "}
           <Amount>
             {lusdAmount.prettify()} {COIN}
           </Amount>
@@ -119,13 +119,13 @@ export const RedemptionManager: React.FC = () => {
           inputId="redeem-fee"
           amount={ethFee.toString(4)}
           pendingAmount={feePct.toString(2)}
-          unit="ETH"
+          unit={COLL}
           infoIcon={
             <InfoIcon
               tooltip={
                 <Card variant="tooltip" sx={{ minWidth: "240px" }}>
-                  The Redemption Fee is charged as a percentage of the redeemed Ether. The Redemption
-                  Fee depends on LUSD redemption volumes and is 0.5% at minimum.
+                  The Redemption Fee is charged as a percentage of the redeemed {COLL}. The Redemption
+                  Fee depends on {COIN} redemption volumes and is 0.5% at minimum.
                 </Card>
               }
             />

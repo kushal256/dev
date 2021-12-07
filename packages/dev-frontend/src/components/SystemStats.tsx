@@ -94,7 +94,7 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
 
       <Statistic
         name="Borrowing Fee"
-        tooltip="The Borrowing Fee is a one-off fee charged as a percentage of the borrowed amount (in LUSD) and is part of a Trove's debt. The fee varies between 0.5% and 5% depending on LUSD redemption volumes."
+        tooltip={`The Borrowing Fee is a one-off fee charged as a percentage of the borrowed amount (in ${COIN}) and is part of a Trove's debt. The fee varies between 0.5% and 5% depending on ${COIN} redemption volumes.`}
       >
         {borrowingFeePct.toString(2)}
       </Statistic>
@@ -124,8 +124,8 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
         </Statistic>
       )}
       <Statistic
-        name="Staked LQTY"
-        tooltip="The total amount of LQTY that is staked for earning fee revenue."
+        name={`Staked ${GT}`}
+        tooltip={`The total amount of ${GT} that is staked for earning fee revenue.`}
       >
         {totalStakedLQTY.shorten()}
       </Statistic>

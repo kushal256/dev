@@ -3,7 +3,7 @@ import { Heading, Box, Card, Flex, Button } from "theme-ui";
 import { LiquityStoreState } from "@liquity/lib-base";
 import { useLiquitySelector } from "@liquity/lib-react";
 
-import { COIN, GT } from "../../strings";
+import { COIN, COLL, GT } from "../../strings";
 
 import { DisabledEditableRow, StaticRow } from "../Trove/Editor";
 import { LoadingOverlay } from "../LoadingOverlay";
@@ -47,7 +47,7 @@ export const ReadOnlyStake: React.FC = () => {
           inputId="stake-gain-eth"
           amount={lqtyStake.collateralGain.prettify(4)}
           color={lqtyStake.collateralGain.nonZero && "success"}
-          unit="ETH"
+          unit={COLL}
         />
 
         <StaticRow

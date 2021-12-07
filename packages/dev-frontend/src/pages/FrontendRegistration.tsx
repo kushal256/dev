@@ -7,6 +7,7 @@ import { shortenAddress } from "../utils/shortenAddress";
 import { useLiquity } from "../hooks/LiquityContext";
 import { Transaction, useMyTransactionState } from "../components/Transaction";
 import { Icon } from "../components/Icon";
+import {GT} from "../strings";
 
 type FrontendRegistrationActionProps = {
   kickbackRate: Decimal;
@@ -98,7 +99,7 @@ export const FrontendRegistration: React.FC = () => {
 
         <Paragraph sx={{ fontSize: 1, mt: 3 }}>
           You are about to register <b>{shortenAddress(account)}</b> to receive{" "}
-          <b>{cut.mul(100).toString()}%</b> of the LQTY rewards earned through this frontend.
+          <b>{cut.mul(100).toString()}%</b> of the {GT} rewards earned through this frontend.
         </Paragraph>
 
         <Paragraph sx={{ fontSize: 1, mt: 3, fontWeight: "bold" }}>

@@ -11,6 +11,7 @@ import { useMyTransactionState } from "../Transaction";
 import { TroveEditor } from "./TroveEditor";
 import { TroveAction } from "./TroveAction";
 import { useTroveView } from "./context/TroveViewContext";
+import {COLL} from "../../strings";
 
 import {
   selectForTroveChangeValidation,
@@ -217,7 +218,7 @@ export const TroveManager: React.FC<TroveManagerProps> = ({ collateral, debt }) 
       {description ??
         (openingNewTrove ? (
           <ActionDescription>
-            Start by entering the amount of ETH you'd like to deposit as collateral.
+            Start by entering the amount of {COLL} you'd like to deposit as collateral.
           </ActionDescription>
         ) : (
           <ActionDescription>

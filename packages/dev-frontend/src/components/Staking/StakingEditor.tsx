@@ -4,7 +4,7 @@ import { Heading, Box, Card, Button } from "theme-ui";
 import { Decimal, Decimalish, Difference, LiquityStoreState, LQTYStake } from "@liquity/lib-base";
 import { useLiquitySelector } from "@liquity/lib-react";
 
-import { COIN, GT } from "../../strings";
+import { COIN, COLL, GT } from "../../strings";
 
 import { Icon } from "../Icon";
 import { EditableRow, StaticRow } from "../Trove/Editor";
@@ -95,7 +95,7 @@ export const StakingEditor: React.FC<StakingEditorProps> = ({
               inputId="stake-gain-eth"
               amount={originalStake.collateralGain.prettify(4)}
               color={originalStake.collateralGain.nonZero && "success"}
-              unit="ETH"
+              unit={COLL}
             />
 
             <StaticRow
