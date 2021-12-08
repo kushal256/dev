@@ -11,7 +11,9 @@ interface IActivePool is IPool {
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event ActivePoolDebtUpdated(uint _Debt);
     event ActivePoolCollateralUpdated(uint _Collateral);
+    event DebtLimitChanged(uint256 _debtLimit);
 
     // --- Functions ---
     function sendCollateral(address _account, uint _amount) external;
+    function getDebtLimit() external view returns (uint);
 }

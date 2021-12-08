@@ -65,6 +65,7 @@ contract('ActivePool', async accounts => {
     const recordedLUSD_balanceBefore = await activePool.getDebt()
     assert.equal(recordedLUSD_balanceBefore, 0)
 
+    await activePool.setDebtLimit(100);
     // await activePool.increaseDebt(100, { from: mockBorrowerOperationsAddress })
     const increaseDebtData = th.getTransactionData('increaseDebt(uint256)', ['0x64'])
     const tx = await mockBorrowerOperations.forward(activePool.address, increaseDebtData)
@@ -76,6 +77,7 @@ contract('ActivePool', async accounts => {
   it('decreaseLUSD(): decreases the recorded LUSD balance by the correct amount', async () => {
     // start the pool on 100 wei
     //await activePool.increaseDebt(100, { from: mockBorrowerOperationsAddress })
+    await activePool.setDebtLimit('0x64');
     const increaseDebtData = th.getTransactionData('increaseDebt(uint256)', ['0x64'])
     const tx1 = await mockBorrowerOperations.forward(activePool.address, increaseDebtData)
     assert.isTrue(tx1.receipt.status)
