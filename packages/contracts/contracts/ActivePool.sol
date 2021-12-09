@@ -32,6 +32,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
     
     IERC20 internal collateralToken;
     uint256 internal Debt;
+    uint256 internal debtLimit;
 
     
     // --- Events ---
@@ -40,6 +41,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event ActivePoolDebtUpdated(uint _Debt);
     event ActivePoolCollateralUpdated(uint _Collateral);
+    event DebtLimitChanged(uint256 _debtLimit);
 
     // --- Contract setters ---
 
@@ -69,8 +71,16 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         emit TroveManagerAddressChanged(_troveManagerAddress);
         emit StabilityPoolAddressChanged(_stabilityPoolAddress);
         emit DefaultPoolAddressChanged(_defaultPoolAddress);
+    }
 
+    function renounceOwnership() external onlyOwner {
         _renounceOwnership();
+    }
+
+    function setDebtLimit(uint256 _debtLimit) external onlyOwner {
+        require(_debtLimit >= Debt, "ActivePool: Cannot lower debt limit below current debt");
+        debtLimit = _debtLimit;
+        emit DebtLimitChanged(debtLimit);
     }
 
     // --- Getters for public variables. Required by IPool interface ---
@@ -85,6 +95,10 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
     function getDebt() external view override returns (uint) {
         return Debt;
+    }
+
+    function getDebtLimit() external view override returns (uint) {
+        return debtLimit;
     }
 
     // --- Pool functionality ---
@@ -110,14 +124,13 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
     function increaseDebt(uint _amount) external override {
         _requireCallerIsBOorTroveM();
-        // require(1<0, "in increaseDebt!");
+        _requireBelowDebtLimit(_amount);
         Debt  = Debt.add(_amount);
         ActivePoolDebtUpdated(Debt);
     }
 
     function decreaseDebt(uint _amount) external override {
         _requireCallerIsBOorTroveMorSP();
-        // require(1<0, "in decreaseDebt!");
         Debt = Debt.sub(_amount);
         ActivePoolDebtUpdated(Debt);
     }
@@ -144,6 +157,10 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
             msg.sender == borrowerOperationsAddress ||
             msg.sender == troveManagerAddress,
             "ActivePool: Caller is neither BorrowerOperations nor TroveManager");
+    }
+
+    function _requireBelowDebtLimit(uint256 _amount) internal view {
+        require((Debt + _amount) <= debtLimit, "ActivePool: Cannot exceed debt limit");
     }
 
     // --- Fallback function ---

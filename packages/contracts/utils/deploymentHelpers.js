@@ -393,6 +393,7 @@ class DeploymentHelper {
       contracts.defaultPool.address,
       contracts.collateralToken.address
     )
+    await contracts.activePool.setDebtLimit("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 
     await contracts.defaultPool.setAddresses(
       contracts.troveManager.address,

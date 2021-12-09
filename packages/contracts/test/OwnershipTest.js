@@ -62,7 +62,7 @@ contract('All Liquity functions with onlyOwner modifier', async accounts => {
     }
   }
 
-  const testSetAddresses = async (contract, numberOfAddresses) => {
+  const testSetAddresses = async (contract, numberOfAddresses, renounceable) => {
     const dumbContract = await GasPool.new()
     const params = Array(numberOfAddresses).fill(dumbContract.address)
 
@@ -78,6 +78,10 @@ contract('All Liquity functions with onlyOwner modifier', async accounts => {
     const txOwner = await contract.setAddresses(...params, { from: owner })
     assert.isTrue(txOwner.receipt.status)
     // fails if called twice
+    if (renounceable) {
+      await contract.renounceOwnership();
+    }
+
     await th.assertRevert(contract.setAddresses(...params, { from: owner }))
   }
 
@@ -107,7 +111,7 @@ contract('All Liquity functions with onlyOwner modifier', async accounts => {
 
   describe('ActivePool', async accounts => {
     it("setAddresses(): reverts when called by non-owner, with wrong addresses, or twice", async () => {
-      await testSetAddresses(activePool, 5)
+      await testSetAddresses(activePool, 5, true)
     })
   })
 
