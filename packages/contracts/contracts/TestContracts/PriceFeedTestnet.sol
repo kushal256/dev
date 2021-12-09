@@ -10,6 +10,7 @@ import "../Interfaces/IPriceFeed.sol";
 */
 contract PriceFeedTestnet is IPriceFeed {
     
+    IPriceFeed.Status public override status;
     uint256 private _price = 200 * 1e18;
 
     // --- Functions ---
@@ -30,5 +31,9 @@ contract PriceFeedTestnet is IPriceFeed {
     function setPrice(uint256 price) external returns (bool) {
         _price = price;
         return true;
+    }    
+
+    function setStatus(Status _status) external {
+        status = _status;
     }
 }
