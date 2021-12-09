@@ -68,16 +68,8 @@ contract PriceFeed is Ownable, CheckContract, BaseMath, IPriceFeed {
         bool success;
     }
 
-    enum Status {
-        chainlinkWorking, 
-        usingTellorChainlinkUntrusted, 
-        bothOraclesUntrusted,
-        usingTellorChainlinkFrozen, 
-        usingChainlinkTellorUntrusted
-    }
-
     // The current status of the PricFeed, which determines the conditions for the next price fetch attempt
-    Status public status;
+    IPriceFeed.Status public override status;
 
     event LastGoodPriceUpdated(uint _lastGoodPrice);
     event PriceFeedStatusChanged(Status newStatus);
