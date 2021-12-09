@@ -255,7 +255,7 @@ Economically, Recovery Mode is designed to encourage collateral top-ups and debt
 ## Project Structure
 
 ### Directories
-
+- `papers` - Whitepaper and math papers: a proof of Liquity's trove order invariant, and a derivation of the scalable Stability Pool staking formula
 - `packages/dev-frontend/` - Liquity Developer UI: a fully functional React app used for interfacing with the smart contracts during development
 - `packages/fuzzer/` - A very simple, purpose-built tool based on Liquity middleware for randomly interacting with the system
 - `packages/lib-base/` - Common interfaces and classes shared by the other `lib-` packages
@@ -272,7 +272,6 @@ Economically, Recovery Mode is designed to encourage collateral top-ups and debt
 - `packages/contracts/fuzzTests/` - Echidna tests, and naive "random operation" tests 
 - `packages/contracts/migrations/` - contains Hardhat script for deploying the smart contracts to the blockchain
 - `packages/contracts/utils/` - external Hardhat and node scripts - deployment helpers, gas calculators, etc
-- `packages/contracts/mathProofs/` - core mathematical proofs of Liquity properties, and a derivation of the scalable Stability Pool staking formula
 
 Backend development is done in the Hardhat framework, and allows Liquity to be deployed on the Hardhat EVM network for fast compilation and test execution.
 
@@ -1133,7 +1132,7 @@ A mathematical manipulation allows us to factor out the initial deposit, and acc
 
 The formula for a depositor’s accumulated ETH gain is derived here:
 
-[Scalable reward distribution for compounding, decreasing stake](https://github.com/liquity/dev/blob/main/packages/contracts/mathProofs/Scalable%20Compounding%20Stability%20Pool%20Deposits.pdf)
+[Scalable reward distribution for compounding, decreasing stake](https://github.com/liquity/dev/blob/main/papers/Scalable_Reward_Distribution_with_Compounding_Stakes.pdf)
 
 Each liquidation updates `P` and `S`. After a series of liquidations, a compounded deposit and corresponding ETH gain can be calculated using the initial deposit, the depositor’s snapshots, and the current values of `P` and `S`.
 
@@ -1294,7 +1293,7 @@ When a liquidation occurs and the Stability Pool is empty or smaller than the li
 
 For two Troves A and B with collateral `A.coll > B.coll`, Trove A should earn a bigger share of the liquidated collateral and debt.
 
-In Liquity it is important that all active Troves remain ordered by their ICR. We have proven that redistribution of the liquidated debt and collateral proportional to active Troves’ collateral, preserves the ordering of active Troves by ICR, as liquidations occur over time.  Please see the [proofs section](https://github.com/liquity/dev/tree/main/packages/contracts/mathProofs).
+In Liquity it is important that all active Troves remain ordered by their ICR. We have proven that redistribution of the liquidated debt and collateral proportional to active Troves’ collateral, preserves the ordering of active Troves by ICR, as liquidations occur over time.  Please see the [proofs section](https://github.com/liquity/dev/tree/main/papers).
 
 However, when it comes to implementation, Ethereum gas costs make it too expensive to loop over all Troves and write new data to storage for each one. When a Trove receives redistribution rewards, the system does not update the Trove's collateral and debt properties - instead, the Trove’s rewards remain "pending" until the borrower's next operation.
 
@@ -1308,7 +1307,7 @@ Consider the case where new Trove is created after all active Troves have receiv
 
 The fresh trove would earns rewards based on its **entire** collateral, whereas old Troves would earn rewards based only on **some portion** of their collateral - since a part of their collateral is pending, and not included in the Trove’s `coll` property.
 
-This can break the ordering of Troves by ICR - see the [proofs section](https://github.com/liquity/dev/tree/main/packages/contracts/mathProofs).
+This can break the ordering of Troves by ICR - see the [proofs section](https://github.com/liquity/dev/tree/main/papers).
 
 ### Corrected Stake Solution
 
