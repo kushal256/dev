@@ -29,6 +29,9 @@ contract('PriceFeed', async accounts => {
         gOHM.address,
         { from: owner }
     );
+
+    await ethUSDFeed.setStatus(0);
+    await ohmETHFeed.setStatus(0);
   });
 
   it("returns the USD price with 18 decimals", async () => {
@@ -98,43 +101,87 @@ contract('PriceFeed', async accounts => {
   });
 
   it("bothOraclesUntrusted ", async () => {
+    await ethUSDFeed.setPrice(toBN('4100682166650000000000'));
+    await ohmETHFeed.setPrice(toBN('141193844780215400'));
+    await gOHM.setIndex(toBN('41428690506'));
+    await priceFeed.fetchPrice();
+    let price = await priceFeed.lastGoodPrice();      
+    assert.equal(`${price}`, '23986842311112663398400');
+    
+    await ethUSDFeed.setPrice(toBN('0'));  //This is key - ensure we pickup prior last good price
+    await ohmETHFeed.setPrice(toBN('0'));  //This is key - ensure we pickup prior last good price
     await ethUSDFeed.setStatus(2);
     await ohmETHFeed.setStatus(2);
     await priceFeed.fetchPrice();
     let status = await priceFeed.status();
     assert.equal(status, 2);
+
+    price = await priceFeed.lastGoodPrice();
+    assert.equal(`${price}`, '23986842311112663398400');
   });
 
   it("chainlinkWorking ", async () => {
+    await ethUSDFeed.setPrice(toBN('4100682166650000000000'));
+    await ohmETHFeed.setPrice(toBN('141193844780215400'));
+    await gOHM.setIndex(toBN('41428690506'));
+    
     await ethUSDFeed.setStatus(0);
     await ohmETHFeed.setStatus(0);         
     await priceFeed.fetchPrice();
     let status = await priceFeed.status();
     assert.equal(status, 0);
+
+    await priceFeed.fetchPrice();
+    let price = await priceFeed.lastGoodPrice();      
+    assert.equal(`${price}`, '23986842311112663398400');
   });
 
   it("usingTellorChainlinkUntrusted ", async () => {
+    await ethUSDFeed.setPrice(toBN('4100682166650000000000'));
+    await ohmETHFeed.setPrice(toBN('141193844780215400'));
+    await gOHM.setIndex(toBN('41428690506'));
+
     await ethUSDFeed.setStatus(1);
-    await ohmETHFeed.setStatus(0);         
+    await ohmETHFeed.setStatus(0);
+    
     await priceFeed.fetchPrice();
     let status = await priceFeed.status();
     assert.equal(status, 1);
+
+    price = await priceFeed.lastGoodPrice();
+    assert.equal(`${price}`, '23986842311112663398400');
   });
   
   it("usingTellorChainlinkFrozen ", async () => {
+    await ethUSDFeed.setPrice(toBN('4100682166650000000000'));
+    await ohmETHFeed.setPrice(toBN('141193844780215400'));
+    await gOHM.setIndex(toBN('41428690506'));
+
     await ethUSDFeed.setStatus(3);
-    await ohmETHFeed.setStatus(0);         
+    await ohmETHFeed.setStatus(0);
+    
     await priceFeed.fetchPrice();
+  
     let status = await priceFeed.status();
     assert.equal(status, 3);
+    price = await priceFeed.lastGoodPrice();
+    assert.equal(`${price}`, '23986842311112663398400');
   });    
 
   it("usingChainlinkTellorUntrusted ", async () => {
+    await ethUSDFeed.setPrice(toBN('4100682166650000000000'));
+    await ohmETHFeed.setPrice(toBN('141193844780215400'));
+    await gOHM.setIndex(toBN('41428690506'));
+
     await ethUSDFeed.setStatus(4);
-    await ohmETHFeed.setStatus(0);         
+    await ohmETHFeed.setStatus(0);
+    
     await priceFeed.fetchPrice();
+    
     let status = await priceFeed.status();
     assert.equal(status, 4);
+    price = await priceFeed.lastGoodPrice();
+    assert.equal(`${price}`, '23986842311112663398400');    
   });    
 
 });
