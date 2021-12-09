@@ -7,7 +7,7 @@ import "./Dependencies/SafeMath.sol";
 import "./Dependencies/IgOHM.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
-import "./Dependencies/console.sol";
+
 contract MultiPriceFeed is Ownable, CheckContract, IPriceFeed {
     using SafeMath for uint256;
 
@@ -21,8 +21,8 @@ contract MultiPriceFeed is Ownable, CheckContract, IPriceFeed {
     // The last good price computed from last good prices of the multiple price feeds
     uint public lastGoodPrice;
 
-    event LastGoodPriceUpdated(uint _lastGoodPrice);
-    event PriceFeedStatusChanged(Status newStatus);
+    event LastGoodMultiPriceUpdated(uint _lastGoodPrice);
+    event MultiPriceFeedStatusChanged(Status newStatus);
 
     function setAddresses(
         address _ethUSDFeedAddress,
@@ -71,6 +71,7 @@ contract MultiPriceFeed is Ownable, CheckContract, IPriceFeed {
         require(ethUSDPrice > 0, "PriceFeed: ETH-USD price is zero");
 
         lastGoodPrice = gOHM.balanceFrom(1e18).mul(ohmETHPrice).div(1e18).mul(ethUSDPrice).div(1e9);
+        emit LastGoodMultiPriceUpdated(lastGoodPrice);
 
         return lastGoodPrice;
     }
@@ -79,7 +80,7 @@ contract MultiPriceFeed is Ownable, CheckContract, IPriceFeed {
     function _changeStatus(Status _status) internal {        
         if (status != _status){
             status = _status;            
-            emit PriceFeedStatusChanged(_status);
+            emit MultiPriceFeedStatusChanged(_status);
         }
     }
 
