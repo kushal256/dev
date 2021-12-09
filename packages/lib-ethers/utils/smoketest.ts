@@ -11,7 +11,7 @@ import { ERC20Mock } from "../types";
 import { Decimal } from "@liquity/lib-base";
 
 async function main() {
-  const provider = new ethers.providers.InfuraProvider("rinkeby", "ad9cef41c9c844a7b54d10be24d416e5");//732f815750f643e2bf582276a71b2048
+  const provider = new ethers.providers.InfuraProvider("rinkeby", "732f815750f643e2bf582276a71b2048");
   let wallet = new ethers.Wallet(process.env['WALLET_PRIVATE_KEY'] as string, provider);
   const argo = await EthersLiquity.connect(wallet);
 
